@@ -22,18 +22,19 @@
 - ✅ Все контейнеры запущены и работают (healthcheck: healthy)
 - ✅ Все 4 базы данных созданы автоматически через ENV переменные
 
-### Задача 001-fixup-configs: Доработка корневой инфраструктуры
+### Задача 001-fixup: Доработка корневой инфраструктуры
 
 **Выполнено:**
 
+- ✅ Создан `.gitignore` с required patterns (node_modules, dist, .env, coverage, .turbo, .DS_Store, .idea, .vscode)
+- ✅ Создан `.dockerignore` для исключения лишних файлов из Docker образов
 - ✅ Создан `Makefile` с командами для Docker и Turborepo
 - ✅ Создан `tsconfig.base.json` со строгими правилами TypeScript
 - ✅ Создан `.eslintrc.js` с поддержкой TypeScript и Prettier
 - ✅ Создан `.prettierrc` для единого стиля кода
 - ✅ Создан `jest.config.js` с поддержкой TypeScript (ts-jest)
 - ✅ Добавлены зависимости: jest, ts-jest, typescript, eslint, prettier
-- ✅ Созданы `.gitignore` и `.eslintignore`
-- ✅ Обновлен `turbo.json` - добавлены outputs для test задачи
+- ✅ Обновлен `turbo.json` - проверен test task с outputs для coverage
 - ✅ Выполнена `yarn install` - все зависимости установлены
 
 **Результаты проверок:**
@@ -63,6 +64,7 @@
 ├── .eslintignore                   # ESLint игнор файлы
 ├── .prettierrc                     # Prettier конфигурация
 ├── .gitignore                      # Git игнор файлы
+├── .dockerignore                   # Docker игнор файлы
 ├── .env.example                    # Пример переменных окружения
 ├── .env                            # Локальный файл окружения
 ├── nginx/
