@@ -1,0 +1,211 @@
+# Load environment variables from .env file
+-include .env
+
+# Derived name (fallback to bright_server if not set)
+NAME := $(or $(COMPOSE_PROJECT_NAME),bright_server)
+
+# Dynamic platform detection
+UNAME_S := $(shell uname -s)
+UNAME_M := $(shell uname -m)
+ifeq ($(UNAME_S),Linux)
+    ifeq ($(UNAME_M),x86_64)
+        TARGET_PLATFORM := linux/amd64
+    else ifeq ($(UNAME_M),aarch64)
+        TARGET_PLATFORM := linux/arm64
+    endif
+else ifeq ($(UNAME_S),Darwin)
+    ifeq ($(UNAME_M),x86_64)
+        TARGET_PLATFORM := linux/amd64
+    else ifeq ($(UNAME_M),arm64)
+        TARGET_PLATFORM := linux/arm64
+    endif
+endif
+TARGET_PLATFORM ?= linux/amd64
+
+## HELP
+help: ## Show this help
+	@grep -hE '^(## |[a-zA-Z_-]+:.*## )' Makefile | \
+		sed -e 's/^## \(.*\)/\n  \x1b[1;33m\1\x1b[0m/' -e 's/^\([a-zA-Z_-]*\):.*## \(.*\)/    \x1b[36m\1\x1b[0m\t\2/' | \
+		column -t -s $$'\t'
+
+## SETUP
+setup-test: ## Проверка состояния контейнеров
+	docker compose ps -a
+
+setup-run: ## Настройка docker и создание БД
+	@echo Собираю образ
+	@make build-dev
+
+	@echo ㅤ
+
+	@echo Запускаю setup контейнеры для создания БД и таблиц
+	@docker compose --profile setup up -d
+
+	@echo Ожидаю подъема сервера...
+	@for i in $$(seq 1 600); do \
+		if curl -sf http://localhost:3000/api/ping > /dev/null 2>&1; then \
+			echo "Сервер поднялся!"; \
+			break; \
+		fi; \
+		echo "Ожидание... ($$i/60)"; \
+		sleep 5; \
+	done
+
+	@echo Останавливаю setup контейнеры.
+	@docker compose --profile setup down
+
+	@echo ㅤ
+	@echo Настройка окружения docker для $(NAME) завершена.
+
+setup: ## Initial setup - copy .env.example and build
+	@if [ ! -f .env ]; then \
+		cp .env.example .env; \
+		echo "Created .env file. Edit it if needed."; \
+	else \
+		echo ".env already exists."; \
+	fi
+	docker compose build
+
+## BUILD
+build-dev: ## Сборка dev образа
+	docker build -t $(NAME)_d:latest . -f Dockerfile.dev
+
+build-prod: ## Сборка продакшн образа
+	docker build --platform $(TARGET_PLATFORM) -t $(NAME)_prod:latest . -f Dockerfile.prod
+	sleep 3
+	docker image prune --force
+	docker builder prune -f
+
+## DEV (docker-compose)
+dev-up: ## Start dev environment
+	docker compose --profile dev up -d
+	docker compose logs -f dev
+
+dev-down: ## Stop dev environment
+	docker compose --profile dev down
+
+dev-logs: ## Show dev logs
+	docker compose --profile dev logs -f
+
+dev-shell: ## Open shell in dev
+	docker compose --profile dev exec dev sh
+
+dev-attach: ## Attach to dev
+	docker compose --profile dev attach dev
+
+dev-restart: ## Restart dev environment
+	make dev-down
+	make dev-up
+
+dev-rebuild: ## Rebuild and restart dev
+	docker compose --profile dev build --no-cache
+	make dev-up
+
+## MTR_killTerminal (VSCode Extension)
+dev-stop-MTR_killTerminal: ## Остановка dev контейнеров с детачем
+	docker compose --profile dev down
+
+dev-start-MTR_killTerminal: ## Запуск dev контейнеров
+	docker compose --profile dev up -d
+
+dev-re-start-MTR_killTerminal: ## Перезапуск контейнеров
+	make dev-stop-MTR_killTerminal
+	make dev-up
+
+dev-stop-rm-MTR_killTerminal: ## Остановка и удаление dev контейнеров
+	docker compose --profile dev down --remove-orphans
+
+dev-rm-MTR_killTerminal: ## Удаление dev контейнеров
+	docker compose --profile dev down --remove-orphans
+
+dev-re-run-MTR_killTerminal: ## Остановка, удаление, создание и запуск dev контейнеров
+	make dev-stop-rm-MTR_killTerminal
+	make dev-up
+
+dev-soft-re-run-MTR_killTerminal: ## Мягкий перезапуск dev контейнеров
+	docker compose --profile dev down
+	docker compose --profile dev up -d
+
+## PROD (docker-compose)
+prod-up: ## Start prod environment
+	docker compose --profile prod up -d
+
+prod-down: ## Stop prod environment
+	docker compose --profile prod down
+
+prod-logs: ## Show prod logs
+	docker compose --profile prod logs -f
+
+prod-restart: ## Restart prod environment
+	make prod-down
+	make prod-up
+
+prod-rebuild: ## Rebuild and restart prod
+	docker compose --profile prod build --no-cache
+	make prod-up
+
+prod-update: ## Backup MySQL volume (archive + cloned) + rebuild and restart prod
+	@TIMESTAMP=$$(date +%Y%m%d_%H%M%S) && \
+	echo "Создаю бекап MySQL volume (архив)..."; \
+	docker run --rm \
+		-v $(NAME)_mysql_volume:/data \
+		-v $(PWD):/backup \
+		alpine tar czf /backup/mysql_volume_backup_$$TIMESTAMP.tar.gz -C /data .; \
+	echo "Архив создан: mysql_volume_backup_$$TIMESTAMP.tar.gz"; \
+	echo ㅤ; \
+	echo "Создаю клон Docker volume..."; \
+	docker volume create $(NAME)_mysql_volume_backup_$$TIMESTAMP; \
+	docker run --rm \
+		-v $(NAME)_mysql_volume:/from \
+		-v $(NAME)_mysql_volume_backup_$$TIMESTAMP:/to \
+		alpine cp -a /from/. /to/.; \
+	echo "Клон создан: $(NAME)_mysql_volume_backup_$$TIMESTAMP"; \
+	echo ㅤ; \
+	echo "Пересобираю и перезапускаю prod..."; \
+	make prod-rebuild
+
+## PMA (docker-compose)
+pma-up: ## Start phpMyAdmin
+	docker compose --profile pma up -d
+
+pma-down: ## Stop phpMyAdmin
+	docker compose --profile pma down
+
+## DOCKER UTILS
+ps: ## Show running containers
+	docker compose ps
+
+ps-all: ## Show all containers
+	docker compose ps -a
+
+clean: ## Remove all containers and volumes
+	docker compose down -v --remove-orphans
+
+clean-all: ## Remove all containers, volumes, and images
+	docker compose down -v --rmi all --remove-orphans
+	docker system prune -af
+
+## GIT
+git-fast: ## Quick add-commit-push
+	git add .
+	git commit
+	git push
+
+git-status: ## Git status
+	git status
+
+git-diff: ## Git diff
+	git diff
+
+git-log: ## Git log
+	git log --oneline -10
+
+## DB
+db-shell: ## Open MySQL shell
+	docker compose exec mysql mysql -uroot -p$$(grep MYSQL_PASSWORD .env | cut -d= -f2) $$(grep COMPOSE_PROJECT_NAME .env | cut -d= -f2)_db
+
+db-dump: ## Create database dump
+	docker compose exec mysql mysqldump -uroot -p$$(grep MYSQL_PASSWORD .env | cut -d= -f2) $$(grep COMPOSE_PROJECT_NAME .env | cut -d= -f2)_db > dump.sql
+
+db-restore: ## Restore database from dump
+	docker compose exec -T mysql mysql -uroot -p$$(grep MYSQL_PASSWORD .env | cut -d= -f2) $$(grep COMPOSE_PROJECT_NAME .env | cut -d= -f2)_db < dump.sql

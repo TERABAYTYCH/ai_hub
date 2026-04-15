@@ -1,0 +1,32 @@
+{
+  "compilerOptions": {
+    "target": "ES2021",
+    "module": "commonjs",
+    "lib": ["ES2021"],
+    "strict": true,
+    "noImplicitAny": true,
+    "strictNullChecks": true,
+    "noImplicitThis": true,
+    "alwaysStrict": true,
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "resolveJsonModule": true,
+    "moduleResolution": "node",
+    "declaration": true,
+    "declarationMap": true,
+    "sourceMap": true,
+    "outDir": "./dist",
+    "rootDir": "./src",
+    "baseUrl": ".",
+    "paths": {
+      "@app/contracts": ["libs/contracts/src/index.ts"],
+      "@app/ui-kit": ["libs/ui-kit/src/index.ts"],
+      "@app/core-backend": ["libs/core-backend/src/index.ts"]
+    },
+    "types": ["node", "jest"],
+    "typeRoots": ["./node_modules/@types"]
+  },
+  "exclude": ["node_modules", "dist", "**/*.spec.ts"]
+}

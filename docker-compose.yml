@@ -1,0 +1,162 @@
+services:
+  # ============================================
+  # DATABASES (MySQL)
+  # ============================================
+  mysql-hub:
+    image: mysql:8.0
+    container_name: ${COMPOSE_PROJECT_NAME}_mysql_hub
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_HUB_DB}
+      MYSQL_USER: ${MYSQL_HUB_USER}
+      MYSQL_PASSWORD: ${MYSQL_HUB_PASSWORD}
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql-hub-data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+    networks:
+      - ject-network
+
+  mysql-pulse:
+    image: mysql:8.0
+    container_name: ${COMPOSE_PROJECT_NAME}_mysql_pulse
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_PULSE_DB}
+      MYSQL_USER: ${MYSQL_PULSE_USER}
+      MYSQL_PASSWORD: ${MYSQL_PULSE_PASSWORD}
+    ports:
+      - "3307:3306"
+    volumes:
+      - mysql-pulse-data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+    networks:
+      - ject-network
+
+  mysql-service:
+    image: mysql:8.0
+    container_name: ${COMPOSE_PROJECT_NAME}_mysql_service
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_SERVICE_DB}
+      MYSQL_USER: ${MYSQL_SERVICE_USER}
+      MYSQL_PASSWORD: ${MYSQL_SERVICE_PASSWORD}
+    ports:
+      - "3308:3306"
+    volumes:
+      - mysql-service-data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+    networks:
+      - ject-network
+
+  mysql-control:
+    image: mysql:8.0
+    container_name: ${COMPOSE_PROJECT_NAME}_mysql_control
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_CONTROL_DB}
+      MYSQL_USER: ${MYSQL_CONTROL_USER}
+      MYSQL_PASSWORD: ${MYSQL_CONTROL_PASSWORD}
+    ports:
+      - "3309:3306"
+    volumes:
+      - mysql-control-data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+    networks:
+      - ject-network
+
+  # ============================================
+  # KAFKA (KRaft mode - no ZooKeeper)
+  # ============================================
+  kafka:
+    image: apache/kafka:3.7.0
+    container_name: ${COMPOSE_PROJECT_NAME}_kafka
+    restart: unless-stopped
+    environment:
+      KAFKA_NODE_ID: ${KAFKA_NODE_ID}
+      KAFKA_PROCESS_ROLES: broker,controller
+      KAFKA_CONTROLLER_QUORUM_VOTERS: ${KAFKA_CONTROLLER_QUORUM_VOTERS}
+      KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9092,CONTROLLER://0.0.0.0:9093
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT
+      KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+    ports:
+      - "9092:9092"
+    volumes:
+      - kafka-data:/var/lib/kafka/data
+    healthcheck:
+      test: ["CMD", "nc", "-z", "localhost", "9092"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+    networks:
+      - ject-network
+
+  # ============================================
+  # NGINX (API Gateway)
+  # ============================================
+  nginx:
+    image: nginx:alpine
+    container_name: ${COMPOSE_PROJECT_NAME}_nginx
+    restart: unless-stopped
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      - mysql-hub
+      - mysql-pulse
+      - mysql-service
+      - mysql-control
+      - kafka
+    networks:
+      - ject-network
+
+# ============================================
+# VOLUMES
+# ============================================
+volumes:
+  mysql-hub-data:
+    driver: local
+  mysql-pulse-data:
+    driver: local
+  mysql-service-data:
+    driver: local
+  mysql-control-data:
+    driver: local
+  kafka-data:
+    driver: local
+
+# ============================================
+# NETWORKS
+# ============================================
+networks:
+  ject-network:
+    driver: bridge
