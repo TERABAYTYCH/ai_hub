@@ -104,7 +104,7 @@
   - `001-fixup.md` → `000-infrastructure/001-fixup.md`
   - `001-fixup-configs.md` → `000-infrastructure/001-fixup-configs.md`
   - `002-reorganize-tasks.md` → `000-infrastructure/002-reorganize-tasks.md`
-- ✅ Реализована колокация отчетов: все файлы `.done.md` перемещены из `docs/tasks/reports/` в соответствующие директории рядом с задачами
+- ✅ Реализована колокация отчетов: все файлы `.report.md` перемещены из `docs/tasks/reports/` в соответствующие директории рядом с задачами
 - ✅ Удалена пустая директория `docs/tasks/reports/`
 - ✅ Все изменения выполнены только через перемещение файлов, содержимое файлов не изменялось
 

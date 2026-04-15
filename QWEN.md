@@ -1,48 +1,12 @@
-# Global AI Rules
+# 1. Главная директива (CRITICAL)
 
-## 1. LANGUAGE FOR DOCUMENTATION:
+Строго следуй всем инструкциям, описанным в файле `AGENT.md` (и во всех документах, на которые он ссылается). Это твои базовые правила поведения, архитектуры и написания кода.
 
-You MUST write all Architecture Decision Records (ADR), State files (like `04-current-state.md`), and JSDoc comments in RUSSIAN.
-Never use English for project documentation and architecture logs.
+# 2. Восстановление контекста
 
-## 2. LANGUAGE FOR CODE:
+Перед началом любых работ и ответов ты ОБЯЗАН прочитать и выполнить инструкции из файла `RESTORE.md`. Это необходимо для загрузки текущего состояния проекта в твою память.
 
-All code, variables, function names, and Git commit messages MUST be in ENGLISH.
-
-## 3. BEFORE ANY TASK:
-
-Always read `docs/01-tech-stack.md`, `docs/02-architecture-map.md`, `docs/03-execution-pipeline.md` and `docs/04-current-state.md` before executing any new task to understand the context.
-
-## 4. Твоя роль
-
-Ты — Senior Fullstack Architect & Developer. Твоя задача — писать чистый, модульный, production-ready код. Ты не задаешь лишних вопросов, если контекст понятен, но ОБЯЗАН остановиться и спросить, если требования противоречат архитектуре.
-
-## 5. Права доступа к директориям (Изоляция)
-
-Ты работаешь строго в рамках того контекста, который тебе передан.
-
-- **Если задача касается `apps/pulse`:** Тебе ЗАПРЕЩЕНО изменять файлы в `apps/hub`, `apps/service` или `apps/control`.
-- **Папка `libs/` (Общий код):** Считай эту папку Read-Only, если в текущем промпте явно не сказано "добавь новый DTO в контракты" или "обнови ui-kit".
-- **Изменение БД:** Если ты меняешь или создаешь сущности TypeORM (`*.entity.ts`) в любом из сервисов, ты обязан подготовить или сгенерировать миграцию, но не применять её к чужим базам.
-
-## 6. Правила работы с Docker и БД
-
-- При добавлении нового сервиса или базы данных ты ОБЯЗАН обновить корневой `docker-compose.yml`.
-- Убедись, что порты не конфликтуют (например, у каждого сервиса свой контейнер MySQL или своя БД внутри одного контейнера).
-- Базы данных не должны "торчать" наружу без необходимости (используй проброс портов только для локальной отладки).
-- Dockerfile для разработки должен использовать `yarn run start:dev` (или `dev` для Vite) и монтировать исходный код через volumes для hot-reload.
-
-## 7. Принципы генерации кода
-
-- **Не ломай существующее:** Если ты видишь импорты или функции, которые не понимаешь, не удаляй их.
-- **Без заглушек:** Пиши полные реализации функций. Не используй комментарии вида `// here is your logic`, пиши саму логику.
-- **Самодокументируемость:** Все публичные методы в сервисах и сложные DTO должны сопровождаться кратким JSDoc комментарием на русском языке.
-
-## 8. Язык документации и общения
-
-- Все архитектурные решения (ADR), файлы состояния (State) и комментарии к сложной бизнес-логике (JSDoc) должны писаться СТРОГО на русском языке.
-- Твои ответы в чате и объяснения кода также должны быть на русском языке.
-- Сообщения для коммитов (Conventional Commits), названия переменных, функций и таблиц в БД всегда остаются на английском.
+**Ожидание:** Как только прочитаешь оба файла, коротко подтверди готовность к работе и жди мою первую задачу. Ничего не меняй в коде до получения явной команды.
 
 # Ject Hub - Microservices Platform
 
@@ -57,20 +21,20 @@ This is a **microservices-based platform** built as a monorepo using Yarn Worksp
 The platform follows a microservices pattern with:
 
 - **4 Core Services:**
-    - **Hub** (Port 3000): Authentication, licenses, master device database
-    - **Pulse** (Port 3001): Monitoring, metrics collection, charts
-    - **Service** (Port 3002): Maintenance tasks, photo reports
-    - **Control** (Port 3003): Device command management
+  - **Hub** (Port 3000): Authentication, licenses, master device database
+  - **Pulse** (Port 3001): Monitoring, metrics collection, charts
+  - **Service** (Port 3002): Maintenance tasks, photo reports
+  - **Control** (Port 3003): Device command management
 
 - **Shared Libraries:**
-    - `libs/contracts`: DTO and type definitions (single source of truth)
-    - `libs/ui-kit`: Shared React components
-    - `libs/core-backend`: Common NestJS utilities (Auth Guards, Kafka Client)
+  - `libs/contracts`: DTO and type definitions (single source of truth)
+  - `libs/ui-kit`: Shared React components
+  - `libs/core-backend`: Common NestJS utilities (Auth Guards, Kafka Client)
 
 - **Infrastructure:**
-    - MySQL databases (one per service)
-    - Kafka message broker (KRaft mode, no ZooKeeper)
-    - Nginx API Gateway
+  - MySQL databases (one per service)
+  - Kafka message broker (KRaft mode, no ZooKeeper)
+  - Nginx API Gateway
 
 ### Technology Stack
 

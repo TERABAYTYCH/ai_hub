@@ -14,20 +14,21 @@
 
 Добавлены `.gitkeep` файлы в `100-hub`, `200-pulse`, `300-service`, `400-control`.
 
-### Шаг 2: Перемещение существующих задач и отчетов ✅
+### Шаг 2: Перемещение и переименование ✅
 
 Перемещены файлы из корня `docs/tasks/`:
 
 - `002-reorganize-tasks.md` → `docs/tasks/000-infrastructure/002-reorganize-tasks.md`
-- `001-init.md` → `docs/tasks/000-infrastructure/001_init.md` (уже была)
-- `001-fixup.md` → `docs/tasks/000-infrastructure/001_fixup.md` (уже была)
-- `001-fixup-configs.md` → `docs/tasks/000-infrastructure/001_fixup_configs.md` (уже была)
+- `001-init.md` → `docs/tasks/000-infrastructure/001-init.md`
+- `001-fixup.md` → `docs/tasks/000-infrastructure/001-fixup.md`
+- `001-fixup-configs.md` → `docs/tasks/000-infrastructure/001-fixup-configs.md`
 
-Перемещены отчеты из `docs/tasks/reports/`:
+Все отчеты переименованы в формат `.report.md`:
 
-- `001-init.done.md` → `docs/tasks/000-infrastructure/001-init.done.md`
-- `001-fixup.done.md` → `docs/tasks/000-infrastructure/001-fixup.done.md`
-- `001-fixup-configs.done.md` → `docs/tasks/000-infrastructure/001-fixup-configs.done.md`
+- `001-init.report.md`
+- `001-fixup.report.md`
+- `001-fixup-configs.report.md`
+- `002-reorganize-tasks.report.md`
 
 Удалена пустая директория `docs/tasks/reports/`.
 
@@ -40,6 +41,7 @@
 - ✅ Директории созданы корректно
 - ✅ Все задачи находятся в доменных папках
 - ✅ Все отчеты лежат рядом со своими задачами (колокация)
+- ✅ Формат именования `.report.md` для корректной сортировки в IDE
 - ✅ Директория `reports/` удалена
 
 ## Получившееся дерево директории
@@ -48,12 +50,13 @@
 docs/tasks/
 ├── 000-infrastructure/
 │   ├── 001-init.md
-│   ├── 001-init.done.md
+│   ├── 001-init.report.md
 │   ├── 001-fixup.md
-│   ├── 001-fixup.done.md
+│   ├── 001-fixup.report.md
 │   ├── 001-fixup-configs.md
-│   ├── 001-fixup-configs.done.md
-│   └── 002-reorganize-tasks.md
+│   ├── 001-fixup-configs.report.md
+│   ├── 002-reorganize-tasks.md
+│   └── 002-reorganize-tasks.report.md
 ├── 100-hub/
 │   └── .gitkeep
 ├── 200-pulse/
@@ -66,10 +69,10 @@ docs/tasks/
 
 ## Сложности
 
-Особых сложностей не возникло. Структура была частично уже создана ранее (файлы задач в `000-infrastructure/`), потребовалось только переместить основной файл задачи и отчеты.
+Особых сложностей не возникло. Структура была частично уже создана ранее, потребовалось только переименовать файлы отчетов в новый формат `.report.md`.
 
 ## Commit message
 
 ```
-chore(docs): reorganize tasks structure and apply colocation for reports
+chore(docs): reorganize tasks and rename reports to .report.md
 ```
