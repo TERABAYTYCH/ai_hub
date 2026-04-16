@@ -50,3 +50,29 @@ All reports now follow the format `[task-name].report.[YYYYMMDD-HHMM].md`.
 - [x] No files ending with `.report.md` (without date) in `docs/tasks/`
 - [x] All old reports successfully renamed with timestamps
 - [x] This report created with new format: `004-reports-timestamp-policy.report.20260416-2000.md`
+
+### 4. Fixed duplicate contracts structure and TypeScript rootDir issues
+
+**Issue discovered:** There were two copies of contracts in `libs/contracts/`:
+
+- `libs/contracts/hub/` (old duplicate structure)
+- `libs/contracts/src/hub/` (correct structure)
+
+Also, TypeScript error `TS6059` appeared because `@app/contracts/hub/auth` imports were not under the backend's `rootDir`.
+
+**Fixes applied:**
+
+1. **Removed duplicate contracts:** Deleted `libs/contracts/hub/`, `libs/contracts/index.ts`, `libs/contracts/package.json` - kept only `libs/contracts/src/` structure
+
+2. **Fixed tsconfig:** Added `"rootDir": "."` to `tsconfig.base.json` to resolve path aliases correctly across workspace packages
+
+3. **Fixed backend exports:** Updated `apps/hub/backend/src/auth/index.ts` to export correct DTOs
+
+4. **Fixed React types:** Added `@types/react` overrides to fix react-bootstrap compatibility
+
+**Verification:**
+
+```bash
+cd apps/hub/backend && yarn typecheck  # ✅ Pass
+cd apps/hub/frontend && npx tsc --noEmit  # ✅ Pass
+```
