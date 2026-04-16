@@ -7,8 +7,7 @@
       "@app/contracts": ["libs/contracts/src/index.ts"],
       "@app/contracts/hub": ["libs/contracts/src/hub/index.ts"],
       "@app/contracts/hub/auth": ["libs/contracts/src/hub/auth/index.ts"]
-    },
-    "ignoreDeprecations": "5.0"
+    }
   },
   "include": ["src/**/*"],
   "exclude": ["node_modules", "dist", "**/*.spec.ts"]
