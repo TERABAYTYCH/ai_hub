@@ -205,3 +205,88 @@ libs/ui-kit/
 
 **Фаза:** UI Bootstrap и темизация готовы ✅  
 **Следующий шаг:** Переход к реализации основного функционала сервисов
+
+### Задача 100-hub/004-auth-completion: Завершение флоу авторизации
+
+**Выполнено:**
+
+- ✅ Добавлены переменные `ADMIN_EMAIL` и `ADMIN_PASSWORD` в `.env` и `.env.example`
+- ✅ Добавлен метод `createWithRole` в UsersService для создания пользователя с指定ной ролью
+- ✅ Добавлен провайдер с `OnApplicationBootstrap` хуком для автоматического создания админа при старте
+- ✅ Создана страница `RegisterPage.tsx` с формой регистрации
+- ✅ Добавлены роуты `/login` и `/register` в App.tsx
+- ✅ Добавлены навигационные ссылки между Login и Register страницами
+- ✅ Валидация: пароли должны совпадать, минимум 6 символов
+
+**Результаты проверок:**
+
+- ✅ Backend typecheck - OK
+- ✅ Frontend typecheck - OK
+
+### Задача 100-hub/004-2-user-entity-contracts: Контракты для сущности User
+
+**Выполнено:**
+
+- ✅ Добавлен интерфейс `IUser` в `libs/contracts/src/hub/auth`
+- ✅ Обновлен `LoginResponseDto` для включения `user: IUser`
+- ✅ Обновлен `AuthService` для возврата данных пользователя при логине
+- ✅ Обновлен `LoginPage` для сохранения user в localStorage
+- ✅ Исправлена конфигурация ESLint:
+  - Добавлен `--parser-options=project:tsconfig.json` для backend и frontend
+  - Исправлены ошибки типизации (`any`) в auth.service.ts и auth.controller.ts
+  - Исправлены ошибки с async/await в формах (использован IIFE паттерн)
+  - Исправлен lint для vite.config.ts (сужен include до папки src)
+  - Удалены неиспользуемые импорты
+
+**Результаты проверок:**
+
+- ✅ Backend typecheck - OK
+- ✅ Frontend typecheck - OK
+- ✅ Backend lint - OK (только warnings console.log)
+- ✅ Frontend lint - OK
+
+## Текущий статус
+
+**Фаза:** Контракты для User готовы, ESLint исправлен ✅  
+**Следующий шаг:** Переход к реализации основного функционала сервиса Hub
+
+### Задача 100-hub/004-3-implements-contracts: Строгая привязка сущностей к контрактам
+
+**Выполнено:**
+
+- ✅ Обновлен интерфейс `IUser` в contracts:
+  - `email` теперь `email?: string` (опциональный)
+  - `createdAt` и `updatedAt` допускают `Date | string`
+- ✅ TypeORM сущность `User` теперь реализует `implements IUser`
+- ✅ Импортирован `IUser` из `@app/contracts/hub/auth`
+
+**Результаты проверок:**
+
+- ✅ Backend typecheck - OK
+- ✅ Backend lint - OK (warnings only)
+- ✅ Frontend typecheck - OK
+- ✅ Frontend lint - OK
+
+## Текущий статус
+
+**Фаза:** Строгая привязка сущностей к контрактам реализована ✅  
+**Следующий шаг:** Переход к реализации основного функционала сервиса Hub
+
+### Задача 100-hub/004-1-auth-contracts-fix: Рефакторинг регистрации
+
+**Выполнено:**
+
+- ✅ Проверено наличие `RegisterRequestDto` в `libs/contracts/src/hub/auth`
+- ✅ Обновлен `RegisterPage.tsx` для импорта типов из `@app/contracts/hub/auth`
+- ✅ Обновлен `LoginPage.tsx` для импорта типов из `@app/contracts/hub/auth`
+- ✅ Добавлены paths в `apps/hub/frontend/tsconfig.json` для поддержки @app/contracts
+
+**Результаты проверок:**
+
+- ✅ Backend typecheck - OK
+- ✅ Frontend typecheck - OK
+
+## Текущий статус
+
+**Фаза:** Авторизация завершена, контракты в contracts ✅  
+**Следующий шаг:** Реализация основного функционала сервиса Hub

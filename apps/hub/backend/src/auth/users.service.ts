@@ -1,4 +1,4 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import * as bcrypt from 'bcrypt';
@@ -43,6 +43,24 @@ export class UsersService {
       email: registerDto.email,
       firstName: registerDto.firstName,
       lastName: registerDto.lastName,
+    });
+
+    return this.userRepository.save(user);
+  }
+
+  async createWithRole(
+    username: string,
+    password: string,
+    email: string,
+    role: 'user' | 'admin',
+  ): Promise<User> {
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    const user = this.userRepository.create({
+      username,
+      password: hashedPassword,
+      email,
+      role,
     });
 
     return this.userRepository.save(user);

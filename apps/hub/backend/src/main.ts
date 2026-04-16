@@ -20,4 +20,4 @@ async function bootstrap() {
   console.log(`Hub Backend is running on port ${port}`);
 }
 
-bootstrap();
+void bootstrap();

@@ -1,37 +1,56 @@
 import { useState } from 'react';
 import { Container, Row, Col, Card, Form, Button, Alert } from 'react-bootstrap';
-import { Link } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { ThemeToggle } from '@ject-hub/ui-kit';
-import { LoginRequestDto, LoginResponseDto } from '@app/contracts/hub/auth';
+import { RegisterRequestDto, LoginResponseDto } from '@app/contracts/hub/auth';
 
 const API_BASE_URL = (import.meta.env.VITE_API_URL as string) || 'http://localhost:3000/api';
 
-function LoginPage() {
+function RegisterPage() {
+  const navigate = useNavigate();
   const [username, setUsername] = useState('');
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    setError(null);
+
+    if (password !== confirmPassword) {
+      setError('Passwords do not match');
+      return;
+    }
+
+    if (password.length < 6) {
+      setError('Password must be at least 6 characters');
+      return;
+    }
+
     void (async () => {
       try {
-        const response = await fetch(`${API_BASE_URL}/auth/login`, {
+        const response = await fetch(`${API_BASE_URL}/auth/register`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify({ username, password } as LoginRequestDto),
+          body: JSON.stringify({
+            username,
+            email,
+            password,
+          } as RegisterRequestDto),
         });
 
         if (!response.ok) {
-          throw new Error('Failed to login');
+          const errorData = (await response.json()) as { message?: string };
+          throw new Error(errorData.message || 'Failed to register');
         }
 
         const data = (await response.json()) as LoginResponseDto;
         localStorage.setItem('accessToken', data.accessToken);
         localStorage.setItem('refreshToken', data.refreshToken);
-        localStorage.setItem('user', JSON.stringify(data.user));
         setSuccess(true);
       } catch (err) {
         setError(err instanceof Error ? err.message : 'An error occurred');
@@ -45,16 +64,16 @@ function LoginPage() {
         <Col md={6} lg={4}>
           <Card>
             <Card.Header className="d-flex justify-content-between align-items-center">
-              <span>Hub Login</span>
+              <span>Register</span>
               <ThemeToggle />
             </Card.Header>
             <Card.Body>
               {success ? (
                 <div className="text-center">
-                  <Alert variant="success">Login Successful!</Alert>
+                  <Alert variant="success">Registration Successful!</Alert>
                   <p>You are now logged in.</p>
-                  <Button variant="secondary" onClick={() => window.location.reload()}>
-                    Logout
+                  <Button variant="secondary" onClick={() => navigate('/')}>
+                    Go to Home
                   </Button>
                 </div>
               ) : (
@@ -73,6 +92,17 @@ function LoginPage() {
                   </Form.Group>
 
                   <Form.Group className="mb-3">
+                    <Form.Label>Email</Form.Label>
+                    <Form.Control
+                      type="email"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      placeholder="Enter email"
+                      required
+                    />
+                  </Form.Group>
+
+                  <Form.Group className="mb-3">
                     <Form.Label>Password</Form.Label>
                     <Form.Control
                       type="password"
@@ -83,13 +113,24 @@ function LoginPage() {
                     />
                   </Form.Group>
 
+                  <Form.Group className="mb-3">
+                    <Form.Label>Confirm Password</Form.Label>
+                    <Form.Control
+                      type="password"
+                      value={confirmPassword}
+                      onChange={(e) => setConfirmPassword(e.target.value)}
+                      placeholder="Confirm password"
+                      required
+                    />
+                  </Form.Group>
+
                   <Button variant="primary" type="submit" className="w-100">
-                    Login
+                    Register
                   </Button>
 
                   <div className="mt-3 text-center">
-                    <span>Don't have an account? </span>
-                    <Link to="/register">Register</Link>
+                    <span>Already have an account? </span>
+                    <Link to="/login">Login</Link>
                   </div>
                 </Form>
               )}
@@ -101,4 +142,4 @@ function LoginPage() {
   );
 }
 
-export default LoginPage;
+export default RegisterPage;

@@ -3,7 +3,8 @@ import { JwtService } from '@nestjs/jwt';
 import { UsersService } from './users.service';
 import { LoginDto } from './dto/login.dto';
 import { RegisterDto } from './dto/register.dto';
-import { LoginResponseDto, UserJwtPayload } from '@app/contracts/hub/auth';
+import { LoginResponseDto, UserJwtPayload, IUser } from '@app/contracts/hub/auth';
+import { User } from './entities/user.entity';
 
 @Injectable()
 export class AuthService {
@@ -35,7 +36,7 @@ export class AuthService {
 
   async refreshToken(refreshToken: string): Promise<LoginResponseDto> {
     try {
-      const payload = this.jwtService.verify(refreshToken, {
+      const payload = this.jwtService.verify<UserJwtPayload>(refreshToken, {
         secret: process.env.JWT_SECRET || 'default-secret-key',
       });
 
@@ -55,12 +56,26 @@ export class AuthService {
     return this.usersService.findById(userId);
   }
 
-  private async generateTokens(user: any): Promise<LoginResponseDto> {
+  private mapUserToIUser(user: User): IUser {
+    return {
+      id: user.id,
+      username: user.username,
+      email: user.email ?? '',
+      role: user.role,
+      licenseId: user.licenseId ?? undefined,
+      firstName: user.firstName ?? undefined,
+      lastName: user.lastName ?? undefined,
+      createdAt: user.createdAt,
+      updatedAt: user.updatedAt,
+    };
+  }
+
+  private generateTokens(user: User): LoginResponseDto {
     const payload: UserJwtPayload = {
       sub: user.id,
       username: user.username,
       role: user.role,
-      licenseId: user.licenseId,
+      licenseId: user.licenseId ?? '',
     };
 
     const accessToken = this.jwtService.sign(payload, { expiresIn: '1h' });
@@ -70,6 +85,7 @@ export class AuthService {
       accessToken,
       refreshToken,
       expiresIn: 3600,
+      user: this.mapUserToIUser(user),
     };
   }
 }

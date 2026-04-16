@@ -13,6 +13,22 @@ export interface LoginResponseDto {
   accessToken: string;
   refreshToken: string;
   expiresIn: number;
+  user: IUser;
+}
+
+/**
+ * Интерфейс публичных данных пользователя (без пароля)
+ */
+export interface IUser {
+  id: string;
+  username: string;
+  email?: string;
+  role: 'admin' | 'user';
+  licenseId?: string;
+  firstName?: string;
+  lastName?: string;
+  createdAt: Date | string;
+  updatedAt: Date | string;
 }
 
 /**

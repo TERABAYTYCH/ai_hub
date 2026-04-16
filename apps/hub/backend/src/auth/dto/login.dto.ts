@@ -1,6 +1,7 @@
-import { IsString, MinLength, IsNotEmpty } from 'class-validator';
+import { IsString, IsNotEmpty } from 'class-validator';
+import { LoginRequestDto } from '@app/contracts/hub/auth';
 
-export class LoginDto {
+export class LoginDto implements LoginRequestDto {
   @IsString()
   @IsNotEmpty()
   username: string;

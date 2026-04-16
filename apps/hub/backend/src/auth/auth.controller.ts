@@ -1,17 +1,13 @@
-import {
-  Controller,
-  Post,
-  Get,
-  Body,
-  HttpCode,
-  HttpStatus,
-  UseGuards,
-  Request,
-} from '@nestjs/common';
+import { Controller, Post, Get, Body, HttpCode, HttpStatus, UseGuards, Req } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { LoginDto } from './dto/login.dto';
 import { RegisterDto } from './dto/register.dto';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
+import { UserJwtPayload } from '@app/contracts/hub/auth';
+
+interface AuthenticatedRequest extends Request {
+  user: UserJwtPayload;
+}
 
 @Controller('auth')
 export class AuthController {
@@ -30,7 +26,7 @@ export class AuthController {
 
   @UseGuards(JwtAuthGuard)
   @Get('me')
-  async getCurrentUser(@Request() req: any) {
-    return this.authService.getCurrentUser(req.user.id);
+  async getCurrentUser(@Req() req: AuthenticatedRequest) {
+    return this.authService.getCurrentUser(req.user.sub);
   }
 }

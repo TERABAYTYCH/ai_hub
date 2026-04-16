@@ -22,7 +22,13 @@ $ eslint "src/**/*.ts" --fix
 /Users/terych/Work/ject_hub/apps/hub/backend/src/auth/entities/user.entity.ts
   0:0  error  Parsing error: Cannot read file '/users/terych/work/ject_hub/apps/hub/backend/tsconfig.base.json'
 
+/Users/terych/Work/ject_hub/apps/hub/backend/src/auth/guards/jwt-auth.guard.ts
+  0:0  error  Parsing error: Cannot read file '/users/terych/work/ject_hub/apps/hub/backend/tsconfig.base.json'
+
 /Users/terych/Work/ject_hub/apps/hub/backend/src/auth/index.ts
+  0:0  error  Parsing error: Cannot read file '/users/terych/work/ject_hub/apps/hub/backend/tsconfig.base.json'
+
+/Users/terych/Work/ject_hub/apps/hub/backend/src/auth/strategies/jwt.strategy.ts
   0:0  error  Parsing error: Cannot read file '/users/terych/work/ject_hub/apps/hub/backend/tsconfig.base.json'
 
 /Users/terych/Work/ject_hub/apps/hub/backend/src/auth/users.module.ts
@@ -31,10 +37,16 @@ $ eslint "src/**/*.ts" --fix
 /Users/terych/Work/ject_hub/apps/hub/backend/src/auth/users.service.ts
   0:0  error  Parsing error: Cannot read file '/users/terych/work/ject_hub/apps/hub/backend/tsconfig.base.json'
 
+/Users/terych/Work/ject_hub/apps/hub/backend/src/data-source.ts
+  0:0  error  Parsing error: Cannot read file '/users/terych/work/ject_hub/apps/hub/backend/tsconfig.base.json'
+
 /Users/terych/Work/ject_hub/apps/hub/backend/src/main.ts
   0:0  error  Parsing error: Cannot read file '/users/terych/work/ject_hub/apps/hub/backend/tsconfig.base.json'
 
-✖ 11 problems (11 errors, 0 warnings)
+/Users/terych/Work/ject_hub/apps/hub/backend/src/migrations/1776345706580-InitUsers.ts
+  0:0  error  Parsing error: Cannot read file '/users/terych/work/ject_hub/apps/hub/backend/tsconfig.base.json'
+
+✖ 15 problems (15 errors, 0 warnings)
 
 error Command failed with exit code 1.
 info Visit https://yarnpkg.com/en/docs/cli/run for documentation about this command.
