@@ -272,6 +272,27 @@ libs/ui-kit/
 **Фаза:** Строгая привязка сущностей к контрактам реализована ✅  
 **Следующий шаг:** Переход к реализации основного функционала сервиса Hub
 
+### Задача 100-hub/004-4-fix-admin-login: Debug & Fix Admin Login
+
+**Выполнено:**
+
+- ✅ Проанализирован код сидера и процесс логина
+- ✅ Определена причина: переменные окружения не передаются в Docker контейнер
+- ✅ Добавлены `ADMIN_EMAIL` и `ADMIN_PASSWORD` в docker-compose.yml для hub-backend
+- ✅ Удален некорректный параметр `ignoreDeprecations` из tsconfig.base.json
+
+**Результаты проверок:**
+
+- ✅ Backend typecheck - OK
+- ✅ Backend lint - OK (warnings only)
+- ✅ Frontend typecheck - OK
+- ✅ Frontend lint - OK
+
+## Текущий статус
+
+**Фаза:** Admin login исправлен ✅  
+**Следующий шаг:** Переход к реализации основного функционала сервиса Hub
+
 ### Задача 100-hub/004-1-auth-contracts-fix: Рефакторинг регистрации
 
 **Выполнено:**

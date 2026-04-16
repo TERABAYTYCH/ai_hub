@@ -158,6 +158,8 @@ services:
       - HUB_DB_NAME=${MYSQL_HUB_DB}
       - JWT_SECRET=${JWT_SECRET:-hub-jwt-secret-key-change-in-production}
       - FRONTEND_URL=http://localhost:5173
+      - ADMIN_EMAIL=${ADMIN_EMAIL:-admin@ject.hub}
+      - ADMIN_PASSWORD=${ADMIN_PASSWORD:-admin}
     ports:
       - '3000:3000'
     volumes:
