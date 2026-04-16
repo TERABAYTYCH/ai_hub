@@ -18,5 +18,8 @@
   },
   "peerDependencies": {
     "react": "^18.2.0"
+  },
+  "overrides": {
+    "@types/react": "^18.2.48"
   }
 }

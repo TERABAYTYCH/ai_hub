@@ -2,12 +2,11 @@
   "extends": "../../../tsconfig.base.json",
   "compilerOptions": {
     "outDir": "./dist",
-    "rootDir": "./src",
-    "baseUrl": "./",
+    "baseUrl": "../../../",
     "paths": {
-      "@app/contracts": ["../../../libs/contracts/src/index.ts"],
-      "@app/contracts/hub": ["../../../libs/contracts/src/hub/index.ts"],
-      "@app/contracts/hub/auth": ["../../../libs/contracts/src/hub/auth/index.ts"]
+      "@app/contracts": ["libs/contracts/src/index.ts"],
+      "@app/contracts/hub": ["libs/contracts/src/hub/index.ts"],
+      "@app/contracts/hub/auth": ["libs/contracts/src/hub/auth/index.ts"]
     }
   },
   "include": ["src/**/*"],
