@@ -8,7 +8,11 @@
     "start": "node dist/main.js",
     "start:dev": "ts-node-dev --respawn --transpile-only src/main.ts",
     "lint": "eslint \"src/**/*.ts\" --fix",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "typeorm": "ts-node -r tsconfig-paths/register ./node_modules/typeorm/cli.js",
+    "migration:generate": "yarn typeorm migration:generate -d src/data-source.ts -- src/migrations/InitUsers",
+    "migration:run": "yarn typeorm migration:run -d src/data-source.ts",
+    "migration:revert": "yarn typeorm migration:revert -d src/data-source.ts"
   },
   "dependencies": {
     "@nestjs/common": "^10.3.0",
@@ -27,6 +31,8 @@
     "class-transformer": "^0.5.1",
     "reflect-metadata": "^0.2.1",
     "rxjs": "^7.8.1",
+    "dotenv": "^16.3.1",
+    "bcrypt": "^5.1.1",
     "@ject-hub/contracts": "*"
   },
   "devDependencies": {
@@ -34,9 +40,11 @@
     "@types/express": "^4.17.21",
     "@types/passport-local": "^1.0.38",
     "@types/passport-jwt": "^4.0.1",
+    "@types/bcrypt": "^5.0.2",
     "ts-node": "^10.9.2",
     "ts-node-dev": "^2.0.0",
-    "typescript": "^5.3.3"
+    "typescript": "^5.3.3",
+    "tsconfig-paths": "^4.2.0"
   },
   "description": "",
   "main": "index.js",

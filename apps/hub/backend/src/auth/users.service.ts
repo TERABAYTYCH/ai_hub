@@ -1,16 +1,50 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
 import * as bcrypt from 'bcrypt';
+import { User } from './entities/user.entity';
+import { RegisterDto } from './dto/register.dto';
 
 @Injectable()
 export class UsersService {
-  async validateUser(username: string, password: string): Promise<any> {
-    // TODO: Implement user validation logic
-    return;
+  constructor(
+    @InjectRepository(User)
+    private readonly userRepository: Repository<User>,
+  ) {}
+
+  async findByUsername(username: string): Promise<User | null> {
+    return this.userRepository.findOne({ where: { username } });
   }
 
-  async create(registerDto: any): Promise<any> {
+  async findById(id: string): Promise<User | null> {
+    return this.userRepository.findOne({ where: { id } });
+  }
+
+  async validateUser(username: string, password: string): Promise<User | null> {
+    const user = await this.findByUsername(username);
+    if (!user) {
+      return null;
+    }
+
+    const isPasswordValid = await bcrypt.compare(password, user.password);
+    if (!isPasswordValid) {
+      return null;
+    }
+
+    return user;
+  }
+
+  async create(registerDto: RegisterDto): Promise<User> {
     const hashedPassword = await bcrypt.hash(registerDto.password, 10);
 
-    return { ...registerDto, password: hashedPassword };
+    const user = this.userRepository.create({
+      username: registerDto.username,
+      password: hashedPassword,
+      email: registerDto.email,
+      firstName: registerDto.firstName,
+      lastName: registerDto.lastName,
+    });
+
+    return this.userRepository.save(user);
   }
 }

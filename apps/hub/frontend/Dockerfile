@@ -1,12 +1,19 @@
-FROM node:20-alpine AS builder
-WORKDIR /app
-COPY package*.json ./
-RUN yarn install --frozen-lockfile
-COPY . .
-RUN yarn build
-
 FROM node:20-alpine
 WORKDIR /app
-COPY --from=builder /app/dist ./dist
+
+COPY package.json yarn.lock ./
+COPY apps/hub/backend/package.json ./apps/hub/backend/
+COPY apps/hub/frontend/package.json ./apps/hub/frontend/
+COPY libs/contracts/package.json ./libs/contracts/
+COPY tsconfig.base.json ./
+
+RUN yarn install
+
+COPY apps/hub/backend ./apps/hub/backend
+COPY apps/hub/frontend ./apps/hub/frontend
+COPY libs/contracts ./libs/contracts
+COPY tsconfig.base.json ./
+
+WORKDIR /app/apps/hub/frontend
 EXPOSE 5173
 CMD ["yarn", "dev"]
