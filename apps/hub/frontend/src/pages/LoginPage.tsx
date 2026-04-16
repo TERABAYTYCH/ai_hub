@@ -8,9 +8,10 @@ interface LoginResponse {
 }
 
 function LoginPage() {
-  const [email, setEmail] = useState('');
+  const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -20,29 +21,41 @@ function LoginPage() {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ email, password }),
+        body: JSON.stringify({ username, password }),
       });
 
       if (!response.ok) {
         throw new Error('Failed to login');
       }
 
-      const data = await response.json();
+      const data: LoginResponse = await response.json();
       localStorage.setItem('accessToken', data.accessToken);
+      localStorage.setItem('refreshToken', data.refreshToken);
+      setSuccess(true);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An error occurred');
     }
   };
+
+  if (success) {
+    return (
+      <div>
+        <h1>Login Successful!</h1>
+        <p>You are now logged in.</p>
+        <button onClick={() => window.location.reload()}>Logout</button>
+      </div>
+    );
+  }
 
   return (
     <form onSubmit={handleSubmit}>
       {error && <div style={{ color: 'red' }}>{error}</div>}
 
       <input
-        type="email"
-        value={email}
-        onChange={(e) => setEmail(e.target.value)}
-        placeholder="Email"
+        type="text"
+        value={username}
+        onChange={(e) => setUsername(e.target.value)}
+        placeholder="Username"
         required
       />
 

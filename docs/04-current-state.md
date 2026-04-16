@@ -142,7 +142,32 @@
 - ✅ API login - успешно (возвращает accessToken/refreshToken)
 - ✅ Database - таблица user создана через миграцию
 
-## Известные проблемы
+### Задача 100-hub/003-auth-implementation: Реализация аутентификации
 
-- Docker контейнеры еще не запущены (ожидают тестирования)
-- База данных не инициализирована (миграции не созданы)
+**Выполнено:**
+
+- ✅ Создан JwtStrategy для валидации JWT токенов
+- ✅ Создан JwtAuthGuard для защиты маршрутов
+- ✅ Добавлен защищенный эндпоинт GET /api/auth/me
+- ✅ Исправлена форма логина на фронтенде (использует username вместо email)
+- ✅ Пароли хешируются через bcrypt с salt rounds: 10
+
+**Результаты проверок:**
+
+- ✅ POST /api/auth/register - успешно
+- ✅ POST /api/auth/login - успешно
+- ✅ GET /api/auth/me (без токена) - 401 Unauthorized
+- ✅ GET /api/auth/me (с токеном) - 200 OK
+- ✅ Frontend на порту 5173 - доступен
+
+## Созданные файлы
+
+```
+apps/hub/backend/src/auth/strategies/jwt.strategy.ts
+apps/hub/backend/src/auth/guards/jwt-auth.guard.ts
+```
+
+## Текущий статус
+
+**Фаза:** Аутентификация реализована ✅  
+**Следующий шаг:** Реализация основного функционала сервиса Hub
