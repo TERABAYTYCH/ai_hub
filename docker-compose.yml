@@ -182,6 +182,7 @@ services:
     volumes:
       - ./apps/hub/frontend/src:/app/src
       - ./apps/hub/frontend/index.html:/app/index.html
+      - ./apps/hub/frontend/public:/app/public
     depends_on:
       - hub-backend
     networks:

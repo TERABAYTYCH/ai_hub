@@ -1,4 +1,6 @@
 import { useState } from 'react';
+import { Container, Row, Col, Card, Form, Button, Alert } from 'react-bootstrap';
+import { ThemeToggle } from '@ject-hub/ui-kit';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
 
@@ -37,38 +39,60 @@ function LoginPage() {
     }
   };
 
-  if (success) {
-    return (
-      <div>
-        <h1>Login Successful!</h1>
-        <p>You are now logged in.</p>
-        <button onClick={() => window.location.reload()}>Logout</button>
-      </div>
-    );
-  }
-
   return (
-    <form onSubmit={handleSubmit}>
-      {error && <div style={{ color: 'red' }}>{error}</div>}
+    <Container className="mt-5">
+      <Row className="justify-content-center">
+        <Col md={6} lg={4}>
+          <Card>
+            <Card.Header className="d-flex justify-content-between align-items-center">
+              <span>Hub Login</span>
+              <ThemeToggle />
+            </Card.Header>
+            <Card.Body>
+              {success ? (
+                <div className="text-center">
+                  <Alert variant="success">Login Successful!</Alert>
+                  <p>You are now logged in.</p>
+                  <Button variant="secondary" onClick={() => window.location.reload()}>
+                    Logout
+                  </Button>
+                </div>
+              ) : (
+                <Form onSubmit={handleSubmit}>
+                  {error && <Alert variant="danger">{error}</Alert>}
 
-      <input
-        type="text"
-        value={username}
-        onChange={(e) => setUsername(e.target.value)}
-        placeholder="Username"
-        required
-      />
+                  <Form.Group className="mb-3">
+                    <Form.Label>Username</Form.Label>
+                    <Form.Control
+                      type="text"
+                      value={username}
+                      onChange={(e) => setUsername(e.target.value)}
+                      placeholder="Enter username"
+                      required
+                    />
+                  </Form.Group>
 
-      <input
-        type="password"
-        value={password}
-        onChange={(e) => setPassword(e.target.value)}
-        placeholder="Password"
-        required
-      />
+                  <Form.Group className="mb-3">
+                    <Form.Label>Password</Form.Label>
+                    <Form.Control
+                      type="password"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      placeholder="Enter password"
+                      required
+                    />
+                  </Form.Group>
 
-      <button type="submit">Login</button>
-    </form>
+                  <Button variant="primary" type="submit" className="w-100">
+                    Login
+                  </Button>
+                </Form>
+              )}
+            </Card.Body>
+          </Card>
+        </Col>
+      </Row>
+    </Container>
   );
 }
 
