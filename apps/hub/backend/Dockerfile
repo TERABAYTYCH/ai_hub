@@ -16,6 +16,4 @@ COPY libs/contracts ./libs/contracts
 COPY libs/ui-kit ./libs/ui-kit
 COPY tsconfig.base.json ./
 
-WORKDIR /app/apps/hub/backend
 EXPOSE 3000
-CMD ["yarn", "start:dev"]

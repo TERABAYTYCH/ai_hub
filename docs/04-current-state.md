@@ -293,6 +293,27 @@ libs/ui-kit/
 **Фаза:** Admin login исправлен ✅  
 **Следующий шаг:** Переход к реализации основного функционала сервиса Hub
 
+### Задача 000-infrastructure/005-docker-dev-environment: Настройка Docker Dev-окружения
+
+**Выполнено:**
+
+- ✅ Обновлен docker-compose.yml:
+  - Добавлены volumes для hot-reload
+  - Добавлены dev-команды для hub-backend и hub-frontend
+  - Добавлена переменная WATCHPACK_POLLING для фронтенда
+- ✅ Обновлены Dockerfile (удалены WORKDIR и CMD)
+- ✅ Контейнеры запущены с hot-reload
+
+**Результаты:**
+
+- Backend: http://localhost:3000 ✅
+- Frontend: http://localhost:5173 ✅
+
+## Текущий статус
+
+**Фаза:** Docker Dev-окружение настроено ✅  
+**Следующий шаг:** Переход к реализации основного функционала сервиса Hub
+
 ### Задача 100-hub/004-1-auth-contracts-fix: Рефакторинг регистрации
 
 **Выполнено:**

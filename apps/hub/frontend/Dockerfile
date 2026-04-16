@@ -16,9 +16,4 @@ COPY libs/contracts ./libs/contracts
 COPY libs/ui-kit ./libs/ui-kit
 COPY tsconfig.base.json ./
 
-WORKDIR /app/apps/hub/frontend
-
-COPY apps/hub/frontend/public ./public
-
 EXPOSE 5173
-CMD ["yarn", "dev"]

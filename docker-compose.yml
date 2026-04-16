@@ -163,7 +163,10 @@ services:
     ports:
       - '3000:3000'
     volumes:
-      - ./apps/hub/backend/src:/app/src
+      - .:/app
+      - /app/node_modules
+      - /app/apps/hub/backend/node_modules
+    command: yarn workspace @ject-hub/hub-backend start:dev
     depends_on:
       mysql-hub:
         condition: service_healthy
@@ -179,12 +182,14 @@ services:
     environment:
       - NODE_ENV=development
       - VITE_API_URL=http://localhost:3000/api
+      - WATCHPACK_POLLING=true
     ports:
       - '5173:5173'
     volumes:
-      - ./apps/hub/frontend/src:/app/src
-      - ./apps/hub/frontend/index.html:/app/index.html
-      - ./apps/hub/frontend/public:/app/public
+      - .:/app
+      - /app/node_modules
+      - /app/apps/hub/frontend/node_modules
+    command: yarn workspace @ject-hub/hub-frontend dev
     depends_on:
       - hub-backend
     networks:
