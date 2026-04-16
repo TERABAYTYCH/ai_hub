@@ -116,9 +116,91 @@
 
 ## Текущий статус
 
-**Фаза:** Базовая инфраструктура готова ✅  
-**Следующий шаг:** Начать реализацию сервисов (начиная с Hub) - настройка NestJS backend и React frontend с Vite
+**Фаза:** Базовая инфраструктура сервиса Hub готова ✅  
+**Следующий шаг:** Запуск и тестирование сервисов через Docker Compose
+
+### Задача 100-hub/001-init: Инициализация базовой инфраструктуры сервиса Hub
+
+**Выполнено:**
+
+- ✅ Создана директория `libs/contracts/src/hub/auth/` с базовыми интерфейсами:
+  - `LoginRequestDto`, `LoginResponseDto`, `UserJwtPayload`
+  - `RegisterRequestDto`, `RefreshTokenRequestDto`, `CurrentUserDto`
+- ✅ Настроен `tsconfig.base.json` с путями для импортов контрактов
+- ✅ Создан NestJS backend в `apps/hub/backend/`:
+  - `app.module.ts` с ConfigModule, TypeOrmModule, AuthModule
+  - `AuthModule` с контроллером и сервисом
+  - `UsersModule` с entity и сервисом
+  - JWT аутентификация с login, register, refresh
+- ✅ Создан React + Vite frontend в `apps/hub/frontend/`:
+  - Страница LoginPage с формой входа
+  - Настроенная маршрутизация (react-router-dom)
+  - Интеграция с контрактами через @app/contracts
+- ✅ Обновлен `docker-compose.yml`:
+  - Изменен порт mysql-hub: 33061:3306
+  - Добавлен сервис `hub-backend` (порт 3000)
+  - Добавлен сервис `hub-frontend` (порт 5173)
+- ✅ Созданы Dockerfiles для backend и frontend
+- ✅ Обновлен `.env` с переменными для Hub
+- ✅ Выполнена `yarn install`
+
+**Результаты проверок:**
+
+- ✅ Dependencies installed — все пакеты установлены
+- ✅ Contracts library — настроена с правильными экспортами
+
+## Файлы созданные в этой задаче
+
+```
+libs/contracts/
+├── package.json
+└── src/
+    ├── index.ts
+    └── hub/
+        ├── index.ts
+        └── auth/
+            └── index.ts
+
+apps/hub/backend/
+├── package.json
+├── tsconfig.json
+├── Dockerfile
+└── src/
+    ├── main.ts
+    ├── app.module.ts
+    └── auth/
+        ├── auth.module.ts
+        ├── auth.controller.ts
+        ├── auth.service.ts
+        ├── users.module.ts
+        ├── users.service.ts
+        ├── dto/
+        │   ├── login.dto.ts
+        │   └── register.dto.ts
+        └── entities/
+            └── user.entity.ts
+
+apps/hub/frontend/
+├── package.json
+├── tsconfig.json
+├── tsconfig.node.json
+├── vite.config.ts
+├── Dockerfile
+├── index.html
+└── src/
+    ├── main.ts
+    ├── App.tsx
+    ├── index.css
+    └── pages/
+        ├── LoginPage.tsx
+        └── LoginPage.css
+
+docker-compose.yml              # Обновлен (добавлены hub-backend, hub-frontend)
+.env                            # Обновлен (добавлены переменные для Hub)
+tsconfig.base.json              # Обновлен (добавлены пути для @app/contracts)
+```
 
 ## Известные проблемы
 
-Нет известных проблем на данный момент.
+- Docker контейнеры еще не запущены (ожидают тестирования)
+- База данных не инициализирована (миграции не созданы)

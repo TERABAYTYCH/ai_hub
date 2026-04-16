@@ -22,6 +22,8 @@
     "baseUrl": ".",
     "paths": {
       "@app/contracts": ["libs/contracts/src/index.ts"],
+      "@app/contracts/hub": ["libs/contracts/src/hub/index.ts"],
+      "@app/contracts/hub/auth": ["libs/contracts/src/hub/auth/index.ts"],
       "@app/ui-kit": ["libs/ui-kit/src/index.ts"],
       "@app/core-backend": ["libs/core-backend/src/index.ts"]
     },

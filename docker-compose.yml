@@ -12,11 +12,11 @@ services:
       MYSQL_USER: ${MYSQL_HUB_USER}
       MYSQL_PASSWORD: ${MYSQL_HUB_PASSWORD}
     ports:
-      - "3306:3306"
+      - '33061:3306'
     volumes:
       - mysql-hub-data:/var/lib/mysql
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      test: ['CMD', 'mysqladmin', 'ping', '-h', 'localhost']
       timeout: 5s
       retries: 10
       start_period: 30s
@@ -33,11 +33,11 @@ services:
       MYSQL_USER: ${MYSQL_PULSE_USER}
       MYSQL_PASSWORD: ${MYSQL_PULSE_PASSWORD}
     ports:
-      - "3307:3306"
+      - '3307:3306'
     volumes:
       - mysql-pulse-data:/var/lib/mysql
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      test: ['CMD', 'mysqladmin', 'ping', '-h', 'localhost']
       timeout: 5s
       retries: 10
       start_period: 30s
@@ -54,11 +54,11 @@ services:
       MYSQL_USER: ${MYSQL_SERVICE_USER}
       MYSQL_PASSWORD: ${MYSQL_SERVICE_PASSWORD}
     ports:
-      - "3308:3306"
+      - '3308:3306'
     volumes:
       - mysql-service-data:/var/lib/mysql
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      test: ['CMD', 'mysqladmin', 'ping', '-h', 'localhost']
       timeout: 5s
       retries: 10
       start_period: 30s
@@ -75,11 +75,11 @@ services:
       MYSQL_USER: ${MYSQL_CONTROL_USER}
       MYSQL_PASSWORD: ${MYSQL_CONTROL_PASSWORD}
     ports:
-      - "3309:3306"
+      - '3309:3306'
     volumes:
       - mysql-control-data:/var/lib/mysql
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      test: ['CMD', 'mysqladmin', 'ping', '-h', 'localhost']
       timeout: 5s
       retries: 10
       start_period: 30s
@@ -107,11 +107,11 @@ services:
       KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
       KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
     ports:
-      - "9092:9092"
+      - '9092:9092'
     volumes:
       - kafka-data:/var/lib/kafka/data
     healthcheck:
-      test: ["CMD", "nc", "-z", "localhost", "9092"]
+      test: ['CMD', 'nc', '-z', 'localhost', '9092']
       interval: 10s
       timeout: 5s
       retries: 10
@@ -127,7 +127,7 @@ services:
     container_name: ${COMPOSE_PROJECT_NAME}_nginx
     restart: unless-stopped
     ports:
-      - "80:80"
+      - '80:80'
     volumes:
       - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
     depends_on:
@@ -136,6 +136,54 @@ services:
       - mysql-service
       - mysql-control
       - kafka
+    networks:
+      - ject-network
+
+  # ============================================
+  # HUB SERVICE (Backend + Frontend)
+  # ============================================
+  hub-backend:
+    build:
+      context: .
+      dockerfile: apps/hub/backend/Dockerfile
+    container_name: ${COMPOSE_PROJECT_NAME}_hub_backend
+    restart: unless-stopped
+    environment:
+      - NODE_ENV=development
+      - PORT=3000
+      - HUB_DB_HOST=mysql-hub
+      - HUB_DB_PORT=3306
+      - HUB_DB_USER=${MYSQL_HUB_USER}
+      - HUB_DB_PASSWORD=${MYSQL_HUB_PASSWORD}
+      - HUB_DB_NAME=${MYSQL_HUB_DB}
+      - JWT_SECRET=${JWT_SECRET:-hub-jwt-secret-key-change-in-production}
+      - FRONTEND_URL=http://localhost:5173
+    ports:
+      - '3000:3000'
+    volumes:
+      - ./apps/hub/backend/src:/app/src
+    depends_on:
+      mysql-hub:
+        condition: service_healthy
+    networks:
+      - ject-network
+
+  hub-frontend:
+    build:
+      context: .
+      dockerfile: apps/hub/frontend/Dockerfile
+    container_name: ${COMPOSE_PROJECT_NAME}_hub_frontend
+    restart: unless-stopped
+    environment:
+      - NODE_ENV=development
+      - VITE_API_URL=http://localhost:3000/api
+    ports:
+      - '5173:5173'
+    volumes:
+      - ./apps/hub/frontend/src:/app/src
+      - ./apps/hub/frontend/index.html:/app/index.html
+    depends_on:
+      - hub-backend
     networks:
       - ject-network
 
