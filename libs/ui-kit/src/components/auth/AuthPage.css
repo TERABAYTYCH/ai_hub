@@ -1,0 +1,16 @@
+/* Auth page wrapper - adapts to theme */
+.auth-page-wrapper {
+  min-height: 100vh;
+  background-color: var(--bs-body-bg);
+}
+
+/* Auth card styling */
+.auth-card {
+  width: 100%;
+  max-width: 420px;
+  border: none;
+}
+
+.auth-card .card-header {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}

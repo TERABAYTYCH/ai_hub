@@ -91,7 +91,7 @@ export async function authFetch(url: string, options: RequestInit = {}): Promise
       // Повторяем запрос с новым токеном
       const newToken = getAccessToken();
       if (newToken) {
-        headers.Authorization = `Bearer ${newToken}`;
+        (headers as Record<string, string>).Authorization = `Bearer ${newToken}`;
         return fetch(url, { ...options, headers });
       }
     }

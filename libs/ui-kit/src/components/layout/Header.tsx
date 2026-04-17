@@ -1,3 +1,4 @@
+import { ReactNode } from 'react';
 import { Navbar, Nav, Container, Button } from 'react-bootstrap';
 import { useTheme } from '../../theme/ThemeProvider';
 import './Header.css';
@@ -9,6 +10,10 @@ interface HeaderProps {
   username?: string;
   /** Callback для кнопки логаута */
   onLogout?: () => void;
+  /** Иконка для header (например, bi bi-activity) */
+  icon?: string;
+  /** Дополнительные элементы справа от username */
+  rightContent?: ReactNode;
 }
 
 /**
@@ -16,17 +21,27 @@ interface HeaderProps {
  * Отображает название сервиса, имя пользователя, переключатель темы и кнопку выхода.
  * Поддерживает светлую и темную тему.
  */
-export function Header({ serviceName = 'App', username, onLogout }: HeaderProps) {
+export function Header({ 
+  serviceName = 'App', 
+  username, 
+  onLogout, 
+  icon,
+  rightContent 
+}: HeaderProps) {
   const { theme, toggleTheme } = useTheme();
 
   return (
     <Navbar style={{ height: '56px', backgroundColor: 'var(--bs-body-tertiary)', borderBottom: '1px solid var(--bs-border-color)' }}>
       <Container fluid>
-        <Navbar.Brand href="#">{serviceName}</Navbar.Brand>
+        <Navbar.Brand href="#">
+          {icon && <i className={`${icon} me-2`}></i>}
+          {serviceName}
+        </Navbar.Brand>
         <Nav className="ms-auto align-items-center">
           {username && (
             <span className="me-3" style={{ color: 'var(--bs-body-color)' }}>{username}</span>
           )}
+          {rightContent}
           <Button
             variant="outline-secondary"
             size="sm"
