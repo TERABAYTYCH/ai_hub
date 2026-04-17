@@ -6,17 +6,17 @@ export default defineConfig({
   plugins: [
     react(),
     federation({
-      name: 'hub',
-      remotes: {
-        // Use Nginx proxy with CORS headers for Module Federation remote
-        pulse: 'http://localhost/pulse/assets/remoteEntry.js',
+      name: 'pulse',
+      filename: 'remoteEntry.js',
+      exposes: {
+        './PulseDashboard': './src/PulseDashboard',
       },
       shared: ['react', 'react-dom', 'react-router-dom'],
     }),
   ],
   server: {
     host: '0.0.0.0',
-    port: 5173,
+    port: 5174,
     strictPort: false,
   },
   build: {

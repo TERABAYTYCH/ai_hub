@@ -136,6 +136,7 @@ services:
       - mysql-service
       - mysql-control
       - kafka
+      - pulse-backend
     networks:
       - ject-network
 
@@ -192,6 +193,51 @@ services:
     command: yarn workspace @ject-hub/hub-frontend dev
     depends_on:
       - hub-backend
+    networks:
+      - ject-network
+
+  # ============================================
+  # PULSE SERVICE (Backend + Frontend)
+  # ============================================
+  pulse-backend:
+    build:
+      context: .
+      dockerfile: apps/pulse/backend/Dockerfile
+    container_name: ${COMPOSE_PROJECT_NAME}_pulse_backend
+    restart: unless-stopped
+    environment:
+      - NODE_ENV=development
+      - PORT=3001
+    ports:
+      - '3001:3001'
+    volumes:
+      - .:/app
+      - /app/node_modules
+      - /app/apps/pulse/backend/node_modules
+    command: yarn workspace @ject-hub/pulse-backend start:dev
+    networks:
+      - ject-network
+
+  pulse-frontend:
+    build:
+      context: .
+      dockerfile: apps/pulse/frontend/Dockerfile
+    container_name: ${COMPOSE_PROJECT_NAME}_pulse_frontend
+    restart: unless-stopped
+    environment:
+      - NODE_ENV=development
+      - VITE_API_URL=http://localhost:3001/api
+      - VITE_USE_FEDERATION=true
+      - WATCHPACK_POLLING=true
+    ports:
+      - '5174:5174'
+    volumes:
+      - .:/app
+      - /app/node_modules
+      - /app/apps/pulse/frontend/node_modules
+    command: yarn workspace @ject-hub/pulse-frontend dev
+    depends_on:
+      - pulse-backend
     networks:
       - ject-network
 

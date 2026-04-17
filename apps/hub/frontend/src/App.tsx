@@ -3,12 +3,14 @@ import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
 import DevicesPage from './pages/DevicesPage';
 import SettingsPage from './pages/SettingsPage';
+import PulsePage from './pages/PulsePage';
 import { AppLayout, MenuItem } from '@ject-hub/ui-kit';
 
 /** Элементы меню для приложения Hub */
 const menuItems: MenuItem[] = [
   { title: 'Devices', path: '/devices', icon: 'bi bi-grid' },
   { title: 'Settings', path: '/settings', icon: 'bi bi-gear' },
+  { title: 'Pulse', path: '/pulse', icon: 'bi bi-activity' },
 ];
 
 /** Получить имя пользователя из localStorage */
@@ -73,6 +75,23 @@ function App() {
               onLogout={handleLogout}
             >
               <SettingsPage />
+            </AppLayout>
+          ) : (
+            <Navigate to="/login" />
+          )
+        }
+      />
+      <Route
+        path="/pulse"
+        element={
+          isAuthenticated ? (
+            <AppLayout
+              menuItems={menuItems}
+              serviceName="Ject Hub"
+              username={getUsername()}
+              onLogout={handleLogout}
+            >
+              <PulsePage />
             </AppLayout>
           ) : (
             <Navigate to="/login" />
