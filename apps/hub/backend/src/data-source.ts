@@ -8,7 +8,7 @@ const options: DataSourceOptions = {
   username: process.env.HUB_DB_USER || 'root',
   password: process.env.HUB_DB_PASSWORD || 'root',
   database: process.env.HUB_DB_NAME || 'hub_db',
-  entities: [__dirname + '/auth/entities/*.entity{.ts,.js}'],
+  entities: [__dirname + '/**/*.entity{.ts,.js}'],
   migrations: [__dirname + '/migrations/*{.ts,.js}'],
   logging: false,
 };

@@ -359,5 +359,27 @@ libs/ui-kit/
 
 ## Текущий статус
 
+**Фаза:** Device CRUD реализован ✅  
+**Следующий шаг:** Реализация основного функционала сервиса Hub
+
+### Задача 1_hub/005-device-management: Управление мастер-базой устройств
+
+**Выполнено:**
+
+- ✅ Созданы контракты IDevice, CreateDeviceRequestDto, UpdateDeviceRequestDto в libs/contracts
+- ✅ Создан Device entity, module, service, controller в backend
+- ✅ Сгенерирована и применена миграция InitDevices
+- ✅ Создан devices.api.ts на фронтенде
+- ✅ Создан DevicesPage.tsx с полным CRUD UI
+- ✅ Добавлен роутинг /devices (только для авторизованных)
+
+**Результаты проверок:**
+
+- ✅ yarn typecheck - OK
+- ✅ yarn lint - OK (0 ошибок, warnings)
+- ✅ yarn test - OK (build passed)
+
+## Текущий статус
+
 **Фаза:** TypeScript обновлен, документация реорганизована ✅  
 **Следующий шаг:** Продолжение разработки сервиса Hub

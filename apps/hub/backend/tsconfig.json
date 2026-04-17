@@ -6,7 +6,8 @@
     "paths": {
       "@app/contracts": ["libs/contracts/src/index.ts"],
       "@app/contracts/hub": ["libs/contracts/src/hub/index.ts"],
-      "@app/contracts/hub/auth": ["libs/contracts/src/hub/auth/index.ts"]
+      "@app/contracts/hub/auth": ["libs/contracts/src/hub/auth/index.ts"],
+      "@app/contracts/hub/devices": ["libs/contracts/src/hub/devices/index.ts"]
     }
   },
   "include": ["src/**/*"],

@@ -6,7 +6,7 @@
     "build": "tsc",
     "dev": "ts-node src/main.ts",
     "start": "node dist/main.js",
-    "start:dev": "ts-node-dev --respawn --transpile-only src/main.ts",
+    "start:dev": "ts-node-dev -r tsconfig-paths/register --respawn --transpile-only src/main.ts",
     "lint": "eslint \"src/**/*.ts\" --fix --parser-options=project:tsconfig.json",
     "typecheck": "tsc --noEmit",
     "typeorm": "ts-node -r tsconfig-paths/register ./node_modules/typeorm/cli.js",
