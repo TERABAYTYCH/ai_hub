@@ -3,7 +3,6 @@ import type {
   LoginResponseDto,
   RegisterRequestDto,
 } from '@app/contracts/hub/auth';
-import { setAuthTokens, setUser } from '../utils/auth';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
 
@@ -22,15 +21,7 @@ export async function login(credentials: LoginRequestDto): Promise<LoginResponse
     throw new Error(errorData.message || 'Login failed');
   }
 
-  const data = (await response.json()) as LoginResponseDto;
-
-  // Сохраняем токены
-  setAuthTokens(data.accessToken, data.refreshToken);
-  if (data.user) {
-    setUser(data.user);
-  }
-
-  return data;
+  return (await response.json()) as LoginResponseDto;
 }
 
 /**
@@ -48,15 +39,7 @@ export async function register(userData: RegisterRequestDto): Promise<LoginRespo
     throw new Error(errorData.message || 'Registration failed');
   }
 
-  const data = (await response.json()) as LoginResponseDto;
-
-  // Сохраняем токены
-  setAuthTokens(data.accessToken, data.refreshToken);
-  if (data.user) {
-    setUser(data.user);
-  }
-
-  return data;
+  return (await response.json()) as LoginResponseDto;
 }
 
 /**
@@ -75,13 +58,4 @@ export async function getCurrentUser(): Promise<unknown> {
   }
 
   return response.json();
-}
-
-/**
- * Выполняет логаут
- */
-export function logout(): void {
-  localStorage.removeItem('accessToken');
-  localStorage.removeItem('refreshToken');
-  localStorage.removeItem('user');
 }

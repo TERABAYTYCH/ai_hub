@@ -1,12 +1,11 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { AuthPage, RegisterForm, RegisterData } from '@ject-hub/ui-kit';
+import { AuthPage, RegisterForm, RegisterData, useAuth } from '@ject-hub/ui-kit';
 import { RegisterRequestDto, LoginResponseDto } from '@app/contracts/hub/auth';
 
 const API_BASE_URL = (import.meta.env.VITE_API_URL as string) || 'http://localhost:3000/api';
 
 export default function RegisterPage() {
-  const navigate = useNavigate();
+  const { login } = useAuth();
   const [error, setError] = useState<string | undefined>();
   const [isLoading, setIsLoading] = useState(false);
 
@@ -29,10 +28,7 @@ export default function RegisterPage() {
       }
 
       const responseData = (await response.json()) as LoginResponseDto;
-      localStorage.setItem('accessToken', responseData.accessToken);
-      localStorage.setItem('refreshToken', responseData.refreshToken);
-      localStorage.setItem('user', JSON.stringify(responseData.user));
-      navigate('/devices');
+      login(responseData.accessToken, responseData.refreshToken, responseData.user);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An error occurred');
     } finally {

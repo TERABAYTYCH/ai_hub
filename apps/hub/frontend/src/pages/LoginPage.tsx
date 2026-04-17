@@ -1,20 +1,13 @@
-import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { AuthPage, LoginForm } from '@ject-hub/ui-kit';
+import { useState } from 'react';
+import { AuthPage, LoginForm, useAuth } from '@ject-hub/ui-kit';
 import { LoginRequestDto, LoginResponseDto } from '@app/contracts/hub/auth';
 
 const API_BASE_URL = (import.meta.env.VITE_API_URL as string) || 'http://localhost:3000/api';
 
 export default function LoginPage() {
-  const navigate = useNavigate();
+  const { login } = useAuth();
   const [error, setError] = useState<string | undefined>();
   const [isLoading, setIsLoading] = useState(false);
-
-  useEffect(() => {
-    if (localStorage.getItem('accessToken')) {
-      navigate('/devices');
-    }
-  }, [navigate]);
 
   const handleSubmit = async (username: string, password: string) => {
     setError(undefined);
@@ -34,10 +27,7 @@ export default function LoginPage() {
       }
 
       const data = (await response.json()) as LoginResponseDto;
-      localStorage.setItem('accessToken', data.accessToken);
-      localStorage.setItem('refreshToken', data.refreshToken);
-      localStorage.setItem('user', JSON.stringify(data.user));
-      navigate('/devices');
+      login(data.accessToken, data.refreshToken, data.user);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An error occurred');
     } finally {

@@ -1,10 +1,10 @@
-import { Routes, Route, Navigate, useNavigate } from 'react-router-dom';
+import { Routes, Route, Navigate } from 'react-router-dom';
 import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
 import DevicesPage from './pages/DevicesPage';
 import SettingsPage from './pages/SettingsPage';
 import PulsePage from './pages/PulsePage';
-import { AppLayout, MenuItem } from '@ject-hub/ui-kit';
+import { AppLayout, MenuItem, ProtectedRoute, GuestRoute, useAuth } from '@ject-hub/ui-kit';
 
 /** Элементы меню для приложения Hub */
 const menuItems: MenuItem[] = [
@@ -13,89 +13,74 @@ const menuItems: MenuItem[] = [
   { title: 'Pulse', path: '/pulse', icon: 'bi bi-activity' },
 ];
 
-/** Получить имя пользователя из localStorage */
-function getUsername(): string {
-  try {
-    const userStr = localStorage.getItem('user');
-    if (userStr) {
-      const user = JSON.parse(userStr);
-      return user.username || user.email || 'User';
-    }
-  } catch {
-    // ignore
-  }
-  return 'User';
+/** Компонент с layout для Hub */
+function HubLayout({ children }: { children: React.ReactNode }) {
+  const { user, logout } = useAuth();
+  const username = user?.username || user?.email || 'User';
+  
+  return (
+    <AppLayout
+      menuItems={menuItems}
+      serviceName="Ject Hub"
+      username={username}
+      onLogout={logout}
+    >
+      {children}
+    </AppLayout>
+  );
 }
 
 function App() {
-  const navigate = useNavigate();
-  const isAuthenticated = !!localStorage.getItem('accessToken');
-
-  /** Обработчик логаута с использованием SPA навигации */
-  function handleLogout() {
-    localStorage.removeItem('accessToken');
-    localStorage.removeItem('refreshToken');
-    localStorage.removeItem('user');
-    navigate('/login');
-  }
-
   return (
     <Routes>
       <Route
         path="/"
-        element={isAuthenticated ? <Navigate to="/devices" /> : <Navigate to="/login" />}
+        element={<Navigate to="/devices" replace />}
       />
-      <Route path="/login" element={<LoginPage />} />
-      <Route path="/register" element={<RegisterPage />} />
+      <Route
+        path="/login"
+        element={
+          <GuestRoute>
+            <LoginPage />
+          </GuestRoute>
+        }
+      />
+      <Route
+        path="/register"
+        element={
+          <GuestRoute>
+            <RegisterPage />
+          </GuestRoute>
+        }
+      />
       <Route
         path="/devices"
         element={
-          isAuthenticated ? (
-            <AppLayout
-              menuItems={menuItems}
-              serviceName="Ject Hub"
-              username={getUsername()}
-              onLogout={handleLogout}
-            >
+          <ProtectedRoute>
+            <HubLayout>
               <DevicesPage />
-            </AppLayout>
-          ) : (
-            <Navigate to="/login" />
-          )
+            </HubLayout>
+          </ProtectedRoute>
         }
       />
       <Route
         path="/settings"
         element={
-          isAuthenticated ? (
-            <AppLayout
-              menuItems={menuItems}
-              serviceName="Ject Hub"
-              username={getUsername()}
-              onLogout={handleLogout}
-            >
+          <ProtectedRoute>
+            <HubLayout>
               <SettingsPage />
-            </AppLayout>
-          ) : (
-            <Navigate to="/login" />
-          )
+            </HubLayout>
+          </ProtectedRoute>
         }
       />
       <Route
         path="/pulse"
         element={
-          isAuthenticated ? (
-            <AppLayout
-              menuItems={menuItems}
-              serviceName="Ject Hub"
-              username={getUsername()}
-              onLogout={handleLogout}
-            >
+          <ProtectedRoute>
+            <HubLayout>
               <PulsePage />
-            </AppLayout>
-          ) : (
-            <Navigate to="/login" />
-          )
+            </HubLayout>
+          </ProtectedRoute>
         }
       />
     </Routes>

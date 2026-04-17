@@ -1,6 +1,5 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { AuthPage, RegisterForm, RegisterData } from '@ject-hub/ui-kit';
+import { AuthPage, RegisterForm, RegisterData, useAuth } from '@ject-hub/ui-kit';
 import { register } from '../api/auth';
 import type { RegisterRequestDto } from '@app/contracts/hub/auth';
 
@@ -9,7 +8,7 @@ import type { RegisterRequestDto } from '@app/contracts/hub/auth';
  * Использует Hub Backend API для создания аккаунта.
  */
 export default function RegisterPage() {
-  const navigate = useNavigate();
+  const { login: authLogin } = useAuth();
   const [error, setError] = useState<string | undefined>();
   const [isLoading, setIsLoading] = useState(false);
 
@@ -18,8 +17,8 @@ export default function RegisterPage() {
     setIsLoading(true);
 
     try {
-      await register(data as RegisterRequestDto);
-      navigate('/');
+      const response = await register(data as RegisterRequestDto);
+      authLogin(response.accessToken, response.refreshToken, response.user);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Registration failed');
     } finally {

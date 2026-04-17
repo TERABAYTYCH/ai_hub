@@ -1,6 +1,5 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { AuthPage, LoginForm } from '@ject-hub/ui-kit';
+import { AuthPage, LoginForm, useAuth } from '@ject-hub/ui-kit';
 import { login } from '../api/auth';
 
 /**
@@ -8,7 +7,7 @@ import { login } from '../api/auth';
  * Использует Hub Backend API для аутентификации.
  */
 export default function LoginPage() {
-  const navigate = useNavigate();
+  const { login: authLogin } = useAuth();
   const [error, setError] = useState<string | undefined>();
   const [isLoading, setIsLoading] = useState(false);
 
@@ -17,8 +16,8 @@ export default function LoginPage() {
     setIsLoading(true);
 
     try {
-      await login({ username, password });
-      navigate('/');
+      const data = await login({ username, password });
+      authLogin(data.accessToken, data.refreshToken, data.user);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Login failed');
     } finally {
