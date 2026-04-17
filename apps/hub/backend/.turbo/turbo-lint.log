@@ -1,52 +1,14 @@
 yarn run v1.22.22
-$ eslint "src/**/*.ts" --fix
-
-/Users/terych/Work/ject_hub/apps/hub/backend/src/app.module.ts
-  0:0  error  Parsing error: Cannot read file '/users/terych/work/ject_hub/apps/hub/backend/tsconfig.base.json'
-
-/Users/terych/Work/ject_hub/apps/hub/backend/src/auth/auth.controller.ts
-  0:0  error  Parsing error: Cannot read file '/users/terych/work/ject_hub/apps/hub/backend/tsconfig.base.json'
-
-/Users/terych/Work/ject_hub/apps/hub/backend/src/auth/auth.module.ts
-  0:0  error  Parsing error: Cannot read file '/users/terych/work/ject_hub/apps/hub/backend/tsconfig.base.json'
-
-/Users/terych/Work/ject_hub/apps/hub/backend/src/auth/auth.service.ts
-  0:0  error  Parsing error: Cannot read file '/users/terych/work/ject_hub/apps/hub/backend/tsconfig.base.json'
-
-/Users/terych/Work/ject_hub/apps/hub/backend/src/auth/dto/login.dto.ts
-  0:0  error  Parsing error: Cannot read file '/users/terych/work/ject_hub/apps/hub/backend/tsconfig.base.json'
-
-/Users/terych/Work/ject_hub/apps/hub/backend/src/auth/dto/register.dto.ts
-  0:0  error  Parsing error: Cannot read file '/users/terych/work/ject_hub/apps/hub/backend/tsconfig.base.json'
-
-/Users/terych/Work/ject_hub/apps/hub/backend/src/auth/entities/user.entity.ts
-  0:0  error  Parsing error: Cannot read file '/users/terych/work/ject_hub/apps/hub/backend/tsconfig.base.json'
-
-/Users/terych/Work/ject_hub/apps/hub/backend/src/auth/guards/jwt-auth.guard.ts
-  0:0  error  Parsing error: Cannot read file '/users/terych/work/ject_hub/apps/hub/backend/tsconfig.base.json'
-
-/Users/terych/Work/ject_hub/apps/hub/backend/src/auth/index.ts
-  0:0  error  Parsing error: Cannot read file '/users/terych/work/ject_hub/apps/hub/backend/tsconfig.base.json'
-
-/Users/terych/Work/ject_hub/apps/hub/backend/src/auth/strategies/jwt.strategy.ts
-  0:0  error  Parsing error: Cannot read file '/users/terych/work/ject_hub/apps/hub/backend/tsconfig.base.json'
+$ eslint "src/**/*.ts" --fix --parser-options=project:tsconfig.json
 
 /Users/terych/Work/ject_hub/apps/hub/backend/src/auth/users.module.ts
-  0:0  error  Parsing error: Cannot read file '/users/terych/work/ject_hub/apps/hub/backend/tsconfig.base.json'
-
-/Users/terych/Work/ject_hub/apps/hub/backend/src/auth/users.service.ts
-  0:0  error  Parsing error: Cannot read file '/users/terych/work/ject_hub/apps/hub/backend/tsconfig.base.json'
-
-/Users/terych/Work/ject_hub/apps/hub/backend/src/data-source.ts
-  0:0  error  Parsing error: Cannot read file '/users/terych/work/ject_hub/apps/hub/backend/tsconfig.base.json'
+  20:15  warning  Unexpected console statement  no-console
+  26:15  warning  Unexpected console statement  no-console
+  36:13  warning  Unexpected console statement  no-console
 
 /Users/terych/Work/ject_hub/apps/hub/backend/src/main.ts
-  0:0  error  Parsing error: Cannot read file '/users/terych/work/ject_hub/apps/hub/backend/tsconfig.base.json'
+  20:3  warning  Unexpected console statement  no-console
 
-/Users/terych/Work/ject_hub/apps/hub/backend/src/migrations/1776345706580-InitUsers.ts
-  0:0  error  Parsing error: Cannot read file '/users/terych/work/ject_hub/apps/hub/backend/tsconfig.base.json'
+✖ 4 problems (0 errors, 4 warnings)
 
-✖ 15 problems (15 errors, 0 warnings)
-
-error Command failed with exit code 1.
-info Visit https://yarnpkg.com/en/docs/cli/run for documentation about this command.
+Done in 1.98s.

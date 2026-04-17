@@ -332,3 +332,32 @@ libs/ui-kit/
 
 **Фаза:** Авторизация завершена, контракты в contracts ✅  
 **Следующий шаг:** Реализация основного функционала сервиса Hub
+
+### Задача 0_infrastructure/006-fix-ts-and-sort-tasks: Обновление TypeScript и реорганизация задач
+
+**Выполнено:**
+
+- ✅ Обновлен TypeScript с 5.3.3 до 6.0.2 в package.json
+- ✅ Изменен moduleResolution с node10 на node в tsconfig.base.json
+- ✅ Добавлен lib DOM в libs/ui-kit/tsconfig.json
+- ✅ Переименованы папки доменов в формат 0\_<domain>:
+  - 000-infrastructure → 0_infrastructure
+  - 100-hub → 1_hub
+  - 200-pulse → 2_pulse
+  - 300-service → 3_service
+  - 400-control → 4_control
+- ✅ Созданы подпапки с датами YYYY-MM-DD для всех задач
+- ✅ Все задачи перемещены в соответствующие date-папки
+- ✅ Создан docs/tasks/README.md с правилом хранения задач
+- ✅ Перезапущены Docker контейнеры после Vite cache issue
+
+**Результаты проверок:**
+
+- ✅ yarn typecheck - OK
+- ✅ yarn lint - OK (warnings only)
+- ✅ Docker containers - все сервисы healthy
+
+## Текущий статус
+
+**Фаза:** TypeScript обновлен, документация реорганизована ✅  
+**Следующий шаг:** Продолжение разработки сервиса Hub
