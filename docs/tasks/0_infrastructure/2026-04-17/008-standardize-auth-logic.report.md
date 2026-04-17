@@ -164,3 +164,23 @@ yarn workspace @ject-hub/pulse-frontend build
 ---
 
 *Отчет обновлен: 2026-04-17T21:28+03:00*
+
+### Тестирование (после исправления)
+
+**Playwright тесты:** 6/6 passed ✅
+- Hub GuestRoute redirect ✅
+- Hub ProtectedRoute redirect ✅
+- Hub Login form render ✅
+- Pulse GuestRoute redirect ✅
+- Pulse ProtectedRoute redirect ✅
+- Pulse Login form render ✅
+
+**Docker контейнеры:** Восстановлены и работают
+- Очищено 13.95GB места через `docker system prune`
+- Контейнеры пересобраны и перезапущены
+
+**Локальные сборки:** ✅ Проходят без ошибок
+
+---
+
+*Отчет обновлен: 2026-04-17T21:37+03:00*
