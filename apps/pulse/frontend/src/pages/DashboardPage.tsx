@@ -1,16 +1,15 @@
 import { Card, Row, Col } from 'react-bootstrap';
-import { getUsername } from './utils/auth';
+import { getUsername } from '../utils/auth';
 
 /**
- * Pulse Dashboard - компонент мониторинга.
- * Экспортируется через Module Federation.
- * Это версия БЕЗ layout - для встраивания в Hub.
+ * Dashboard - главная страница Pulse после авторизации.
+ * Показывает общую информацию о сервисе мониторинга.
  */
-function PulseDashboard() {
+export default function DashboardPage() {
   const username = getUsername();
 
   return (
-    <>
+    <div>
       <h2 className="mb-4">Welcome, {username}!</h2>
 
       <Row className="g-4">
@@ -91,8 +90,6 @@ function PulseDashboard() {
           </p>
         </Card.Body>
       </Card>
-    </>
+    </div>
   );
 }
-
-export default PulseDashboard;
