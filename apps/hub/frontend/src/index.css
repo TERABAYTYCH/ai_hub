@@ -4,6 +4,12 @@
   box-sizing: border-box;
 }
 
+html,
+body {
+  height: 100vh;
+  width: 100%;
+}
+
 body {
   font-family:
     -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell',
@@ -14,4 +20,12 @@ body {
 
 code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New', monospace;
+}
+
+.header-btn {
+  color: var(--bs-body-color) !important;
+}
+
+.header-btn:hover {
+  color: #fff !important;
 }

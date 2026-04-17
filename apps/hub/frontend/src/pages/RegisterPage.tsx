@@ -13,7 +13,6 @@ function RegisterPage() {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
-  const [success, setSuccess] = useState(false);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -51,7 +50,8 @@ function RegisterPage() {
         const data = (await response.json()) as LoginResponseDto;
         localStorage.setItem('accessToken', data.accessToken);
         localStorage.setItem('refreshToken', data.refreshToken);
-        setSuccess(true);
+        localStorage.setItem('user', JSON.stringify(data.user));
+        navigate('/devices');
       } catch (err) {
         setError(err instanceof Error ? err.message : 'An error occurred');
       }
@@ -68,72 +68,62 @@ function RegisterPage() {
               <ThemeToggle />
             </Card.Header>
             <Card.Body>
-              {success ? (
-                <div className="text-center">
-                  <Alert variant="success">Registration Successful!</Alert>
-                  <p>You are now logged in.</p>
-                  <Button variant="secondary" onClick={() => navigate('/')}>
-                    Go to Home
-                  </Button>
+              <Form onSubmit={handleSubmit}>
+                {error && <Alert variant="danger">{error}</Alert>}
+
+                <Form.Group className="mb-3">
+                  <Form.Label>Username</Form.Label>
+                  <Form.Control
+                    type="text"
+                    value={username}
+                    onChange={(e) => setUsername(e.target.value)}
+                    placeholder="Enter username"
+                    required
+                  />
+                </Form.Group>
+
+                <Form.Group className="mb-3">
+                  <Form.Label>Email</Form.Label>
+                  <Form.Control
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder="Enter email"
+                    required
+                  />
+                </Form.Group>
+
+                <Form.Group className="mb-3">
+                  <Form.Label>Password</Form.Label>
+                  <Form.Control
+                    type="password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    placeholder="Enter password"
+                    required
+                  />
+                </Form.Group>
+
+                <Form.Group className="mb-3">
+                  <Form.Label>Confirm Password</Form.Label>
+                  <Form.Control
+                    type="password"
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    placeholder="Confirm password"
+                    required
+                  />
+                </Form.Group>
+
+                <Button variant="primary" type="submit" className="w-100">
+                  Register
+                </Button>
+
+                <div className="mt-3 text-center">
+                  <span>Already have an account? </span>
+                  <Link to="/login">Login</Link>
                 </div>
-              ) : (
-                <Form onSubmit={handleSubmit}>
-                  {error && <Alert variant="danger">{error}</Alert>}
-
-                  <Form.Group className="mb-3">
-                    <Form.Label>Username</Form.Label>
-                    <Form.Control
-                      type="text"
-                      value={username}
-                      onChange={(e) => setUsername(e.target.value)}
-                      placeholder="Enter username"
-                      required
-                    />
-                  </Form.Group>
-
-                  <Form.Group className="mb-3">
-                    <Form.Label>Email</Form.Label>
-                    <Form.Control
-                      type="email"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      placeholder="Enter email"
-                      required
-                    />
-                  </Form.Group>
-
-                  <Form.Group className="mb-3">
-                    <Form.Label>Password</Form.Label>
-                    <Form.Control
-                      type="password"
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                      placeholder="Enter password"
-                      required
-                    />
-                  </Form.Group>
-
-                  <Form.Group className="mb-3">
-                    <Form.Label>Confirm Password</Form.Label>
-                    <Form.Control
-                      type="password"
-                      value={confirmPassword}
-                      onChange={(e) => setConfirmPassword(e.target.value)}
-                      placeholder="Confirm password"
-                      required
-                    />
-                  </Form.Group>
-
-                  <Button variant="primary" type="submit" className="w-100">
-                    Register
-                  </Button>
-
-                  <div className="mt-3 text-center">
-                    <span>Already have an account? </span>
-                    <Link to="/login">Login</Link>
-                  </div>
-                </Form>
-              )}
+              </Form>
             </Card.Body>
           </Card>
         </Col>

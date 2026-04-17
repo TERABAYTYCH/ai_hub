@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Container, Table, Button, Modal, Form, Badge, Alert, Card } from 'react-bootstrap';
+import { Table, Button, Modal, Form, Badge, Alert, Card } from 'react-bootstrap';
 import {
   IDevice,
   CreateDeviceRequestDto,
@@ -7,7 +7,6 @@ import {
   DeviceStatus,
 } from '@app/contracts/hub/devices';
 import { getDevices, createDevice, updateDevice, deleteDevice } from '../api/devices.api';
-import { ThemeToggle } from '@ject-hub/ui-kit';
 
 const statusColors: Record<DeviceStatus, string> = {
   ACTIVE: 'success',
@@ -99,75 +98,70 @@ function DevicesPage() {
   }
 
   return (
-    <Container className="mt-4">
-      <Card>
-        <Card.Header className="d-flex justify-content-between align-items-center">
-          <span>Device Management</span>
-          <ThemeToggle />
-        </Card.Header>
-        <Card.Body>
-          {error && (
-            <Alert variant="danger" onClose={() => setError(null)} dismissible>
-              {error}
-            </Alert>
-          )}
+    <Card>
+      <Card.Header>Device Management</Card.Header>
+      <Card.Body>
+        {error && (
+          <Alert variant="danger" onClose={() => setError(null)} dismissible>
+            {error}
+          </Alert>
+        )}
 
-          <div className="mb-3">
-            <Button variant="primary" onClick={() => handleOpenModal()}>
-              Add Device
-            </Button>
-          </div>
+        <div className="mb-3">
+          <Button variant="primary" onClick={() => handleOpenModal()}>
+            Add Device
+          </Button>
+        </div>
 
-          {loading ? (
-            <Alert variant="info">Loading devices...</Alert>
-          ) : devices.length === 0 ? (
-            <Alert variant="info">No devices found. Click "Add Device" to create one.</Alert>
-          ) : (
-            <Table striped bordered hover responsive>
-              <thead>
-                <tr>
-                  <th>Name</th>
-                  <th>Type</th>
-                  <th>Status</th>
-                  <th>Description</th>
-                  <th>Created</th>
-                  <th>Actions</th>
+        {loading ? (
+          <Alert variant="info">Loading devices...</Alert>
+        ) : devices.length === 0 ? (
+          <Alert variant="info">No devices found. Click "Add Device" to create one.</Alert>
+        ) : (
+          <Table striped bordered hover responsive>
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Type</th>
+                <th>Status</th>
+                <th>Description</th>
+                <th>Created</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {devices.map((device) => (
+                <tr key={device.id}>
+                  <td>{device.name}</td>
+                  <td>{device.type}</td>
+                  <td>
+                    <Badge bg={statusColors[device.status]}>{device.status}</Badge>
+                  </td>
+                  <td>{device.description || '-'}</td>
+                  <td>{new Date(device.createdAt).toLocaleDateString()}</td>
+                  <td>
+                    <Button
+                      variant="outline-primary"
+                      size="sm"
+                      className="me-2"
+                      onClick={() => handleOpenModal(device)}
+                    >
+                      Edit
+                    </Button>
+                    <Button
+                      variant="outline-danger"
+                      size="sm"
+                      onClick={() => handleDelete(device.id)}
+                    >
+                      Delete
+                    </Button>
+                  </td>
                 </tr>
-              </thead>
-              <tbody>
-                {devices.map((device) => (
-                  <tr key={device.id}>
-                    <td>{device.name}</td>
-                    <td>{device.type}</td>
-                    <td>
-                      <Badge bg={statusColors[device.status]}>{device.status}</Badge>
-                    </td>
-                    <td>{device.description || '-'}</td>
-                    <td>{new Date(device.createdAt).toLocaleDateString()}</td>
-                    <td>
-                      <Button
-                        variant="outline-primary"
-                        size="sm"
-                        className="me-2"
-                        onClick={() => handleOpenModal(device)}
-                      >
-                        Edit
-                      </Button>
-                      <Button
-                        variant="outline-danger"
-                        size="sm"
-                        onClick={() => handleDelete(device.id)}
-                      >
-                        Delete
-                      </Button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </Table>
-          )}
-        </Card.Body>
-      </Card>
+              ))}
+            </tbody>
+          </Table>
+        )}
+      </Card.Body>
 
       <Modal show={showModal} onHide={handleCloseModal}>
         <Modal.Header closeButton>
@@ -234,7 +228,7 @@ function DevicesPage() {
           </Modal.Footer>
         </Form>
       </Modal>
-    </Container>
+    </Card>
   );
 }
 

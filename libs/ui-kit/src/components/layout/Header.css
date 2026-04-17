@@ -1,0 +1,7 @@
+.header-btn {
+  color: var(--bs-body-color) !important;
+}
+
+.header-btn:hover {
+  color: #fff !important;
+}

@@ -11,7 +11,11 @@ export function ThemeToggle() {
       onClick={toggleTheme}
       aria-label={`Switch to ${theme === 'light' ? 'dark' : 'light'} theme`}
     >
-      {theme === 'light' ? '🌙' : '☀️'}
+      {theme === 'light' ? (
+        <i className="bi bi-moon"></i>
+      ) : (
+        <i className="bi bi-sun"></i>
+      )}
     </Button>
   );
 }
