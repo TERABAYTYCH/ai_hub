@@ -1,3 +1,0 @@
-yarn run v1.22.22
-$ eslint src --ext ts,tsx --report-unused-disable-directives --max-warnings 0 --parser-options=project:tsconfig.json
-Done in 1.73s.
