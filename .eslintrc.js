@@ -25,7 +25,13 @@ module.exports = {
     '@typescript-eslint/explicit-module-boundary-types': 'off',
     '@typescript-eslint/no-explicit-any': 'error',
     '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_' }],
-    'no-console': ['warn', { allow: ['warn', 'error'] }],
+    '@typescript-eslint/await-thenable': 'error',
+    '@typescript-eslint/require-await': 'error',
+    '@typescript-eslint/no-unsafe-assignment': 'error',
+    '@typescript-eslint/no-unsafe-member-access': 'error',
+    '@typescript-eslint/no-unsafe-argument': 'error',
+    '@typescript-eslint/no-unsafe-call': 'error',
+    'no-console': ['error', { allow: ['warn', 'error'] }],
   },
   ignorePatterns: ['node_modules/', 'dist/', 'coverage/', '*.js'],
   overrides: [
@@ -34,6 +40,18 @@ module.exports = {
       rules: {
         '@typescript-eslint/no-unused-vars': 'off',
         '@typescript-eslint/no-explicit-any': 'off',
+      },
+    },
+    {
+      files: ['apps/*/frontend/src/**/*.ts', 'apps/*/frontend/src/**/*.tsx'],
+      parserOptions: {
+        project: ['apps/*/frontend/tsconfig.json'],
+      },
+    },
+    {
+      files: ['libs/*/src/**/*.ts', 'libs/*/src/**/*.tsx'],
+      parserOptions: {
+        project: ['libs/*/tsconfig.json'],
       },
     },
   ],

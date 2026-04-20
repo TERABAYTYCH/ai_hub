@@ -4,7 +4,7 @@ import { IDevice } from '@app/contracts/hub/devices';
 import { DeviceTable, EmptyState, LoadingState } from '@app/ui-kit';
 import { authFetch } from '../utils/auth';
 
-const API_URL = import.meta.env.VITE_API_URL || '/api';
+const API_URL = String(import.meta.env.VITE_API_URL) || '/api';
 
 /**
  * Функция для получения списка устройств с Hub API

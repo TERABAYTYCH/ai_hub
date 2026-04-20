@@ -24,7 +24,7 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
    * Валидация payload JWT токена.
    * Возвращает пользователя на основе данных из токена.
    */
-  async validate(payload: { sub: string; username: string; role: string; licenseId: string }) {
+  validate(payload: { sub: string; username: string; role: string; licenseId: string }) {
     if (!payload.sub) {
       throw new UnauthorizedException('Invalid token payload');
     }

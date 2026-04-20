@@ -14,7 +14,7 @@ import { JwtAuthGuard } from './guards/jwt-auth.guard';
     PassportModule.register({ defaultStrategy: 'jwt' }),
     JwtModule.registerAsync({
       imports: [ConfigModule],
-      useFactory: async (configService: ConfigService) => ({
+      useFactory: (configService: ConfigService) => ({
         // Pulse не выпускает свои токены, только валидирует
         secret:
           configService.get<string>('JWT_SECRET') || 'hub-jwt-secret-key-change-in-production',

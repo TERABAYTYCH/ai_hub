@@ -17,7 +17,9 @@ export async function login(credentials: LoginRequestDto): Promise<LoginResponse
   });
 
   if (!response.ok) {
-    const errorData = await response.json().catch(() => ({ message: 'Login failed' }));
+    const errorData = (await response.json().catch(() => ({ message: 'Login failed' }))) as {
+      message: string;
+    };
     throw new Error(errorData.message || 'Login failed');
   }
 
@@ -35,7 +37,9 @@ export async function register(userData: RegisterRequestDto): Promise<LoginRespo
   });
 
   if (!response.ok) {
-    const errorData = await response.json().catch(() => ({ message: 'Registration failed' }));
+    const errorData = (await response.json().catch(() => ({ message: 'Registration failed' }))) as {
+      message: string;
+    };
     throw new Error(errorData.message || 'Registration failed');
   }
 
