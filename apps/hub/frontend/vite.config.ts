@@ -8,8 +8,7 @@ export default defineConfig({
     federation({
       name: 'hub',
       remotes: {
-        // Use Nginx proxy with CORS headers for Module Federation remote
-        pulse: 'http://localhost/pulse/assets/remoteEntry.js',
+        pulse: 'http://pulse.localhost/assets/remoteEntry.js',
       },
       shared: ['react', 'react-dom', 'react-router-dom'],
     }),

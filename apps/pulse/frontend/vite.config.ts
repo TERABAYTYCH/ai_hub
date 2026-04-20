@@ -18,6 +18,10 @@ export default defineConfig({
     host: '0.0.0.0',
     port: 5174,
     strictPort: false,
+    cors: true,
+    headers: {
+      'Access-Control-Allow-Origin': '*',
+    },
   },
   build: {
     target: 'esnext',

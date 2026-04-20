@@ -130,6 +130,7 @@ services:
       - '80:80'
     volumes:
       - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./apps/pulse/frontend/dist:/usr/share/nginx/html/pulse:ro
     depends_on:
       - mysql-hub
       - mysql-pulse
