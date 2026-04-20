@@ -7,6 +7,7 @@
   "exports": {
     ".": "./src/index.ts",
     "./hub": "./src/hub/index.ts",
-    "./hub/auth": "./src/hub/auth/index.ts"
+    "./hub/auth": "./src/hub/auth/index.ts",
+    "./hub/devices": "./src/hub/devices/index.ts"
   }
 }

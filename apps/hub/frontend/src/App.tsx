@@ -17,14 +17,9 @@ const menuItems: MenuItem[] = [
 function HubLayout({ children }: { children: React.ReactNode }) {
   const { user, logout } = useAuth();
   const username = user?.username || user?.email || 'User';
-  
+
   return (
-    <AppLayout
-      menuItems={menuItems}
-      serviceName="Ject Hub"
-      username={username}
-      onLogout={logout}
-    >
+    <AppLayout menuItems={menuItems} serviceName="Ject Hub" username={username} onLogout={logout}>
       {children}
     </AppLayout>
   );
@@ -33,10 +28,7 @@ function HubLayout({ children }: { children: React.ReactNode }) {
 function App() {
   return (
     <Routes>
-      <Route
-        path="/"
-        element={<Navigate to="/devices" replace />}
-      />
+      <Route path="/" element={<Navigate to="/devices" replace />} />
       <Route
         path="/login"
         element={

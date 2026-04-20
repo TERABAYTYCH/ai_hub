@@ -5,6 +5,39 @@ const REFRESH_TOKEN_KEY = 'refreshToken';
 const USER_KEY = 'user';
 
 /**
+ * Decodes JWT token payload without external libraries.
+ * Returns null if token is invalid.
+ */
+function decodeTokenPayload(token: string): Record<string, unknown> | null {
+  try {
+    const parts = token.split('.');
+    if (parts.length !== 3) return null;
+    const payload = parts[1];
+    // Base64url decode
+    const decoded = payload.replace(/-/g, '+').replace(/_/g, '/');
+    const padded = decoded + '='.repeat((4 - (decoded.length % 4)) % 4);
+    const jsonStr = atob(padded);
+    return JSON.parse(jsonStr) as Record<string, unknown>;
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Checks if token is expired based on exp claim.
+ * Returns true if token is expired or invalid.
+ */
+export function isTokenExpired(token: string | null): boolean {
+  if (!token) return true;
+  const payload = decodeTokenPayload(token);
+  if (!payload) return true;
+  const exp = payload.exp;
+  if (typeof exp !== 'number') return true;
+  const now = Math.floor(Date.now() / 1000);
+  return exp < now;
+}
+
+/**
  * Сохраняет токены аутентификации в localStorage
  */
 export function setAuthTokens(accessToken: string, refreshToken: string): void {
@@ -36,6 +69,14 @@ export function clearAuthTokens(): void {
 }
 
 /**
+ * Деавторизация - очищает токены и редиректит на логин
+ */
+export function logout(): void {
+  clearAuthTokens();
+  window.location.href = '/login';
+}
+
+/**
  * Сохраняет данные пользователя в localStorage
  */
 export function setUser(user: IUser): void {
@@ -56,10 +97,12 @@ export function getUser(): IUser | null {
 }
 
 /**
- * Проверяет, авторизован ли пользователь
+ * Проверяет, авторизован ли пользователь (есть валидный токен)
  */
 export function isAuthenticated(): boolean {
-  return !!getAccessToken();
+  const token = getAccessToken();
+  if (!token) return false;
+  return !isTokenExpired(token);
 }
 
 /**
@@ -72,9 +115,16 @@ export function getUsername(): string {
 
 /**
  * authFetch с автоматическим добавлением Authorization заголовка
+ * и проверкой срока действия токена
  */
 export async function authFetch(url: string, options: RequestInit = {}): Promise<Response> {
   const token = getAccessToken();
+
+  // Check token expiration before making request
+  if (token && isTokenExpired(token)) {
+    logout();
+    throw new Error('Token expired');
+  }
 
   const headers: HeadersInit = {
     'Content-Type': 'application/json',
@@ -96,7 +146,7 @@ export async function authFetch(url: string, options: RequestInit = {}): Promise
       }
     }
     // Refresh не удался, чистим токены
-    clearAuthTokens();
+    logout();
   }
 
   return response;

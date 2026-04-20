@@ -1,21 +1,20 @@
 import { useState, useEffect } from 'react';
-import { Table, Button, Modal, Form, Badge, Alert, Card } from 'react-bootstrap';
+import { Button, Modal, Form, Alert, Card } from 'react-bootstrap';
 import {
   IDevice,
   CreateDeviceRequestDto,
   UpdateDeviceRequestDto,
   DeviceStatus,
 } from '@app/contracts/hub/devices';
+import { DeviceTable, EmptyState, LoadingState } from '@app/ui-kit';
 import { getDevices, createDevice, updateDevice, deleteDevice } from '../api/devices.api';
-
-const statusColors: Record<DeviceStatus, string> = {
-  ACTIVE: 'success',
-  INACTIVE: 'secondary',
-  MAINTENANCE: 'warning',
-};
 
 type DeviceFormData = CreateDeviceRequestDto & Partial<UpdateDeviceRequestDto>;
 
+/**
+ * Страница управления устройствами
+ * Отображает список устройств с возможностью добавления, редактирования и удаления
+ */
 function DevicesPage() {
   const [devices, setDevices] = useState<IDevice[]>([]);
   const [loading, setLoading] = useState(true);
@@ -114,52 +113,11 @@ function DevicesPage() {
         </div>
 
         {loading ? (
-          <Alert variant="info">Loading devices...</Alert>
+          <LoadingState />
         ) : devices.length === 0 ? (
-          <Alert variant="info">No devices found. Click "Add Device" to create one.</Alert>
+          <EmptyState onAdd={() => handleOpenModal()} />
         ) : (
-          <Table striped bordered hover responsive>
-            <thead>
-              <tr>
-                <th>Name</th>
-                <th>Type</th>
-                <th>Status</th>
-                <th>Description</th>
-                <th>Created</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {devices.map((device) => (
-                <tr key={device.id}>
-                  <td>{device.name}</td>
-                  <td>{device.type}</td>
-                  <td>
-                    <Badge bg={statusColors[device.status]}>{device.status}</Badge>
-                  </td>
-                  <td>{device.description || '-'}</td>
-                  <td>{new Date(device.createdAt).toLocaleDateString()}</td>
-                  <td>
-                    <Button
-                      variant="outline-primary"
-                      size="sm"
-                      className="me-2"
-                      onClick={() => handleOpenModal(device)}
-                    >
-                      Edit
-                    </Button>
-                    <Button
-                      variant="outline-danger"
-                      size="sm"
-                      onClick={() => handleDelete(device.id)}
-                    >
-                      Delete
-                    </Button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </Table>
+          <DeviceTable devices={devices} onEdit={handleOpenModal} onDelete={handleDelete} />
         )}
       </Card.Body>
 

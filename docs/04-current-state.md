@@ -150,3 +150,73 @@
 - Удалён `setGlobalPrefix('api')` из main.ts
 - Пересобран hub-backend контейнер
 - Проверено: `curl http://api.hub.localhost/devices` → 401 (исправлено)
+
+### Задача 2_pulse/003-pulse-bff: Создание BFF для Pulse
+
+**Выполнено:**
+
+- ✅ Создан HubProxyModule с эндпоинтом `GET /devices`
+- ✅ Реализовано проксирование запросов в Hub с пробросом Authorization header
+- ✅ Добавлена переменная `HUB_INTERNAL_API_URL=http://hub-backend:3000`
+- ✅ Контейнер пересобран
+
+**Проверки:**
+
+- ✅ `curl http://api.pulse.localhost/api/devices` (без токена) → 401
+- ✅ `curl http://api.pulse.localhost/api/devices` (с токеном) → 200 + массив устройств
+- ✅ yarn typecheck - OK
+
+**Файлы:**
+- `apps/pulse/backend/src/hub-proxy/` — новый модуль
+- `docker-compose.yml` — добавлена HUB_INTERNAL_API_URL
+
+### Задача 2_pulse/04-pulse-frontend-devices-panel: Вынос панели устройств в UI Kit
+
+**Выполнено:**
+
+- ✅ Созданы компоненты DeviceTable, StatusBadge, DeviceRow, EmptyState, LoadingState в ui-kit
+- ✅ Hub DevicesPage обновлен — использует компоненты из ui-kit
+- ✅ Создана страница DevicesPage в Pulse с подключением к BFF
+- ✅ Исправлены resolve.alias для @app/ui-kit в vite.config.ts
+- ✅ Исправлен VITE_API_URL для Pulse — использует api.hub.localhost
+
+**Проверки:**
+
+- ✅ Hub /devices — таблица отображается
+- ✅ Pulse /devices — таблица отображается  
+- ✅ Network: /devices идёт на api.hub.localhost
+- ✅ LoadingState и EmptyState работают
+- ✅ Стили идентичны на обоих приложениях
+- ✅ yarn typecheck — OK
+
+**Файлы:**
+- `libs/ui-kit/src/components/devices/` — новые компоненты
+- `apps/pulse/frontend/src/pages/DevicesPage.tsx` — новая страница
+
+### Задача 0_infrastructure/011-jwt-handling-audit: Аудит и исправление JWT token handling
+
+**Выполнено:**
+
+- ✅ AuthProvider в ui-kit - добавлена проверка `exp` claim токена при загрузке
+- ✅ Hub Frontend utils/auth.ts - добавлена функция `isTokenExpired()`, проверка перед запросами
+- ✅ Pulse Frontend utils/auth.ts - переписан с полной поддержкой проверки token expiration и auto-refresh
+- ✅ Созданы глобальные axios interceptors в обоих фронтендах для обработки 401
+- ✅ Pulse DevicesPage - заменён axios на authFetch для автоматической обработки 401
+- ✅ Hub и Pulse main.tsx - инициализация axios interceptors
+- ✅ tsconfig.base.json - добавлен `ignoreDeprecations: "6.0"`
+
+**Проверки:**
+
+- ✅ yarn typecheck - OK
+- ✅ yarn test (build) - OK
+- ✅ Hub frontend build - OK
+- ✅ Pulse frontend build - OK
+
+**Файлы:**
+- `libs/ui-kit/src/providers/AuthProvider.tsx` — добавлена проверка exp
+- `apps/hub/frontend/src/utils/auth.ts` — добавлена проверка exp
+- `apps/pulse/frontend/src/utils/auth.ts` — переписан с поддержкой exp check
+- `apps/hub/frontend/src/api/axios.ts` — новый interceptor
+- `apps/pulse/frontend/src/api/axios.ts` — новый interceptor
+- `apps/pulse/frontend/src/pages/DevicesPage.tsx` — использует authFetch
+- `apps/*/frontend/src/main.tsx` — инициализация interceptors

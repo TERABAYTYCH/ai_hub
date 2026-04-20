@@ -26,6 +26,37 @@ interface AuthContextType extends AuthState {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
+/**
+ * Decodes JWT token payload without external libraries.
+ * Returns null if token is invalid.
+ */
+function decodeTokenPayload(token: string): Record<string, unknown> | null {
+  try {
+    const parts = token.split('.');
+    if (parts.length !== 3) return null;
+    const payload = parts[1];
+    // Base64url decode
+    const decoded = payload.replace(/-/g, '+').replace(/_/g, '/');
+    const padded = decoded + '='.repeat((4 - (decoded.length % 4)) % 4);
+    const jsonStr = atob(padded);
+    return JSON.parse(jsonStr) as Record<string, unknown>;
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Checks if token is expired based on exp claim.
+ */
+function isTokenExpired(token: string): boolean {
+  const payload = decodeTokenPayload(token);
+  if (!payload) return true;
+  const exp = payload.exp;
+  if (typeof exp !== 'number') return true;
+  const now = Math.floor(Date.now() / 1000);
+  return exp < now;
+}
+
 export function AuthProvider({ children }: { children: ReactNode }) {
   const navigate = useNavigate();
   const [state, setState] = useState<AuthState>({
@@ -34,11 +65,24 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     isLoading: true,
   });
 
-  // Проверяем авторизацию при монтировании
+  // Check authorization on mount - validate token expiration
   useEffect(() => {
     const accessToken = localStorage.getItem(ACCESS_TOKEN_KEY);
     const userStr = localStorage.getItem(USER_KEY);
-    
+
+    if (accessToken && isTokenExpired(accessToken)) {
+      // Token is expired - clear storage and require re-login
+      localStorage.removeItem(ACCESS_TOKEN_KEY);
+      localStorage.removeItem(REFRESH_TOKEN_KEY);
+      localStorage.removeItem(USER_KEY);
+      setState({
+        isAuthenticated: false,
+        user: null,
+        isLoading: false,
+      });
+      return;
+    }
+
     setState({
       isAuthenticated: !!accessToken,
       user: userStr ? (JSON.parse(userStr) as IUser) : null,

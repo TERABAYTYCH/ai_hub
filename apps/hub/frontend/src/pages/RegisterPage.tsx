@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { AuthPage, RegisterForm, RegisterData, useAuth } from '@ject-hub/ui-kit';
+import { AuthPage, RegisterForm, RegisterData, useAuth } from '@app/ui-kit';
 import { RegisterRequestDto, LoginResponseDto } from '@app/contracts/hub/auth';
 
 const API_BASE_URL = (import.meta.env.VITE_API_URL as string) || '/api';

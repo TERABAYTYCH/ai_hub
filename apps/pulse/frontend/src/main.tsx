@@ -1,17 +1,23 @@
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
-import { ThemeProvider, AuthProvider, ProtectedRoute, GuestRoute, AppLayout } from '@ject-hub/ui-kit';
+import { ThemeProvider, AuthProvider, ProtectedRoute, GuestRoute, AppLayout } from '@app/ui-kit';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap-icons/font/bootstrap-icons.css';
 import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
 import DashboardPage from './pages/DashboardPage';
-import { useAuth } from '@ject-hub/ui-kit';
+import DevicesPage from './pages/DevicesPage';
+import { useAuth } from '@app/ui-kit';
+import { initAxiosInterceptors } from './api/axios';
+
+// Initialize axios interceptors for global 401 handling
+initAxiosInterceptors();
 
 /** Элементы меню для приложения Pulse */
 const menuItems = [
   { title: 'Dashboard', path: '/', icon: 'bi bi-house' },
+  { title: 'Devices', path: '/devices', icon: 'bi bi-device-hub' },
   { title: 'Metrics', path: '/metrics', icon: 'bi bi-graph-up' },
   { title: 'Alerts', path: '/alerts', icon: 'bi bi-bell' },
   { title: 'Settings', path: '/settings', icon: 'bi bi-gear' },
@@ -21,14 +27,9 @@ const menuItems = [
 function PulseLayout({ children }: { children: React.ReactNode }) {
   const { user, logout } = useAuth();
   const username = user?.username || user?.email || 'User';
-  
+
   return (
-    <AppLayout
-      menuItems={menuItems}
-      serviceName="Pulse"
-      username={username}
-      onLogout={logout}
-    >
+    <AppLayout menuItems={menuItems} serviceName="Pulse" username={username} onLogout={logout}>
       {children}
     </AppLayout>
   );
@@ -67,6 +68,16 @@ if (rootElement) {
                   <ProtectedRoute>
                     <PulseLayout>
                       <DashboardPage />
+                    </PulseLayout>
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/devices"
+                element={
+                  <ProtectedRoute>
+                    <PulseLayout>
+                      <DevicesPage />
                     </PulseLayout>
                   </ProtectedRoute>
                 }
