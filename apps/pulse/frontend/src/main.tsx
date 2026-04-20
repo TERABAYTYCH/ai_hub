@@ -17,7 +17,7 @@ initAxiosInterceptors();
 /** Элементы меню для приложения Pulse */
 const menuItems = [
   { title: 'Dashboard', path: '/', icon: 'bi bi-house' },
-  { title: 'Devices', path: '/devices', icon: 'bi bi-device-hub' },
+  { title: 'Devices', path: '/devices', icon: 'bi bi-grid' },
   { title: 'Metrics', path: '/metrics', icon: 'bi bi-graph-up' },
   { title: 'Alerts', path: '/alerts', icon: 'bi bi-bell' },
   { title: 'Settings', path: '/settings', icon: 'bi bi-gear' },

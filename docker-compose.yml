@@ -191,7 +191,8 @@ services:
       - .:/app
       - /app/node_modules
       - /app/apps/hub/frontend/node_modules
-    command: yarn workspace @ject-hub/hub-frontend dev
+      - /app/apps/hub/frontend/dist
+    command: yarn workspace @ject-hub/hub-frontend dev:docker
     depends_on:
       - hub-backend
     networks:
@@ -237,7 +238,8 @@ services:
       - .:/app
       - /app/node_modules
       - /app/apps/pulse/frontend/node_modules
-    command: yarn workspace @ject-hub/pulse-frontend dev
+      - /app/apps/pulse/frontend/dist
+    command: yarn workspace @ject-hub/pulse-frontend dev:docker
     depends_on:
       - pulse-backend
     networks:

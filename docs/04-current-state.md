@@ -220,3 +220,22 @@
 - `apps/pulse/frontend/src/api/axios.ts` — новый interceptor
 - `apps/pulse/frontend/src/pages/DevicesPage.tsx` — использует authFetch
 - `apps/*/frontend/src/main.tsx` — инициализация interceptors
+
+### Задача 0_infrastructure/012-docker-dev-optimization: Оптимизация Docker-окружения
+
+**Выполнено:**
+
+- ✅ Добавлен скрипт `dev:docker` в package.json фронтендов
+- ✅ Создан Vite плагин `remoteEntryPlugin` для отдачи remoteEntry.js из dist/
+- ✅ Обновлен docker-compose.yml с dev:docker командой
+- ✅ Добавлены anonymous volumes для dist папок
+
+**Проверки:**
+
+- ✅ yarn typecheck — OK
+- ⚠️ Pre-existing lint errors (22 errors, не связаны с изменениями)
+
+**Файлы:**
+- `apps/*/frontend/vite.config.ts` — добавлен remoteEntryPlugin
+- `apps/*/frontend/package.json` — добавлен dev:docker скрипт
+- `docker-compose.yml` — обновлены команды и volumes

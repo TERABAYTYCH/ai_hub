@@ -19,7 +19,6 @@
     "sourceMap": true,
     "rootDir": ".",
     "baseUrl": ".",
-    "ignoreDeprecations": "6.0",
     "paths": {
       "@app/contracts": ["libs/contracts/src/index.ts"],
       "@app/contracts/hub": ["libs/contracts/src/hub/index.ts"],
