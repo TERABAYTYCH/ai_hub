@@ -1,8 +1,6 @@
-import type { LoginResponseDto, IUser } from '@app/contracts/hub/auth';
+import { getAccessToken, removeAccessToken } from '@app/ui-kit';
 
-const ACCESS_TOKEN_KEY = 'accessToken';
-const REFRESH_TOKEN_KEY = 'refreshToken';
-const USER_KEY = 'user';
+const API_URL = String(import.meta.env.VITE_API_URL) || '/api';
 
 /**
  * Decodes JWT token payload without external libraries.
@@ -38,84 +36,32 @@ export function isTokenExpired(token: string | null): boolean {
 }
 
 /**
- * Сохраняет токены аутентификации в localStorage
+ * Gets username from access token (decodes JWT).
+ * Falls back to 'User' if token is invalid or username not found.
  */
-export function setAuthTokens(accessToken: string, refreshToken: string): void {
-  localStorage.setItem(ACCESS_TOKEN_KEY, accessToken);
-  localStorage.setItem(REFRESH_TOKEN_KEY, refreshToken);
+export function getUsername(): string {
+  const token = getAccessToken();
+  if (!token) return 'User';
+
+  const payload = decodeTokenPayload(token);
+  if (!payload) return 'User';
+
+  const username = payload.username as string | undefined;
+  const email = payload.email as string | undefined;
+  return username || email || 'User';
 }
 
 /**
- * Получает access token из localStorage
- */
-export function getAccessToken(): string | null {
-  return localStorage.getItem(ACCESS_TOKEN_KEY);
-}
-
-/**
- * Получает refresh token из localStorage
- */
-export function getRefreshToken(): string | null {
-  return localStorage.getItem(REFRESH_TOKEN_KEY);
-}
-
-/**
- * Удаляет все токены из localStorage (логаут)
- */
-export function clearAuthTokens(): void {
-  localStorage.removeItem(ACCESS_TOKEN_KEY);
-  localStorage.removeItem(REFRESH_TOKEN_KEY);
-  localStorage.removeItem(USER_KEY);
-}
-
-/**
- * Деавторизация - очищает токены и редиректит на логин
+ * Clears authentication cookies and redirects to login.
  */
 export function logout(): void {
-  clearAuthTokens();
+  removeAccessToken();
   window.location.href = '/login';
 }
 
 /**
- * Сохраняет данные пользователя в localStorage
- */
-export function setUser(user: IUser): void {
-  localStorage.setItem(USER_KEY, JSON.stringify(user));
-}
-
-/**
- * Получает данные пользователя из localStorage
- */
-export function getUser(): IUser | null {
-  const userStr = localStorage.getItem(USER_KEY);
-  if (!userStr) return null;
-  try {
-    return JSON.parse(userStr) as IUser;
-  } catch {
-    return null;
-  }
-}
-
-/**
- * Проверяет, авторизован ли пользователь (есть валидный токен)
- */
-export function isAuthenticated(): boolean {
-  const token = getAccessToken();
-  if (!token) return false;
-  return !isTokenExpired(token);
-}
-
-/**
- * Получает имя пользователя для отображения
- */
-export function getUsername(): string {
-  const user = getUser();
-  return user?.username || user?.email || 'User';
-}
-
-/**
- * authFetch с автоматическим добавлением Authorization заголовка
- * и проверкой срока действия токена
+ * Authenticated fetch using cookies.
+ * Refresh token is HttpOnly cookie, sent automatically.
  */
 export async function authFetch(url: string, options: RequestInit = {}): Promise<Response> {
   const token = getAccessToken();
@@ -132,20 +78,19 @@ export async function authFetch(url: string, options: RequestInit = {}): Promise
     ...options.headers,
   };
 
-  const response = await fetch(url, { ...options, headers });
+  const response = await fetch(url, { ...options, headers, credentials: 'include' });
 
-  // Если токен истек (401), пробуем refresh
-  if (response.status === 401 && token) {
+  if (response.status === 401) {
+    // Try to refresh tokens
     const refreshed = await tryRefreshToken();
     if (refreshed) {
-      // Повторяем запрос с новым токеном
+      // Retry request with new token
       const newToken = getAccessToken();
       if (newToken) {
         (headers as Record<string, string>).Authorization = `Bearer ${newToken}`;
-        return fetch(url, { ...options, headers });
+        return fetch(url, { ...options, headers, credentials: 'include' });
       }
     }
-    // Refresh не удался, чистим токены
     logout();
   }
 
@@ -153,31 +98,18 @@ export async function authFetch(url: string, options: RequestInit = {}): Promise
 }
 
 /**
- * Пытается обновить access token через refresh token
+ * Attempts to refresh access token using HttpOnly refresh cookie.
+ * Access token is read from cookie after refresh.
  */
 async function tryRefreshToken(): Promise<boolean> {
-  const refreshToken = getRefreshToken();
-  if (!refreshToken) return false;
-
   try {
-    // Обращаемся к Hub backend для refresh
-    const response = await fetch(`${import.meta.env.VITE_API_URL}/auth/refresh`, {
+    const response = await fetch(`${API_URL}/auth/refresh`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ refreshToken }),
+      credentials: 'include',
     });
 
-    if (response.ok) {
-      const data = (await response.json()) as LoginResponseDto;
-      setAuthTokens(data.accessToken, data.refreshToken);
-      if (data.user) {
-        setUser(data.user);
-      }
-      return true;
-    }
+    return response.ok;
   } catch {
-    // Ignore errors
+    return false;
   }
-
-  return false;
 }

@@ -19,6 +19,7 @@ export default function RegisterPage() {
         headers: {
           'Content-Type': 'application/json',
         },
+        credentials: 'include', // Required for cross-domain cookies
         body: JSON.stringify(data as RegisterRequestDto),
       });
 
@@ -28,7 +29,8 @@ export default function RegisterPage() {
       }
 
       const responseData = (await response.json()) as LoginResponseDto;
-      login(responseData.accessToken, responseData.refreshToken, responseData.user);
+      // Backend sets HttpOnly refresh cookie, access token in response body
+      login(responseData.accessToken, responseData.user);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An error occurred');
     } finally {

@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { removeAccessToken } from '@app/ui-kit';
 
 /**
  * Initializes axios interceptors for global 401 handling.
@@ -11,9 +12,8 @@ export function initAxiosInterceptors(): void {
     (error) => {
       if (axios.isAxiosError(error)) {
         if (error.response?.status === 401) {
-          // Clear all auth data and redirect to login
-          localStorage.removeItem('accessToken');
-          localStorage.removeItem('user');
+          // Clear auth cookies and redirect to login
+          removeAccessToken();
           window.location.href = '/login';
         }
       }

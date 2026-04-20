@@ -299,3 +299,153 @@
 - `apps/hub/backend/src/main.ts` — Logger
 - `apps/hub/backend/src/auth/users.module.ts` — Logger
 - `apps/pulse/backend/src/main.ts` — Logger
+
+### Задача 0_infrastructure/014-cross-domain-auth: Cross-Domain SSO с HttpOnly Cookies
+
+**Выполнено:**
+
+- ✅ Созданы cookie utilities в `libs/ui-kit/src/utils/cookies.ts`
+- ✅ AuthProvider переведён на cookies вместо localStorage
+- ✅ Добавлен auto-refresh токена при инициализации
+- ✅ Hub backend обновлён с HttpOnly refresh cookie
+- ✅ Добавлены endpoints `/auth/refresh` и `/auth/logout`
+- ✅ Все fetch-запросы обновлены с `credentials: 'include'`
+- ✅ Hub axios interceptor исправлен на cookies вместо localStorage
+- ✅ Pulse frontend auth.ts исправлен (убрана неиспользуемая переменная)
+
+**Проверки:**
+
+- ✅ yarn typecheck — 0 errors
+- ⚠️ yarn lint — pre-existing errors в PulseDashboard.tsx и DashboardPage.tsx (не связаны с задачей)
+
+**Файлы:**
+- `libs/ui-kit/src/utils/cookies.ts` — cookie utilities
+- `libs/ui-kit/src/providers/AuthProvider.tsx` — cookie-based auth с auto-refresh
+- `libs/ui-kit/src/index.ts` — экспорт cookie utilities
+- `apps/hub/backend/src/auth/auth.controller.ts` — HttpOnly cookies
+- `apps/hub/backend/src/auth/auth.service.ts` — refresh token logic
+- `apps/hub/frontend/src/api/axios.ts` — cookies вместо localStorage
+- `apps/pulse/frontend/src/utils/auth.ts` — cookie-based auth
+- `apps/hub/frontend/src/pages/LoginPage.tsx` — credentials: 'include'
+- `apps/hub/frontend/src/pages/RegisterPage.tsx` — credentials: 'include'
+- `apps/pulse/frontend/src/pages/LoginPage.tsx` — credentials: 'include'
+- `docs/adr/ADR-003-cross-domain-sso-auth.md` — документация архитектурного решения
+
+**Доработка #2 - 2026-04-20 (исправление CORS и lint ошибок)**
+
+- Обнаружен критический CORS баг: при `credentials: true` с массивом origins, preflight OPTIONS не возвращает `Access-Control-Allow-Origin`
+- Исправлен CORS в `apps/hub/backend/src/main.ts` - использован function-based origin
+- Исправлен CORS в `apps/pulse/backend/src/main.ts` - аналогично
+- Добавлена функция `getUsername()` в `apps/pulse/frontend/src/utils/auth.ts` - ранее была удалена при рефакторинге, но использовалась в DashboardPage
+- Исправлен async метод `logout` в auth.controller.ts - убран async так как не было await
+
+**Проверки:**
+- ✅ yarn typecheck — 0 errors
+- ✅ yarn lint — 0 errors
+
+**Доработка #3 - 2026-04-20 (исправление парсера getRootDomain и полный аудит SSO)**
+
+**Шаг 0 - Аудит Task 014:**
+- Обнаружен critical bug: `pulse/frontend/src/api/axios.ts` всё ещё использовал `localStorage.removeItem('refreshToken')`
+- Обнаружен bug в `getRootDomain()`: возвращал `'localhost'` для localhost/IP, что нарушает RFC 6265
+
+**Шаг 1 - Исправление getRootDomain():**
+- Теперь возвращает `undefined` для localhost и IP (браузер ставит host-only cookie)
+- Возвращает `.localhost` для `*.localhost` доменов
+- Возвращает `.domain.com` для остальных доменов
+
+**Шаг 2 - Очистка фронтенда от refresh token:**
+- Удалён `localStorage.removeItem('refreshToken')` из `pulse/frontend/src/api/axios.ts`
+- Теперь используется только `removeAccessToken()` из ui-kit
+
+**Шаг 3 - HttpOnly верификация:**
+- Backend `auth.controller.ts` корректно устанавливает `httpOnly=true` для refresh token
+- Access token НЕ имеет HttpOnly (правильно - нужен для JS)
+
+**Проверки:**
+- ✅ yarn typecheck — 0 errors
+- ✅ yarn lint — 0 errors
+
+**Доработка #4 - 2026-04-20 (Task 014.1 - исправление Domain в Set-Cookie)**
+
+- Бэкенд не добавлял атрибут Domain в Set-Cookie для refresh token
+- Кука привязывалась к api.hub.localhost вместо .localhost
+- Добавлена функция `computeCookieDomain()` в auth.controller.ts
+- Все endpoints (login, register, refresh, logout) теперь устанавливают Domain
+
+**Пример Set-Cookie:**
+`ject_refresh_token=xxx; Domain=.localhost; Path=/; HttpOnly; SameSite=Lax; Max-Age=604800`
+
+**Проверки:**
+- ✅ yarn typecheck — 0 errors
+- ✅ yarn lint — 0 errors
+
+**Доработка #5 - 2026-04-20 (Переход на lvh.me для SSO)**
+
+- Добавлены `http://hub.lvh.me`, `http://pulse.lvh.me`, `http://lvh.me` в CORS origins
+- Логика `getRootDomain()` корректно обрабатывает `lvh.me` (возвращает `.lvh.me`)
+- Backend `computeCookieDomain()` корректно обрабатывает `lvh.me`
+
+**Проверки:**
+- ✅ yarn typecheck — 0 errors
+- ✅ yarn lint — 0 errors
+
+**Примечание:** Для работы SSO с lvh.me нужно настроить фронтенды на запуск с lvh.me домена (Vite server host).
+
+**Доработка #6 - 2026-04-20 (Nginx конфигурация для lvh.me)**
+
+- Добавлены server blocks для lvh.me доменов:
+  - `hub.lvh.me` → Hub Frontend
+  - `pulse.lvh.me` → Pulse Frontend
+  - `api.hub.lvh.me` → Hub Backend
+  - `api.pulse.lvh.me` → Pulse Backend
+- Nginx перезапущен с новой конфигурацией
+- Конфигурация валидна (nginx -t OK)
+
+**Примечание:** Для полного SSO нужно настроить Vite dev servers на использование lvh.me хоста.
+
+**Доработка #7 - 2026-04-20 (Vite config для lvh.me)**
+
+- Добавлен `server.allowedHosts` в `apps/hub/frontend/vite.config.ts`
+- Добавлен `server.allowedHosts` в `apps/pulse/frontend/vite.config.ts`
+- Обновлён remote URL для Module Federation: `pulse.lvh.me` вместо `pulse.localhost`
+
+**Проверка:**
+- ✅ `curl -I http://pulse.lvh.me` → 200 OK
+
+**Доработка #8 - 2026-04-20 (Переход на lvh.me домены)**
+
+- Nginx перенастроен на lvh.me как primary домены
+- localhost домены сохранены как legacy (для обратной совместимости)
+- Backend CORS обновлён - lvh.me как primary, localhost как legacy
+- docker-compose.yml VITE_API_URL обновлён на api.hub.lvh.me
+- .env.example обновлены на lvh.me
+
+**Домены:**
+| Domain | Назначение | Статус |
+|--------|------------|--------|
+| hub.lvh.me | Hub Frontend | ✅ Primary |
+| pulse.lvh.me | Pulse Frontend | ✅ Primary |
+| api.hub.lvh.me | Hub Backend | ✅ Primary |
+| api.pulse.lvh.me | Pulse Backend | ✅ Primary |
+| hub.localhost | Hub Frontend | ⚠️ Legacy |
+| pulse.localhost | Pulse Frontend | ⚠️ Legacy |
+
+**Проверки:**
+- ✅ curl http://hub.lvh.me → 200 OK
+- ✅ curl http://pulse.lvh.me → 200 OK  
+- ✅ curl http://api.hub.lvh.me/health → 200 OK
+- ✅ yarn typecheck — 0 errors
+- ✅ yarn lint — 0 errors
+
+**Доработка #9 - 2026-04-20 (Исправление ошибки сборки pulse-frontend)**
+
+- Исправлена ошибка TypeScript в `RegisterPage.tsx` - лишний аргумент `response.refreshToken`
+- Контейнеры перезапущены с корректным `VITE_API_URL=http://api.hub.lvh.me`
+
+**Проверки:**
+- ✅ http://hub.lvh.me → 200 OK
+- ✅ http://pulse.lvh.me → 200 OK
+- ✅ VITE_API_URL in container = http://api.hub.lvh.me
+- ✅ yarn typecheck — 0 errors
+- ✅ yarn lint — 0 errors

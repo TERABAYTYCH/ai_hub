@@ -37,7 +37,7 @@ export default defineConfig({
     federation({
       name: 'hub',
       remotes: {
-        pulse: 'http://pulse.localhost/assets/remoteEntry.js',
+        pulse: 'http://pulse.lvh.me/assets/remoteEntry.js',
       },
       shared: ['react', 'react-dom', 'react-router-dom'],
     }),
@@ -52,6 +52,7 @@ export default defineConfig({
     host: '0.0.0.0',
     port: 5173,
     strictPort: false,
+    allowedHosts: ['hub.lvh.me', 'pulse.lvh.me', 'lvh.me', 'localhost'],
   },
   build: {
     target: 'esnext',

@@ -1,4 +1,4 @@
-import { Injectable, UnauthorizedException, ConflictException } from '@nestjs/common';
+import { Injectable, UnauthorizedException, ConflictException, Logger } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { UsersService } from './users.service';
 import { LoginDto } from './dto/login.dto';
@@ -8,6 +8,8 @@ import { User } from './entities/user.entity';
 
 @Injectable()
 export class AuthService {
+  private readonly logger = new Logger(AuthService.name);
+
   constructor(
     private readonly usersService: UsersService,
     private readonly jwtService: JwtService,
@@ -34,6 +36,10 @@ export class AuthService {
     return this.generateTokens(user);
   }
 
+  /**
+   * Refreshes tokens using the HttpOnly refresh token from cookie.
+   * @param refreshToken - The refresh token from HttpOnly cookie
+   */
   async refreshToken(refreshToken: string): Promise<LoginResponseDto> {
     try {
       const payload = this.jwtService.verify<UserJwtPayload>(refreshToken, {
@@ -70,6 +76,10 @@ export class AuthService {
     };
   }
 
+  /**
+   * Generates access and refresh tokens.
+   * Refresh token is designed to be stored in HttpOnly cookie.
+   */
   private generateTokens(user: User): LoginResponseDto {
     const payload: UserJwtPayload = {
       sub: user.id,

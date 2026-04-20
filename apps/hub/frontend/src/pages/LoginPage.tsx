@@ -19,15 +19,17 @@ export default function LoginPage() {
         headers: {
           'Content-Type': 'application/json',
         },
+        credentials: 'include', // Required for cross-domain cookies
         body: JSON.stringify({ username, password } as LoginRequestDto),
       });
 
       if (!response.ok) {
-        throw new Error('Failed to login');
+        throw new Error('Invalid credentials');
       }
 
       const data = (await response.json()) as LoginResponseDto;
-      login(data.accessToken, data.refreshToken, data.user);
+      // Backend sets HttpOnly refresh cookie, access token in response body
+      login(data.accessToken, data.user);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An error occurred');
     } finally {

@@ -17,7 +17,8 @@ export default function LoginPage() {
 
     try {
       const data = await login({ username, password });
-      authLogin(data.accessToken, data.refreshToken, data.user);
+      // Refresh token is set via HttpOnly cookie by backend
+      authLogin(data.accessToken, data.user);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Login failed');
     } finally {

@@ -1,12 +1,4 @@
-export function logout(): void {
-  localStorage.removeItem('accessToken');
-  localStorage.removeItem('user');
-  window.location.href = '/login';
-}
-
-export function handleUnauthorized(): void {
-  logout();
-}
+import { getAccessToken, removeAccessToken } from '@app/ui-kit';
 
 /**
  * Decodes JWT token payload without external libraries.
@@ -41,8 +33,20 @@ export function isTokenExpired(token: string | null): boolean {
   return exp < now;
 }
 
+/**
+ * Handles unauthorized access - clears cookies and redirects
+ */
+export function handleUnauthorized(): void {
+  removeAccessToken();
+  window.location.href = '/login';
+}
+
+/**
+ * Fetches with cookie-based authentication.
+ * Access token is sent automatically via cookie.
+ */
 export async function authFetch(url: string, options: RequestInit = {}): Promise<Response> {
-  const token = localStorage.getItem('accessToken');
+  const token = getAccessToken();
 
   // Check token expiration before making request
   if (token && isTokenExpired(token)) {
@@ -56,7 +60,7 @@ export async function authFetch(url: string, options: RequestInit = {}): Promise
     ...options.headers,
   };
 
-  const response = await fetch(url, { ...options, headers });
+  const response = await fetch(url, { ...options, headers, credentials: 'include' });
 
   if (response.status === 401) {
     handleUnauthorized();

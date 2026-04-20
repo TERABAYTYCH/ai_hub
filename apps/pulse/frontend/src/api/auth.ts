@@ -4,15 +4,17 @@ import type {
   RegisterRequestDto,
 } from '@app/contracts/hub/auth';
 
-const API_URL = (import.meta.env.VITE_API_URL as string) || '/api';
+const API_URL = String(import.meta.env.VITE_API_URL) || '/api';
 
 /**
  * Выполняет вход пользователя через Hub Backend API
+ * Refresh токен устанавливается через HttpOnly cookie
  */
 export async function login(credentials: LoginRequestDto): Promise<LoginResponseDto> {
   const response = await fetch(`${API_URL}/auth/login`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
+    credentials: 'include', // Required for cross-domain cookies
     body: JSON.stringify(credentials),
   });
 
@@ -33,6 +35,7 @@ export async function register(userData: RegisterRequestDto): Promise<LoginRespo
   const response = await fetch(`${API_URL}/auth/register`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
+    credentials: 'include', // Required for cross-domain cookies
     body: JSON.stringify(userData),
   });
 
@@ -48,13 +51,11 @@ export async function register(userData: RegisterRequestDto): Promise<LoginRespo
 
 /**
  * Получает информацию о текущем пользователе
+ * Использует access token из cookie
  */
 export async function getCurrentUser(): Promise<unknown> {
-  const token = localStorage.getItem('accessToken');
   const response = await fetch(`${API_URL}/auth/me`, {
-    headers: {
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
-    },
+    credentials: 'include', // Cookie will be sent automatically
   });
 
   if (!response.ok) {
@@ -62,4 +63,30 @@ export async function getCurrentUser(): Promise<unknown> {
   }
 
   return response.json();
+}
+
+/**
+ * Обновляет токены с использованием HttpOnly refresh cookie
+ */
+export async function refreshTokens(): Promise<LoginResponseDto> {
+  const response = await fetch(`${API_URL}/auth/refresh`, {
+    method: 'POST',
+    credentials: 'include', // HttpOnly cookie will be sent automatically
+  });
+
+  if (!response.ok) {
+    throw new Error('Failed to refresh tokens');
+  }
+
+  return (await response.json()) as LoginResponseDto;
+}
+
+/**
+ * Выполняет logout и очищает cookies
+ */
+export async function logout(): Promise<void> {
+  await fetch(`${API_URL}/auth/logout`, {
+    method: 'POST',
+    credentials: 'include',
+  });
 }

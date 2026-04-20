@@ -58,6 +58,7 @@ export default defineConfig({
     headers: {
       'Access-Control-Allow-Origin': '*',
     },
+    allowedHosts: ['hub.lvh.me', 'pulse.lvh.me', 'lvh.me', 'localhost'],
   },
   build: {
     target: 'esnext',

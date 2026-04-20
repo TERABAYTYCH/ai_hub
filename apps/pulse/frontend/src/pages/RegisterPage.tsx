@@ -18,7 +18,8 @@ export default function RegisterPage() {
 
     try {
       const response = await register(data as RegisterRequestDto);
-      authLogin(response.accessToken, response.refreshToken, response.user);
+      // Refresh token is set via HttpOnly cookie by backend
+      authLogin(response.accessToken, response.user);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Registration failed');
     } finally {

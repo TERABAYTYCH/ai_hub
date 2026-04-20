@@ -1,30 +1,6 @@
 import { createContext, useContext, useState, useEffect, useCallback, ReactNode } from 'react';
 import { useNavigate } from 'react-router-dom';
-
-const ACCESS_TOKEN_KEY = 'accessToken';
-const REFRESH_TOKEN_KEY = 'refreshToken';
-const USER_KEY = 'user';
-
-export interface IUser {
-  id: string;
-  username: string;
-  email?: string;
-  firstName?: string;
-  lastName?: string;
-}
-
-interface AuthState {
-  isAuthenticated: boolean;
-  user: IUser | null;
-  isLoading: boolean;
-}
-
-interface AuthContextType extends AuthState {
-  login: (accessToken: string, refreshToken: string, user?: IUser) => void;
-  logout: () => void;
-}
-
-const AuthContext = createContext<AuthContextType | undefined>(undefined);
+import { getAccessToken, setAccessToken, removeAccessToken } from '../utils/cookies';
 
 /**
  * Decodes JWT token payload without external libraries.
@@ -57,6 +33,31 @@ function isTokenExpired(token: string): boolean {
   return exp < now;
 }
 
+export interface IUser {
+  id: string;
+  username: string;
+  email?: string;
+  firstName?: string;
+  lastName?: string;
+}
+
+interface AuthState {
+  isAuthenticated: boolean;
+  user: IUser | null;
+  isLoading: boolean;
+}
+
+interface AuthContextType extends AuthState {
+  login: (accessToken: string, user?: IUser) => void;
+  logout: () => void;
+}
+
+const AuthContext = createContext<AuthContextType | undefined>(undefined);
+
+/**
+ * AuthProvider with cross-domain cookie support.
+ * Access token is stored in cookie, refresh token is HttpOnly.
+ */
 export function AuthProvider({ children }: { children: ReactNode }) {
   const navigate = useNavigate();
   const [state, setState] = useState<AuthState>({
@@ -65,37 +66,58 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     isLoading: true,
   });
 
-  // Check authorization on mount - validate token expiration
+  // Check authorization on mount - validate token from cookie and auto-refresh if needed
   useEffect(() => {
-    const accessToken = localStorage.getItem(ACCESS_TOKEN_KEY);
-    const userStr = localStorage.getItem(USER_KEY);
+    const initAuth = async () => {
+      const accessToken = getAccessToken();
 
-    if (accessToken && isTokenExpired(accessToken)) {
-      // Token is expired - clear storage and require re-login
-      localStorage.removeItem(ACCESS_TOKEN_KEY);
-      localStorage.removeItem(REFRESH_TOKEN_KEY);
-      localStorage.removeItem(USER_KEY);
+      if (accessToken && isTokenExpired(accessToken)) {
+        // Token is expired - try to refresh using relative URL (nginx proxy)
+        try {
+          const response = await fetch('/api/auth/refresh', {
+            method: 'POST',
+            credentials: 'include',
+          });
+
+          if (response.ok) {
+            const data = (await response.json()) as { accessToken: string };
+            setAccessToken(data.accessToken);
+            setState({
+              isAuthenticated: true,
+              user: null,
+              isLoading: false,
+            });
+            return;
+          }
+        } catch {
+          // Refresh failed, continue to unauthenticated state
+        }
+
+        // Refresh failed - clear cookie and require re-login
+        removeAccessToken();
+        setState({
+          isAuthenticated: false,
+          user: null,
+          isLoading: false,
+        });
+        return;
+      }
+
       setState({
-        isAuthenticated: false,
+        isAuthenticated: !!accessToken,
         user: null,
         isLoading: false,
       });
-      return;
-    }
+    };
 
-    setState({
-      isAuthenticated: !!accessToken,
-      user: userStr ? (JSON.parse(userStr) as IUser) : null,
-      isLoading: false,
-    });
+    initAuth();
   }, []);
 
-  const login = useCallback((accessToken: string, refreshToken: string, user?: IUser) => {
-    localStorage.setItem(ACCESS_TOKEN_KEY, accessToken);
-    localStorage.setItem(REFRESH_TOKEN_KEY, refreshToken);
-    if (user) {
-      localStorage.setItem(USER_KEY, JSON.stringify(user));
-    }
+  /**
+   * Performs login - saves access token to cookie and updates state.
+   */
+  const login = useCallback((accessToken: string, user?: IUser) => {
+    setAccessToken(accessToken);
     setState({
       isAuthenticated: true,
       user: user || null,
@@ -103,10 +125,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     });
   }, []);
 
-  const logout = useCallback(() => {
-    localStorage.removeItem(ACCESS_TOKEN_KEY);
-    localStorage.removeItem(REFRESH_TOKEN_KEY);
-    localStorage.removeItem(USER_KEY);
+  const logout = useCallback(async () => {
+    try {
+      await fetch('/api/auth/logout', {
+        method: 'POST',
+        credentials: 'include',
+      });
+    } catch {
+      // Ignore logout API errors, still clear local state
+    }
+    removeAccessToken();
     setState({
       isAuthenticated: false,
       user: null,
