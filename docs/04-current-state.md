@@ -1,6 +1,6 @@
 # Текущее состояние проекта
 
-## Дата последнего обновления: 16 апреля 2026
+## Дата последнего обновления: 20 апреля 2026
 
 ## Что было сделано
 
@@ -26,312 +26,13 @@
 
 **Выполнено:**
 
-- ✅ Создан `.gitignore` с required patterns (node_modules, dist, .env, coverage, .turbo, .DS_Store, .idea, .vscode)
-- ✅ Создан `.dockerignore` для исключения лишних файлов из Docker образов
+- ✅ Создан `.gitignore` с required patterns
+- ✅ Создан `.dockerignore` для исключения лишних файлов
 - ✅ Создан `Makefile` с командами для Docker и Turborepo
 - ✅ Создан `tsconfig.base.json` со строгими правилами TypeScript
 - ✅ Создан `.eslintrc.js` с поддержкой TypeScript и Prettier
 - ✅ Создан `.prettierrc` для единого стиля кода
 - ✅ Создан `jest.config.js` с поддержкой TypeScript (ts-jest)
-- ✅ Добавлены зависимости: jest, ts-jest, typescript, eslint, prettier
-- ✅ Обновлен `turbo.json` - проверен test task с outputs для coverage
-- ✅ Выполнена `yarn install` - все зависимости установлены
-
-**Результаты проверок:**
-
-- ✅ `make help` - работает корректно, показывает все команды
-- ✅ `yarn install` - прошел успешно, создан yarn.lock
-- ✅ Docker containers - все 6 сервисов запущены и healthy
-
-**Результаты проверок:**
-
-- ✅ Docker Compose config - валидация прошла успешно
-- ✅ Docker containers - все 6 сервисов запущены и healthy
-- ✅ MySQL databases - все 4 БД (hub_db, pulse_db, service_db, control_db) созданы
-- ✅ Kafka - брокер сообщений работает в KRaft mode
-- ✅ Nginx - API Gateway запущен на порту 80
-
-## Файлы созданные в этих задачах
-
-```
-├── package.json                    # Yarn Workspaces конфигурация (обновлен)
-├── turbo.json                      # Turborepo конфигурация (обновлен)
-├── docker-compose.yml              # Оркестрация всех сервисов
-├── Makefile                        # Команды управления проектом
-├── tsconfig.base.json              # Базовый TypeScript конфиг
-├── jest.config.js                  # Базовый Jest конфиг с TypeScript
-├── .eslintrc.js                    # ESLint конфигурация
-├── .eslintignore                   # ESLint игнор файлы
-├── .prettierrc                     # Prettier конфигурация
-├── .gitignore                      # Git игнор файлы
-├── .dockerignore                   # Docker игнор файлы
-├── .env.example                    # Пример переменных окружения
-├── .env                            # Локальный файл окружения
-├── nginx/
-│   └── nginx.conf                  # Базовая конфигурация Nginx
-├── apps/
-│   ├── hub/{frontend,backend}/.gitkeep
-│   ├── pulse/{frontend,backend}/.gitkeep
-│   ├── service/{frontend,backend}/.gitkeep
-│   └── control/{frontend,backend}/.gitkeep
-├── libs/
-│   ├── contracts/.gitkeep
-│   ├── ui-kit/.gitkeep
-│   └── core-backend/.gitkeep
-└── docs/
-    └── adr/
-        ├── ADR-001-init-infrastructure.md
-        └── ADR-002-root-configs.md
-```
-
-## Текущий статус
-
-**Фаза:** Базовая инфраструктура готова ✅  
-**Следующий шаг:** Начать реализацию сервисов (начиная с Hub) - настройка NestJS backend и React frontend с Vite
-
-### Задача 002-reorganize-tasks: Реорганизация структуры управления задачами
-
-**Выполнено:**
-
-- ✅ Создана доменная структура директорий в `docs/tasks/`:
-  - `000-infrastructure/` (задачи по Docker, CI/CD, корневым конфигам)
-  - `100-hub/` (задачи ядра: frontend + backend) с `.gitkeep`
-  - `200-pulse/` (задачи сервиса мониторинга) с `.gitkeep`
-  - `300-service/` (задачи сервиса обслуживания) с `.gitkeep`
-  - `400-control/` (задачи сервиса управления) с `.gitkeep`
-- ✅ Перемещены все существующие инфраструктурные задачи и отчеты в `docs/tasks/000-infrastructure/`:
-  - `001-init.md` → `000-infrastructure/001-init.md`
-  - `001-fixup.md` → `000-infrastructure/001-fixup.md`
-  - `001-fixup-configs.md` → `000-infrastructure/001-fixup-configs.md`
-  - `002-reorganize-tasks.md` → `000-infrastructure/002-reorganize-tasks.md`
-- ✅ Реализована колокация отчетов: все файлы `.report.md` перемещены из `docs/tasks/reports/` в соответствующие директории рядом с задачами
-- ✅ Удалена пустая директория `docs/tasks/reports/`
-- ✅ Все изменения выполнены только через перемещение файлов, содержимое файлов не изменялось
-
-**Результаты проверок:**
-
-- ✅ Структура директорий создана корректно
-- ✅ Все задачи и отчеты находятся в правильных местах
-- ✅ Принцип колокации (отчеты рядом с задачами) соблюден
-
-## Текущий статус
-
-**Фаза:** Базовая инфраструктура сервиса Hub готова ✅  
-**Следующий шаг:** Запуск и тестирование сервисов через Docker Compose
-
-### Задача 100-hub/002-run-and-migrations: Запуск Hub инфраструктуры и миграции
-
-**Выполнено:**
-
-- ✅ Запущена база данных `mysql-hub` на порту 33061
-- ✅ Создан `data-source.ts` для TypeORM CLI
-- ✅ Добавлены скрипты миграций в `package.json`:
-  - `migration:generate` - генерация миграций
-  - `migration:run` - применение миграций
-  - `migration:revert` - откат миграций
-- ✅ Сгенерирована и применена миграция `InitUsers` (создает таблицу user)
-- ✅ Docker контейнеры `hub-backend` (порт 3000) и `hub-frontend` (порт 5173) запущены
-- ✅ API endpoints работают:
-  - POST /api/auth/register - регистрация
-  - POST /api/auth/login - вход
-
-**Результаты проверок:**
-
-- ✅ Docker containers - 3 сервиса запущены (mysql-hub, hub-backend, hub-frontend)
-- ✅ API register - успешно (возвращает accessToken/refreshToken)
-- ✅ API login - успешно (возвращает accessToken/refreshToken)
-- ✅ Database - таблица user создана через миграцию
-
-### Задача 100-hub/003-auth-implementation: Реализация аутентификации
-
-**Выполнено:**
-
-- ✅ Создан JwtStrategy для валидации JWT токенов
-- ✅ Создан JwtAuthGuard для защиты маршрутов
-- ✅ Добавлен защищенный эндпоинт GET /api/auth/me
-- ✅ Исправлена форма логина на фронтенде (использует username вместо email)
-- ✅ Пароли хешируются через bcrypt с salt rounds: 10
-
-**Результаты проверок:**
-
-- ✅ POST /api/auth/register - успешно
-- ✅ POST /api/auth/login - успешно
-- ✅ GET /api/auth/me (без токена) - 401 Unauthorized
-- ✅ GET /api/auth/me (с токеном) - 200 OK
-- ✅ Frontend на порту 5173 - доступен
-
-## Созданные файлы
-
-```
-apps/hub/backend/src/auth/strategies/jwt.strategy.ts
-apps/hub/backend/src/auth/guards/jwt-auth.guard.ts
-```
-
-## Текущий статус
-
-**Фаза:** Аутентификация реализована ✅  
-**Следующий шаг:** Реализация основного функционала сервиса Hub
-
-### Задача 000-infrastructure/003-shared-ui-bootstrap: React Bootstrap и темизация
-
-**Выполнено:**
-
-- ✅ Создан пакет `libs/ui-kit` с зависимостями bootstrap и react-bootstrap
-- ✅ Создан `ThemeProvider` для управления темой (light/dark)
-- ✅ Создан `ThemeToggle` компонент для переключения темы
-- ✅ Интегрирован `ThemeProvider` в hub-frontend
-- ✅ Переписан LoginPage с использованием React Bootstrap компонентов
-
-**Результаты проверок:**
-
-- ✅ Frontend на порту 5173 - доступен
-- ✅ Bootstrap CSS загружен
-- ✅ ThemeToggle отображается в интерфейсе
-
-## Созданные файлы
-
-```
-libs/ui-kit/
-├── package.json
-├── tsconfig.json
-└── src/
-    ├── index.ts
-    └── theme/
-        ├── ThemeProvider.tsx
-        └── ThemeToggle.tsx
-```
-
-## Текущий статус
-
-**Фаза:** UI Bootstrap и темизация готовы ✅  
-**Следующий шаг:** Переход к реализации основного функционала сервисов
-
-### Задача 100-hub/004-auth-completion: Завершение флоу авторизации
-
-**Выполнено:**
-
-- ✅ Добавлены переменные `ADMIN_EMAIL` и `ADMIN_PASSWORD` в `.env` и `.env.example`
-- ✅ Добавлен метод `createWithRole` в UsersService для создания пользователя с指定ной ролью
-- ✅ Добавлен провайдер с `OnApplicationBootstrap` хуком для автоматического создания админа при старте
-- ✅ Создана страница `RegisterPage.tsx` с формой регистрации
-- ✅ Добавлены роуты `/login` и `/register` в App.tsx
-- ✅ Добавлены навигационные ссылки между Login и Register страницами
-- ✅ Валидация: пароли должны совпадать, минимум 6 символов
-
-**Результаты проверок:**
-
-- ✅ Backend typecheck - OK
-- ✅ Frontend typecheck - OK
-
-### Задача 100-hub/004-2-user-entity-contracts: Контракты для сущности User
-
-**Выполнено:**
-
-- ✅ Добавлен интерфейс `IUser` в `libs/contracts/src/hub/auth`
-- ✅ Обновлен `LoginResponseDto` для включения `user: IUser`
-- ✅ Обновлен `AuthService` для возврата данных пользователя при логине
-- ✅ Обновлен `LoginPage` для сохранения user в localStorage
-- ✅ Исправлена конфигурация ESLint:
-  - Добавлен `--parser-options=project:tsconfig.json` для backend и frontend
-  - Исправлены ошибки типизации (`any`) в auth.service.ts и auth.controller.ts
-  - Исправлены ошибки с async/await в формах (использован IIFE паттерн)
-  - Исправлен lint для vite.config.ts (сужен include до папки src)
-  - Удалены неиспользуемые импорты
-
-**Результаты проверок:**
-
-- ✅ Backend typecheck - OK
-- ✅ Frontend typecheck - OK
-- ✅ Backend lint - OK (только warnings console.log)
-- ✅ Frontend lint - OK
-
-## Текущий статус
-
-**Фаза:** Контракты для User готовы, ESLint исправлен ✅  
-**Следующий шаг:** Переход к реализации основного функционала сервиса Hub
-
-### Задача 100-hub/004-3-implements-contracts: Строгая привязка сущностей к контрактам
-
-**Выполнено:**
-
-- ✅ Обновлен интерфейс `IUser` в contracts:
-  - `email` теперь `email?: string` (опциональный)
-  - `createdAt` и `updatedAt` допускают `Date | string`
-- ✅ TypeORM сущность `User` теперь реализует `implements IUser`
-- ✅ Импортирован `IUser` из `@app/contracts/hub/auth`
-
-**Результаты проверок:**
-
-- ✅ Backend typecheck - OK
-- ✅ Backend lint - OK (warnings only)
-- ✅ Frontend typecheck - OK
-- ✅ Frontend lint - OK
-
-## Текущий статус
-
-**Фаза:** Строгая привязка сущностей к контрактам реализована ✅  
-**Следующий шаг:** Переход к реализации основного функционала сервиса Hub
-
-### Задача 100-hub/004-4-fix-admin-login: Debug & Fix Admin Login
-
-**Выполнено:**
-
-- ✅ Проанализирован код сидера и процесс логина
-- ✅ Определена причина: переменные окружения не передаются в Docker контейнер
-- ✅ Добавлены `ADMIN_EMAIL` и `ADMIN_PASSWORD` в docker-compose.yml для hub-backend
-- ✅ Удален некорректный параметр `ignoreDeprecations` из tsconfig.base.json
-
-**Результаты проверок:**
-
-- ✅ Backend typecheck - OK
-- ✅ Backend lint - OK (warnings only)
-- ✅ Frontend typecheck - OK
-- ✅ Frontend lint - OK
-
-## Текущий статус
-
-**Фаза:** Admin login исправлен ✅  
-**Следующий шаг:** Переход к реализации основного функционала сервиса Hub
-
-### Задача 000-infrastructure/005-docker-dev-environment: Настройка Docker Dev-окружения
-
-**Выполнено:**
-
-- ✅ Обновлен docker-compose.yml:
-  - Добавлены volumes для hot-reload
-  - Добавлены dev-команды для hub-backend и hub-frontend
-  - Добавлена переменная WATCHPACK_POLLING для фронтенда
-- ✅ Обновлены Dockerfile (удалены WORKDIR и CMD)
-- ✅ Контейнеры запущены с hot-reload
-
-**Результаты:**
-
-- Backend: http://localhost:3000 ✅
-- Frontend: http://localhost:5173 ✅
-
-## Текущий статус
-
-**Фаза:** Docker Dev-окружение настроено ✅  
-**Следующий шаг:** Переход к реализации основного функционала сервиса Hub
-
-### Задача 100-hub/004-1-auth-contracts-fix: Рефакторинг регистрации
-
-**Выполнено:**
-
-- ✅ Проверено наличие `RegisterRequestDto` в `libs/contracts/src/hub/auth`
-- ✅ Обновлен `RegisterPage.tsx` для импорта типов из `@app/contracts/hub/auth`
-- ✅ Обновлен `LoginPage.tsx` для импорта типов из `@app/contracts/hub/auth`
-- ✅ Добавлены paths в `apps/hub/frontend/tsconfig.json` для поддержки @app/contracts
-
-**Результаты проверок:**
-
-- ✅ Backend typecheck - OK
-- ✅ Frontend typecheck - OK
-
-## Текущий статус
-
-**Фаза:** Авторизация завершена, контракты в contracts ✅  
-**Следующий шаг:** Реализация основного функционала сервиса Hub
 
 ### Задача 0_infrastructure/006-fix-ts-and-sort-tasks: Обновление TypeScript и реорганизация задач
 
@@ -340,27 +41,9 @@ libs/ui-kit/
 - ✅ Обновлен TypeScript с 5.3.3 до 6.0.2 в package.json
 - ✅ Изменен moduleResolution с node10 на node в tsconfig.base.json
 - ✅ Добавлен lib DOM в libs/ui-kit/tsconfig.json
-- ✅ Переименованы папки доменов в формат 0\_<domain>:
-  - 000-infrastructure → 0_infrastructure
-  - 100-hub → 1_hub
-  - 200-pulse → 2_pulse
-  - 300-service → 3_service
-  - 400-control → 4_control
+- ✅ Переименованы папки доменов в формат 0\_<domain>
 - ✅ Созданы подпапки с датами YYYY-MM-DD для всех задач
-- ✅ Все задачи перемещены в соответствующие date-папки
 - ✅ Создан docs/tasks/README.md с правилом хранения задач
-- ✅ Перезапущены Docker контейнеры после Vite cache issue
-
-**Результаты проверок:**
-
-- ✅ yarn typecheck - OK
-- ✅ yarn lint - OK (warnings only)
-- ✅ Docker containers - все сервисы healthy
-
-## Текущий статус
-
-**Фаза:** Device CRUD реализован ✅  
-**Следующий шаг:** Реализация основного функционала сервиса Hub
 
 ### Задача 1_hub/005-device-management: Управление мастер-базой устройств
 
@@ -379,7 +62,91 @@ libs/ui-kit/
 - ✅ yarn lint - OK (0 ошибок, warnings)
 - ✅ yarn test - OK (build passed)
 
+### Задача 0_infrastructure/009-nginx-proxy: Nginx API Gateway и субдоменная маршрутизация
+
+**Выполнено:**
+
+- ✅ Реализована субдоменная маршрутизация:
+  - `hub.localhost` → Hub Frontend
+  - `pulse.localhost` → Pulse Frontend
+  - `api.hub.localhost` → Hub Backend
+  - `api.pulse.localhost` → Pulse Backend
+- ✅ Настроен Nginx как API Gateway на порту 80
+- ✅ Добавлена поддержка CORS заголовков
+- ✅ Настроен Module Federation (remoteEntry.js из dist папки)
+
+**Проверки:**
+
+- ✅ hub.localhost - Hub login page работает
+- ✅ pulse.localhost - Pulse login page работает
+- ✅ Module Federation remote загружается
+
+### Задача 0_infrastructure/010-dynamic-api-url: Перевод фронтендов на динамические API URL
+
+**Выполнено:**
+
+- ✅ Настроены VITE_API_URL в .env для каждого фронтенда:
+  - Hub: `http://api.hub.localhost`
+  - Pulse: `http://api.pulse.localhost`
+- ✅ Убраны захардкоженные localhost:3000/3001 из API-клиентов
+- ✅ Настроен CORS на бэкендах с явными origins
+- ✅ Добавлены VITE_API_URL в docker-compose.yml для контейнеров
+
+**Проверки:**
+
+- ✅ Hub login: POST http://api.hub.localhost/auth/login - работает
+- ✅ Pulse login: POST http://api.pulse.localhost/auth/login - работает
+- ✅ CORS ошибок нет
+- ✅ yarn typecheck - OK
+- ✅ yarn lint - OK (warnings only)
+
+---
+
 ## Текущий статус
 
-**Фаза:** TypeScript обновлен, документация реорганизована ✅  
-**Следующий шаг:** Продолжение разработки сервиса Hub
+**Фаза:** Инфраструктура и базовая маршрутизация готовы ✅  
+**Следующий шаг:** Реализация основного функционала сервиса Pulse (мониторинг, метрики)
+
+---
+
+## Файлы измененные в последних задачах
+
+```
+0_infrastructure/009:
+  nginx/nginx.conf
+  docker-compose.yml
+  apps/hub/frontend/vite.config.ts
+  apps/pulse/frontend/vite.config.ts
+
+0_infrastructure/010:
+  apps/hub/backend/src/main.ts
+  apps/pulse/backend/src/main.ts
+  apps/hub/frontend/.env, .env.example
+  apps/pulse/frontend/.env, .env.example
+  apps/pulse/frontend/src/api/auth.ts
+  docker-compose.yml
+```
+
+---
+
+## Сервисы и их статус
+
+| Сервис | Frontend | Backend | БД | Статус |
+|--------|----------|---------|-----|--------|
+| Hub | hub.localhost:5173 | api.hub.localhost:3000 | mysql-hub:3306 | ✅ Готов |
+| Pulse | pulse.localhost:5174 | api.pulse.localhost:3001 | mysql-pulse:3307 | ✅ Инициализирован |
+| Service | - | - | mysql-service:3308 | ⏳ Ожидает |
+| Control | - | - | mysql-control:3309 | ⏳ Ожидает |
+
+---
+
+## Доработки
+
+**Доработка #1 - 2026-04-20 (исправление 404 на /devices)**
+
+- Обнаружен `app.setGlobalPrefix('api')` в `apps/hub/backend/src/main.ts`
+- Этот префикс добавлял `/api` ко всем маршрутам бэкенда
+- Фронтенд отправлял запросы на `/devices`, но бэкенд ожидал `/api/devices`
+- Удалён `setGlobalPrefix('api')` из main.ts
+- Пересобран hub-backend контейнер
+- Проверено: `curl http://api.hub.localhost/devices` → 401 (исправлено)

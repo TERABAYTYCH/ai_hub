@@ -5,7 +5,7 @@ import {
 } from '@app/contracts/hub/devices';
 import { authFetch } from '../utils/auth';
 
-const API_BASE_URL = (import.meta.env.VITE_API_URL as string) || 'http://localhost:3000/api';
+const API_BASE_URL = (import.meta.env.VITE_API_URL as string) || '/api';
 
 export async function getDevices(): Promise<IDevice[]> {
   const response = await authFetch(`${API_BASE_URL}/devices`);

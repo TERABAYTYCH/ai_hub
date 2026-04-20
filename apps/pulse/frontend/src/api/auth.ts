@@ -4,7 +4,7 @@ import type {
   RegisterRequestDto,
 } from '@app/contracts/hub/auth';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
+const API_URL = (import.meta.env.VITE_API_URL as string) || '/api';
 
 /**
  * Выполняет вход пользователя через Hub Backend API

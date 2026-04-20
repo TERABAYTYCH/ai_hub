@@ -16,7 +16,8 @@ import { JwtAuthGuard } from './guards/jwt-auth.guard';
       imports: [ConfigModule],
       useFactory: async (configService: ConfigService) => ({
         // Pulse не выпускает свои токены, только валидирует
-        secret: configService.get<string>('JWT_SECRET') || 'hub-jwt-secret-key-change-in-production',
+        secret:
+          configService.get<string>('JWT_SECRET') || 'hub-jwt-secret-key-change-in-production',
         signOptions: { expiresIn: '1h' },
       }),
       inject: [ConfigService],

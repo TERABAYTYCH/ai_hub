@@ -15,7 +15,8 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
       ignoreExpiration: false,
       // Используем тот же секрет, что и Hub Backend
-      secretOrKey: configService.get<string>('JWT_SECRET') || 'hub-jwt-secret-key-change-in-production',
+      secretOrKey:
+        configService.get<string>('JWT_SECRET') || 'hub-jwt-secret-key-change-in-production',
     });
   }
 
