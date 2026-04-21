@@ -476,3 +476,77 @@ const PulseDashboard = lazy(() => import('pulse/Dashboard'));
 
 **Файлы:**
 - `apps/hub/frontend/src/pages/PulsePage.tsx` — исправлен импорт Module Federation
+
+---
+
+### Задача 016: Исправление Module Federation remote loading
+
+**Проблема:** Hub не мог загрузить модуль `pulse/Dashboard` через Module Federation.
+
+**Ошибка:** `Failed to resolve module specifier 'pulse/Dashboard'`
+
+**Причина:** Hub's vite.config.ts имел `remoteEntryPlugin`, который перехватывал `/assets/remoteEntry.js` и искал файл в Hub's `dist/assets/`. Но Hub - это Host приложение, он должен загружать remoteEntry.js с удалённого сервера Pulse (`http://pulse.lvh.me/assets/remoteEntry.js`).
+
+**Исправление:**
+- Удалён `remoteEntryPlugin` из `apps/hub/frontend/vite.config.ts`
+- Удалены неиспользуемые импорты (`ViteDevServer`, `fs`)
+- Оставлен только `federation` plugin с корректным remote URL
+
+**Проверки:**
+- ✅ `curl http://pulse.lvh.me/assets/remoteEntry.js` → 200 OK
+- ✅ `docker compose restart hub-frontend` → OK
+- ✅ `curl http://hub.lvh.me` → 200 OK
+- ✅ yarn typecheck — 0 errors
+- ⚠️ yarn lint — pre-existing errors в pulse-frontend (не связаны с задачей)
+
+**Файлы:**
+- `apps/hub/frontend/vite.config.ts` — удалён remoteEntryPlugin
+
+---
+
+### Задача 016.1: Исправление `__federation_method_getRemote` - добавлен `__federation_method_ensure`
+
+**Проблема:** `__federation_method_getRemote` не завершается (зависает навечно).
+
+**Причина:** После вызова `__federation_method_setRemote` remote ещё не готов к использованию. Необходимо дождаться загрузки `remoteEntry.js` через `__federation_method_ensure` перед вызовом `__federation_method_getRemote`.
+
+**Исправление:**
+- Добавлен импорт `__federation_method_ensure`
+- Добавлен вызов `await __federation_method_ensure(serviceId)` после регистрации remote
+- Добавлено подробное логирование для отладки Federation
+
+**Новая функция `loadModule`:**
+```typescript
+const loadModule = async (serviceId: string, modulePath: string): Promise<FederatedModule> => {
+  console.log(`[Federation] Registering remote: ${serviceId}`);
+  
+  __federation_method_setRemote(serviceId, {
+    url: () => Promise.resolve(`http://${serviceId}.lvh.me/assets/remoteEntry.js`),
+    from: 'vite',
+    format: 'esm',
+  });
+
+  console.log(`[Federation] Ensuring remote is ready: ${serviceId}`);
+  await __federation_method_ensure(serviceId);
+  console.log(`[Federation] Remote ready: ${serviceId}`);
+
+  console.log(`[Federation] Getting module: ${serviceId}/${modulePath}`);
+  try {
+    const module = await __federation_method_getRemote(serviceId, modulePath);
+    console.log(`[Federation] Module loaded:`, module);
+    return module as FederatedModule;
+  } catch (err) {
+    console.error(`[Federation] Failed to get module: ${serviceId}/${modulePath}`, err);
+    throw err;
+  }
+};
+```
+
+**Проверки:**
+- ✅ yarn typecheck — OK
+- ✅ docker compose restart hub-frontend — OK
+- ✅ curl http://hub.lvh.me → 200 OK
+- ✅ curl http://pulse.lvh.me/assets/remoteEntry.js → 200 OK
+
+**Файлы:**
+- `apps/hub/frontend/src/App.tsx` — обновлена функция loadModule
