@@ -1,4 +1,4 @@
-import React, { Suspense } from 'react';
+import React, { Suspense, lazy } from 'react';
 
 /** Компонент заглушка на время загрузки */
 function LoadingFallback() {
@@ -15,18 +15,17 @@ function LoadingFallback() {
 }
 
 /**
- * Страница Pulse - загружает удаленный модуль PulseDashboard через Module Federation.
- * Использует React.lazy для динамической загрузки удаленного компонента.
+ * Страница Pulse - загружает удаленный модуль Dashboard через Module Federation.
  */
-function PulsePage() {
-  // Динамический импорт remote модуля pulse через Module Federation
-  const PulseDashboard = React.lazy(() => import('pulse/PulseDashboard'));
+const PulsePage = () => {
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-return
+  const PulseDashboard = lazy(() => import('pulse/Dashboard'));
 
   return (
     <Suspense fallback={<LoadingFallback />}>
       <PulseDashboard />
     </Suspense>
   );
-}
+};
 
 export default PulsePage;

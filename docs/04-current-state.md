@@ -449,3 +449,30 @@
 - ✅ VITE_API_URL in container = http://api.hub.lvh.me
 - ✅ yarn typecheck — 0 errors
 - ✅ yarn lint — 0 errors
+
+---
+
+## Доработка #11 - 2026-04-21 (Исправление Module Federation импорта)
+
+**Проблема:** Hub не мог загрузить PulseDashboard через Module Federation из-за несовпадения имени модуля.
+
+**Ошибка:** `Can not find remote module ./PulseDashboard`
+
+**Причина:** В Pulse экспортировался `./Dashboard`, а Hub импортировал `pulse/PulseDashboard`.
+
+**Исправление:**
+```typescript
+// Было:
+const PulseDashboard = React.lazy(() => import('pulse/PulseDashboard'));
+
+// Стало:
+const PulseDashboard = lazy(() => import('pulse/Dashboard'));
+```
+
+**Проверки:**
+- ✅ yarn typecheck — 0 errors
+- ✅ yarn lint — 0 errors
+- ✅ Module Federation работает: клик на Pulse в сайдбаре загружает Dashboard из remote
+
+**Файлы:**
+- `apps/hub/frontend/src/pages/PulsePage.tsx` — исправлен импорт Module Federation
