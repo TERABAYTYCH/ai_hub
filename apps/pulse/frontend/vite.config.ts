@@ -84,6 +84,9 @@ export default defineConfig({
       filename: 'remoteEntry.js',
       exposes: {
         './Dashboard': './src/Dashboard',
+        './Metrics': './src/Metrics',
+        './Alerts': './src/Alerts',
+        './Settings': './src/Settings',
         './Devices': './src/Devices',
       },
       shared: ['react', 'react-dom', 'react-router-dom'],

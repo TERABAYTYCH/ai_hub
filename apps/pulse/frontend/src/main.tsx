@@ -8,6 +8,9 @@ import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
 import DashboardPage from './pages/DashboardPage';
 import DevicesPage from './pages/DevicesPage';
+import MetricsPage from './Metrics';
+import AlertsPage from './Alerts';
+import SettingsPage from './Settings';
 import { useAuth } from '@app/ui-kit';
 import { initAxiosInterceptors } from './api/axios';
 
@@ -87,7 +90,7 @@ if (rootElement) {
                 element={
                   <ProtectedRoute>
                     <PulseLayout>
-                      <div className="text-muted">Metrics page (placeholder)</div>
+                      <MetricsPage />
                     </PulseLayout>
                   </ProtectedRoute>
                 }
@@ -97,7 +100,7 @@ if (rootElement) {
                 element={
                   <ProtectedRoute>
                     <PulseLayout>
-                      <div className="text-muted">Alerts page (placeholder)</div>
+                      <AlertsPage />
                     </PulseLayout>
                   </ProtectedRoute>
                 }
@@ -107,7 +110,7 @@ if (rootElement) {
                 element={
                   <ProtectedRoute>
                     <PulseLayout>
-                      <div className="text-muted">Settings page (placeholder)</div>
+                      <SettingsPage />
                     </PulseLayout>
                   </ProtectedRoute>
                 }
