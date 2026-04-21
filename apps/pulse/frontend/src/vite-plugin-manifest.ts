@@ -3,6 +3,7 @@ import type { ViteDevServer, Plugin } from 'vite';
 /**
  * Vite плагин для генерации manifest.json на лету.
  * Читает exposes из Module Federation плагина и формирует манифест.
+ * Иконки синхронизированы с main.tsx
  */
 export default function manifestPlugin(): Plugin {
   return {
@@ -11,9 +12,10 @@ export default function manifestPlugin(): Plugin {
       // Перехватываем GET /assets/manifest.json
       server.middlewares.use('/assets/manifest.json', (_req, res) => {
         // Маппинг module path -> имя модуля для навигации
+        // Иконки синхронизированы с apps/pulse/frontend/src/main.tsx
         const moduleMapping: Record<string, { label: string; icon: string; path: string }> = {
-          './Dashboard': { label: 'Dashboard', icon: 'bi bi-speedometer2', path: '/pulse' },
-          './Devices': { label: 'Devices', icon: 'bi bi-device-hdd', path: '/pulse/devices' },
+          './Dashboard': { label: 'Dashboard', icon: 'bi bi-house', path: '/pulse/dashboard' },
+          './Devices': { label: 'Devices', icon: 'bi bi-grid', path: '/pulse/devices' },
           './Metrics': { label: 'Metrics', icon: 'bi bi-graph-up', path: '/pulse/metrics' },
           './Alerts': { label: 'Alerts', icon: 'bi bi-bell', path: '/pulse/alerts' },
           './Settings': { label: 'Settings', icon: 'bi bi-gear', path: '/pulse/settings' },
