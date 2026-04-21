@@ -1,10 +1,9 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Nav } from 'react-bootstrap';
 import { Link, useLocation } from 'react-router-dom';
 
 /**
  * Элемент меню навигации с поддержкой вложенности.
- * Используется для боковой панели с accordion-меню.
  */
 export interface MenuItem {
   /** Уникальный идентификатор элемента */
@@ -52,14 +51,48 @@ function hasActiveChild(locationPathname: string, children: MenuItem[], defaultP
 }
 
 /**
+ * Находит id родительских элементов для текущего пути.
+ */
+function findExpandedParentIds(items: MenuItem[], currentPath: string, defaultPath: string): string[] {
+  const expandedIds: string[] = [];
+
+  for (const item of items) {
+    if (item.children && item.children.length > 0) {
+      // Проверяем является ли текущий путь дочерним для этого родителя
+      const parentPath = item.path || '/' + item.id;
+      if (currentPath.startsWith(parentPath + '/') || currentPath === parentPath) {
+        expandedIds.push(item.id);
+      }
+      // Рекурсивно проверяем детей
+      const childExpanded = findExpandedParentIds(item.children, currentPath, defaultPath);
+      expandedIds.push(...childExpanded);
+    }
+  }
+
+  return expandedIds;
+}
+
+/**
  * Компонент боковой панели (Sidebar) с навигацией и accordion-меню.
  * Поддерживает вложенные элементы с визуальной иерархией.
- * Подсвечивает только активный элемент, но не родительские пункты.
+ * Подсвечивает только активный элемент.
  * Поддерживает светлую и темную тему.
  */
 export function Sidebar({ items, defaultPath = '/' }: SidebarProps) {
   const location = useLocation();
   const [expandedIds, setExpandedIds] = useState<Set<string>>(new Set());
+
+  // Auto-expand parent items when navigating to a child path
+  useEffect(() => {
+    const idsToExpand = findExpandedParentIds(items, location.pathname, defaultPath);
+    if (idsToExpand.length > 0) {
+      setExpandedIds((prev) => {
+        const next = new Set(prev);
+        idsToExpand.forEach((id) => next.add(id));
+        return next;
+      });
+    }
+  }, [location.pathname, items, defaultPath]);
 
   /**
    * Переключает состояние раскрытия для элемента с детьми.
@@ -106,7 +139,7 @@ export function Sidebar({ items, defaultPath = '/' }: SidebarProps) {
           {/* Родительский элемент с детьми */}
           <div
             onClick={() => toggleExpand(item.id)}
-            className={`d-flex align-items-center rounded mb-1 cursor-pointer ${isItemActive ? 'bg-primary text-white' : 'text-body'}`}
+            className={`d-flex align-items-center rounded mb-1 ${isItemActive ? 'bg-primary text-white' : 'text-body'}`}
             style={{
               padding: '10px 12px 10px ' + paddingLeft,
               cursor: 'pointer',
