@@ -1,6 +1,6 @@
 # Текущее состояние проекта
 
-## Дата последнего обновления: 20 апреля 2026
+## Дата последнего обновления: 21 апреля 2026
 
 ## Что было сделано
 
@@ -550,3 +550,67 @@ const loadModule = async (serviceId: string, modulePath: string): Promise<Federa
 
 **Файлы:**
 - `apps/hub/frontend/src/App.tsx` — обновлена функция loadModule
+
+---
+
+### Задача 016.2: Добавление auto-expand в Sidebar навигацию
+
+**Выполнено:**
+
+- ✅ Добавлена функция `findExpandedParentIds()` для поиска родительских элементов меню
+- ✅ Добавлен `useEffect` в Sidebar компонент для auto-expand при смене маршрута
+- ✅ При навигации на `/pulse/metrics` родительский элемент "Pulse" автоматически раскрывается
+
+**Логика работы:**
+```typescript
+useEffect(() => {
+  const idsToExpand = findExpandedParentIds(items, location.pathname, defaultPath);
+  if (idsToExpand.length > 0) {
+    setExpandedIds((prev) => {
+      const next = new Set(prev);
+      idsToExpand.forEach((id) => next.add(id));
+      return next;
+    });
+  }
+}, [location.pathname, items, defaultPath]);
+```
+
+**Файлы:**
+- `libs/ui-kit/src/components/layout/Sidebar.tsx` — добавлен auto-expand
+
+---
+
+### Задача 016.3: Исправление Module Federation - пересборка remoteEntry.js
+
+**Проблема:** `Error: Can not find remote module ./Metrics` и аналогичные для Alerts, Settings.
+
+**Причина:** Сборка `dist/assets/remoteEntry.js` содержала только Dashboard и Devices модули. Metrics, Alerts, Settings отсутствовали.
+
+**Исправление:**
+- Пересобрана pulse-frontend: `yarn build`
+- Перезапущен hub-frontend: `docker compose restart hub-frontend`
+
+**Проверки:**
+- ✅ curl http://pulse.lvh.me/assets/remoteEntry.js содержит все 5 модулей
+- ✅ Dashboard, Devices, Metrics, Alerts, Settings — все доступны
+- ✅ yarn typecheck — OK
+- ✅ docker compose build hub-frontend — OK
+
+**Файлы:**
+- `apps/pulse/frontend/dist/` — обновлён remoteEntry.js
+
+---
+
+## Доработки
+
+**Доработка #12 - 2026-04-21 (Auto-expand в Sidebar)**
+
+- Добавлена функция `findExpandedParentIds()` для рекурсивного поиска родительских пунктов меню
+- Добавлен `useEffect` для автоматического раскрытия родительских элементов при навигации
+- Коммит: `8da51e7 Task 016: Add auto-expand to Sidebar navigation on route change`
+
+**Доработка #13 - 2026-04-21 (Пересборка Pulse remoteEntry.js)**
+
+- Пересобрана pulse-frontend для включения всех модулей (Metrics, Alerts, Settings)
+- Перезапущен hub-frontend контейнер
+- Все 5 модулей теперь доступны через Module Federation
