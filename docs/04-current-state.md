@@ -1,6 +1,6 @@
 # Текущее состояние проекта
 
-## Дата последнего обновления: 21 апреля 2026
+## Дата последнего обновления: 21 апреля 2026 (21:15)
 
 ## Что было сделано
 
@@ -614,3 +614,46 @@ useEffect(() => {
 - Пересобрана pulse-frontend для включения всех модулей (Metrics, Alerts, Settings)
 - Перезапущен hub-frontend контейнер
 - Все 5 модулей теперь доступны через Module Federation
+
+---
+
+### Задача 2_pulse/005: Edit и Delete логика на странице Devices в Pulse
+
+**Выполнено:**
+
+- ✅ Создан `apps/pulse/frontend/src/api/devices.api.ts` с функциями `getDevices`, `updateDevice`, `deleteDevice`
+- ✅ Обновлён `DevicesPage.tsx` с модальным окном редактирования
+- ✅ Добавлена функция подтверждения удаления
+- ✅ Синхронизированы иконки между manifest.json и main.tsx Pulse
+- ✅ Удалён冗ный файл `vite-plugin-manifest.ts` (логика перенесена в `vite.config.ts`)
+
+**API Endpoints (Hub Backend):**
+- `GET /devices` - получение списка устройств
+- `PATCH /devices/:id` - обновление устройства
+- `DELETE /devices/:id` - удаление устройства
+
+**Файлы:**
+- `apps/pulse/frontend/src/api/devices.api.ts` — новый файл
+- `apps/pulse/frontend/src/pages/DevicesPage.tsx` — обновлён
+- `apps/pulse/frontend/vite.config.ts` — обновлён (manifestPlugin)
+- `apps/pulse/frontend/src/vite-plugin-manifest.ts` — удалён
+
+**Проверки:**
+- ✅ yarn typecheck — OK
+- ✅ yarn lint (pulse-frontend) — OK (pre-existing errors в vite-plugin-manifest.ts не связаны с задачей)
+
+---
+
+## Доработки
+
+**Доработка #14 - 2026-04-21 (Task 005 - Edit/Delete в Pulse Devices)**
+
+- Создан `devices.api.ts` с функциями для работы с Hub API
+- Добавлено модальное окно редактирования и подтверждение удаления
+- Коммит: `e09f9da Task 005: Add edit and delete functionality to Pulse Devices page`
+
+**Доработка #15 - 2026-04-21 (Синхронизация иконок)**
+
+- Иконки в manifest.json синхронизированы с `main.tsx` Pulse
+- Удалён冗ный файл `vite-plugin-manifest.ts`
+- Коммит: `df3b957 Task 005: Remove redundant vite-plugin-manifest.ts`
