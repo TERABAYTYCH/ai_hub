@@ -14,7 +14,7 @@ function manifestPlugin(): Plugin {
       server.middlewares.use('/assets/manifest.json', (_req, res) => {
         // Маппинг module path -> имя модуля для навигации
         const moduleMapping: Record<string, { label: string; icon: string; path: string }> = {
-          './Dashboard': { label: 'Dashboard', icon: 'bi bi-speedometer2', path: '/pulse' },
+          './Dashboard': { label: 'Dashboard', icon: 'bi bi-speedometer2', path: '/pulse/dashboard' },
           './Devices': { label: 'Devices', icon: 'bi bi-device-hdd', path: '/pulse/devices' },
           './Metrics': { label: 'Metrics', icon: 'bi bi-graph-up', path: '/pulse/metrics' },
           './Alerts': { label: 'Alerts', icon: 'bi bi-bell', path: '/pulse/alerts' },

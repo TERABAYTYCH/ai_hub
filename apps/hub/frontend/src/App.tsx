@@ -97,6 +97,7 @@ const LazyModule: React.FC<{ serviceId: string; modulePath: string }> = ({
 
 /**
  * Dynamic routes configuration from microservice manifests.
+ * Includes redirects from service root to first navigation item.
  */
 const useDynamicRoutesConfig = () => {
   const { manifests } = useMicroserviceManifests();
@@ -105,8 +106,23 @@ const useDynamicRoutesConfig = () => {
     const dynamicRoutes: { path: string; element: React.ReactNode }[] = [];
 
     for (const manifest of manifests) {
+      // Skip if no navigation items
+      if (!manifest.navigation || manifest.navigation.length === 0) continue;
+
+      // Add redirect from service root (e.g., /pulse) to first nav item (e.g., /pulse/dashboard)
+      const serviceRoot = '/' + manifest.serviceId;
+      const firstNavItem = manifest.navigation[0];
+      
+      if (firstNavItem && firstNavItem.path) {
+        dynamicRoutes.push({
+          path: serviceRoot,
+          element: <Navigate to={firstNavItem.path} replace />,
+        });
+      }
+
+      // Add routes for each navigation item
       for (const navItem of manifest.navigation) {
-        if (navItem.module) {
+        if (navItem.module && navItem.path) {
           dynamicRoutes.push({
             path: navItem.path,
             element: (
