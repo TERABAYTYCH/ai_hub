@@ -7,7 +7,7 @@ import SettingsPage from './pages/SettingsPage';
 import { ProtectedRoute, GuestRoute, useMicroserviceManifests } from '@ject-hub/ui-kit';
 import { Layout } from './components/layout/Layout';
 
-// Импорт методов Federation v2
+// Federation v2 API
 import {
   __federation_method_setRemote,
   __federation_method_ensure,
@@ -15,47 +15,26 @@ import {
 } from 'virtual:__federation__';
 
 interface FederatedModule {
-  default: React.ComponentType;
+  default?: React.ComponentType;
 }
 
 /**
  * Загружает модуль динамически через Federation v2 API
  */
 const loadModule = async (serviceId: string, modulePath: string): Promise<FederatedModule> => {
-  console.log(`[Federation] Registering remote: ${serviceId}`);
-
+  console.log(`[Federation] Loading ${serviceId}/${modulePath}`);
+  
   __federation_method_setRemote(serviceId, {
     url: () => Promise.resolve(`http://${serviceId}.lvh.me/assets/remoteEntry.js`),
     from: 'vite',
     format: 'esm',
   });
 
-  console.log(`[Federation] Ensuring remote is ready: ${serviceId}`);
   await __federation_method_ensure(serviceId);
-  console.log(`[Federation] Remote ready: ${serviceId}`);
-
-  console.log(`[Federation] Getting module: ${serviceId}/${modulePath}`);
-  try {
-    const module = await __federation_method_getRemote(serviceId, modulePath);
-    console.log(`[Federation] Raw module for ${modulePath}:`, module);
-    console.log(`[Federation] module type:`, typeof module);
-    console.log(`[Federation] module.default:`, (module as any).default);
-    return module as FederatedModule;
-  } catch (err) {
-    console.error(`[Federation] Failed to get module: ${serviceId}/${modulePath}`, err);
-    throw err;
-  }
-};
-
-// Кеш модулей
-const moduleCache = new Map<string, Promise<FederatedModule>>();
-
-const getModule = (serviceId: string, modulePath: string): Promise<FederatedModule> => {
-  const key = `${serviceId}:${modulePath}`;
-  if (!moduleCache.has(key)) {
-    moduleCache.set(key, loadModule(serviceId, modulePath));
-  }
-  return moduleCache.get(key)!;
+  
+  const module = await __federation_method_getRemote(serviceId, modulePath);
+  console.log(`[Federation] Loaded ${serviceId}/${modulePath}:`, module);
+  return module as FederatedModule;
 };
 
 /**
@@ -66,34 +45,51 @@ const LazyModule: React.FC<{ serviceId: string; modulePath: string }> = ({
   modulePath,
 }) => {
   const [Component, setComponent] = useState<React.ComponentType | null>(null);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
 
   useEffect(() => {
-    getModule(serviceId, modulePath)
-      .then((mod) => {
-        // Обрабатываем оба случая: модуль с default и без
-        const ComponentToRender = (mod as any).default || mod;
-        console.log(`[Federation] ComponentToRender:`, ComponentToRender);
+    // Reset state on module change
+    setComponent(null);
+    setError(null);
+    setLoading(true);
 
-        if (typeof ComponentToRender === 'function') {
-          setComponent(() => ComponentToRender);
+    loadModule(serviceId, modulePath)
+      .then((mod) => {
+        const Comp = (mod as any).default || mod;
+        if (typeof Comp === 'function') {
+          setComponent(() => Comp);
         } else {
-          console.error(`[Federation] Invalid component:`, ComponentToRender);
-          setError(new Error('Module does not export a valid React component'));
+          setError(new Error('Invalid module: not a component'));
         }
       })
       .catch((err: Error) => {
-        console.error('Failed to load module:', serviceId, modulePath, err);
+        console.error('[Federation] Load error:', err);
         setError(err);
+      })
+      .finally(() => {
+        setLoading(false);
       });
   }, [serviceId, modulePath]);
 
+  if (loading) {
+    return <div className="text-center p-4">Loading...</div>;
+  }
+
   if (error) {
-    return <div className="text-danger p-4">Error: {error.message}</div>;
+    return (
+      <div className="text-danger p-4">
+        Error: {error.message}
+        <br />
+        <small className="text-muted">
+          {serviceId}/{modulePath}
+        </small>
+      </div>
+    );
   }
 
   if (!Component) {
-    return <div className="text-center p-4">Loading module...</div>;
+    return <div className="text-center p-4">No component</div>;
   }
 
   return <Component />;
@@ -101,7 +97,6 @@ const LazyModule: React.FC<{ serviceId: string; modulePath: string }> = ({
 
 /**
  * Dynamic routes configuration from microservice manifests.
- * This is used with useRoutes() hook instead of <Routes> component.
  */
 const useDynamicRoutesConfig = () => {
   const { manifests } = useMicroserviceManifests();
@@ -180,7 +175,7 @@ function App() {
   // Combine all routes
   const allRoutes = [...staticRoutes, ...dynamicRoutesConfig];
 
-  // Use useRoutes hook instead of <Routes> component
+  // Use useRoutes hook
   const routeElements = useRoutes(allRoutes);
 
   return routeElements;
