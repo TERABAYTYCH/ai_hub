@@ -33,7 +33,7 @@ export function AppLayout({
       <Header serviceName={serviceName} username={username} onLogout={onLogout} />
       <Row className="flex-grow-1 g-0" style={{ overflow: 'hidden' }}>
         <Col xs="auto" className="p-0" style={{ height: 'calc(100vh - 56px)', overflowY: 'auto' }}>
-          <Sidebar menuItems={menuItems} />
+          <Sidebar items={menuItems} />
         </Col>
         <Col className="p-3" style={{ height: 'calc(100vh - 56px)', overflowY: 'auto' }}>
           {children}

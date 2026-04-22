@@ -1,6 +1,6 @@
 # Текущее состояние проекта
 
-## Дата последнего обновления: 20 апреля 2026
+## Дата последнего обновления: 21 апреля 2026 (21:15)
 
 ## Что было сделано
 
@@ -476,3 +476,184 @@ const PulseDashboard = lazy(() => import('pulse/Dashboard'));
 
 **Файлы:**
 - `apps/hub/frontend/src/pages/PulsePage.tsx` — исправлен импорт Module Federation
+
+---
+
+### Задача 016: Исправление Module Federation remote loading
+
+**Проблема:** Hub не мог загрузить модуль `pulse/Dashboard` через Module Federation.
+
+**Ошибка:** `Failed to resolve module specifier 'pulse/Dashboard'`
+
+**Причина:** Hub's vite.config.ts имел `remoteEntryPlugin`, который перехватывал `/assets/remoteEntry.js` и искал файл в Hub's `dist/assets/`. Но Hub - это Host приложение, он должен загружать remoteEntry.js с удалённого сервера Pulse (`http://pulse.lvh.me/assets/remoteEntry.js`).
+
+**Исправление:**
+- Удалён `remoteEntryPlugin` из `apps/hub/frontend/vite.config.ts`
+- Удалены неиспользуемые импорты (`ViteDevServer`, `fs`)
+- Оставлен только `federation` plugin с корректным remote URL
+
+**Проверки:**
+- ✅ `curl http://pulse.lvh.me/assets/remoteEntry.js` → 200 OK
+- ✅ `docker compose restart hub-frontend` → OK
+- ✅ `curl http://hub.lvh.me` → 200 OK
+- ✅ yarn typecheck — 0 errors
+- ⚠️ yarn lint — pre-existing errors в pulse-frontend (не связаны с задачей)
+
+**Файлы:**
+- `apps/hub/frontend/vite.config.ts` — удалён remoteEntryPlugin
+
+---
+
+### Задача 016.1: Исправление `__federation_method_getRemote` - добавлен `__federation_method_ensure`
+
+**Проблема:** `__federation_method_getRemote` не завершается (зависает навечно).
+
+**Причина:** После вызова `__federation_method_setRemote` remote ещё не готов к использованию. Необходимо дождаться загрузки `remoteEntry.js` через `__federation_method_ensure` перед вызовом `__federation_method_getRemote`.
+
+**Исправление:**
+- Добавлен импорт `__federation_method_ensure`
+- Добавлен вызов `await __federation_method_ensure(serviceId)` после регистрации remote
+- Добавлено подробное логирование для отладки Federation
+
+**Новая функция `loadModule`:**
+```typescript
+const loadModule = async (serviceId: string, modulePath: string): Promise<FederatedModule> => {
+  console.log(`[Federation] Registering remote: ${serviceId}`);
+  
+  __federation_method_setRemote(serviceId, {
+    url: () => Promise.resolve(`http://${serviceId}.lvh.me/assets/remoteEntry.js`),
+    from: 'vite',
+    format: 'esm',
+  });
+
+  console.log(`[Federation] Ensuring remote is ready: ${serviceId}`);
+  await __federation_method_ensure(serviceId);
+  console.log(`[Federation] Remote ready: ${serviceId}`);
+
+  console.log(`[Federation] Getting module: ${serviceId}/${modulePath}`);
+  try {
+    const module = await __federation_method_getRemote(serviceId, modulePath);
+    console.log(`[Federation] Module loaded:`, module);
+    return module as FederatedModule;
+  } catch (err) {
+    console.error(`[Federation] Failed to get module: ${serviceId}/${modulePath}`, err);
+    throw err;
+  }
+};
+```
+
+**Проверки:**
+- ✅ yarn typecheck — OK
+- ✅ docker compose restart hub-frontend — OK
+- ✅ curl http://hub.lvh.me → 200 OK
+- ✅ curl http://pulse.lvh.me/assets/remoteEntry.js → 200 OK
+
+**Файлы:**
+- `apps/hub/frontend/src/App.tsx` — обновлена функция loadModule
+
+---
+
+### Задача 016.2: Добавление auto-expand в Sidebar навигацию
+
+**Выполнено:**
+
+- ✅ Добавлена функция `findExpandedParentIds()` для поиска родительских элементов меню
+- ✅ Добавлен `useEffect` в Sidebar компонент для auto-expand при смене маршрута
+- ✅ При навигации на `/pulse/metrics` родительский элемент "Pulse" автоматически раскрывается
+
+**Логика работы:**
+```typescript
+useEffect(() => {
+  const idsToExpand = findExpandedParentIds(items, location.pathname, defaultPath);
+  if (idsToExpand.length > 0) {
+    setExpandedIds((prev) => {
+      const next = new Set(prev);
+      idsToExpand.forEach((id) => next.add(id));
+      return next;
+    });
+  }
+}, [location.pathname, items, defaultPath]);
+```
+
+**Файлы:**
+- `libs/ui-kit/src/components/layout/Sidebar.tsx` — добавлен auto-expand
+
+---
+
+### Задача 016.3: Исправление Module Federation - пересборка remoteEntry.js
+
+**Проблема:** `Error: Can not find remote module ./Metrics` и аналогичные для Alerts, Settings.
+
+**Причина:** Сборка `dist/assets/remoteEntry.js` содержала только Dashboard и Devices модули. Metrics, Alerts, Settings отсутствовали.
+
+**Исправление:**
+- Пересобрана pulse-frontend: `yarn build`
+- Перезапущен hub-frontend: `docker compose restart hub-frontend`
+
+**Проверки:**
+- ✅ curl http://pulse.lvh.me/assets/remoteEntry.js содержит все 5 модулей
+- ✅ Dashboard, Devices, Metrics, Alerts, Settings — все доступны
+- ✅ yarn typecheck — OK
+- ✅ docker compose build hub-frontend — OK
+
+**Файлы:**
+- `apps/pulse/frontend/dist/` — обновлён remoteEntry.js
+
+---
+
+## Доработки
+
+**Доработка #12 - 2026-04-21 (Auto-expand в Sidebar)**
+
+- Добавлена функция `findExpandedParentIds()` для рекурсивного поиска родительских пунктов меню
+- Добавлен `useEffect` для автоматического раскрытия родительских элементов при навигации
+- Коммит: `8da51e7 Task 016: Add auto-expand to Sidebar navigation on route change`
+
+**Доработка #13 - 2026-04-21 (Пересборка Pulse remoteEntry.js)**
+
+- Пересобрана pulse-frontend для включения всех модулей (Metrics, Alerts, Settings)
+- Перезапущен hub-frontend контейнер
+- Все 5 модулей теперь доступны через Module Federation
+
+---
+
+### Задача 2_pulse/005: Edit и Delete логика на странице Devices в Pulse
+
+**Выполнено:**
+
+- ✅ Создан `apps/pulse/frontend/src/api/devices.api.ts` с функциями `getDevices`, `updateDevice`, `deleteDevice`
+- ✅ Обновлён `DevicesPage.tsx` с модальным окном редактирования
+- ✅ Добавлена функция подтверждения удаления
+- ✅ Синхронизированы иконки между manifest.json и main.tsx Pulse
+- ✅ Удалён冗ный файл `vite-plugin-manifest.ts` (логика перенесена в `vite.config.ts`)
+
+**API Endpoints (Hub Backend):**
+- `GET /devices` - получение списка устройств
+- `PATCH /devices/:id` - обновление устройства
+- `DELETE /devices/:id` - удаление устройства
+
+**Файлы:**
+- `apps/pulse/frontend/src/api/devices.api.ts` — новый файл
+- `apps/pulse/frontend/src/pages/DevicesPage.tsx` — обновлён
+- `apps/pulse/frontend/vite.config.ts` — обновлён (manifestPlugin)
+- `apps/pulse/frontend/src/vite-plugin-manifest.ts` — удалён
+
+**Проверки:**
+- ✅ yarn typecheck — OK
+- ✅ yarn lint (pulse-frontend) — OK (pre-existing errors в vite-plugin-manifest.ts не связаны с задачей)
+
+---
+
+## Доработки
+
+**Доработка #14 - 2026-04-21 (Task 005 - Edit/Delete в Pulse Devices)**
+
+- Создан `devices.api.ts` с функциями для работы с Hub API
+- Добавлено модальное окно редактирования и подтверждение удаления
+- Коммит: `e09f9da Task 005: Add edit and delete functionality to Pulse Devices page`
+
+**Доработка #15 - 2026-04-21 (Синхронизация иконок)**
+
+- Иконки в manifest.json синхронизированы с `main.tsx` Pulse
+- Удалён冗ный файл `vite-plugin-manifest.ts`
+- Коммит: `df3b957 Task 005: Remove redundant vite-plugin-manifest.ts`

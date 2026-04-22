@@ -8,7 +8,8 @@
     "dev:docker": "yarn install && yarn build && vite --host",
     "build": "tsc && vite build",
     "lint": "eslint src --ext ts,tsx --report-unused-disable-directives --max-warnings 0 --parser-options=project:tsconfig.json",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "test": "jest"
   },
   "dependencies": {
     "@ject-hub/ui-kit": "*",
@@ -29,6 +30,11 @@
     "@types/react-dom": "^18.2.18"
   },
   "devDependencies": {
-    "@originjs/vite-plugin-federation": "^1.4.1"
+    "@originjs/vite-plugin-federation": "^1.4.1",
+    "@testing-library/jest-dom": "^6.4.2",
+    "@testing-library/react": "^14.2.1",
+    "@types/jest": "^29.5.12",
+    "jest": "^29.7.0",
+    "ts-jest": "^29.1.2"
   }
 }
