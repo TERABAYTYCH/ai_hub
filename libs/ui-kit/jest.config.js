@@ -4,6 +4,10 @@ module.exports = {
   testEnvironment: 'jsdom',
   moduleNameMapper: {
     '^@/(.*)$': '<rootDir>/src/$1',
+    '^@app/ui-kit$': '<rootDir>/src/index.ts',
+    '^@app/ui-kit/(.*)$': '<rootDir>/src/$1',
+    '^@app/contracts$': '<rootDir>/../../contracts/src/index.ts',
+    '^@app/contracts/(.*)$': '<rootDir>/../../contracts/src/$1',
   },
   transform: {
     '^.+\\.tsx?$': ['ts-jest', {
