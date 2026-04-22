@@ -5930,6 +5930,11 @@ typeorm@^0.3.19:
     uuid "^11.1.0"
     yargs "^17.7.2"
 
+typescript-paths@^1.5.1:
+  version "1.5.2"
+  resolved "https://registry.yarnpkg.com/typescript-paths/-/typescript-paths-1.5.2.tgz#83b6fc9a6339df881f0994941c23bb6bffa345bb"
+  integrity sha512-s5iiRIWOSw80dBgPACm0asPQZHHQcbPz69f26eRq01dStusuD11idZ0NDcAbkj6WuUGcRwJediPOsrArIS92eg==
+
 typescript@^6.0.2:
   version "6.0.3"
   resolved "https://registry.yarnpkg.com/typescript/-/typescript-6.0.3.tgz#90251dc007916e972786cb94d74d15b185577d21"
@@ -6058,6 +6063,13 @@ vary@^1, vary@~1.1.2:
   version "1.1.2"
   resolved "https://registry.npmjs.org/vary/-/vary-1.1.2.tgz"
   integrity sha512-BNGbWLfd0eUPabhkXUVm0j8uuvREyTh5ovRa/dyow/BqAbZJyC+5fU+IzQOzmAKzYqYRAISoRhdQr3eIZ/PXqg==
+
+vite-plugin-tsconfig-paths@^1.4.1:
+  version "1.4.1"
+  resolved "https://registry.yarnpkg.com/vite-plugin-tsconfig-paths/-/vite-plugin-tsconfig-paths-1.4.1.tgz#77ece05689a09f9f2c5a63e2dbef747271c0c099"
+  integrity sha512-pGpvsPGDpiM5z7I9ZhBe7H2WAH0gAC2Lh55rM3pE+84V2q7qojNO28wdUl4i/M4XUfJcilhyucmbc9D7IKqpXA==
+  dependencies:
+    typescript-paths "^1.5.1"
 
 vite@^5.0.0:
   version "5.4.21"

@@ -30,6 +30,7 @@
 		"@types/react-dom": "^18.2.18"
 	},
 	"devDependencies": {
-		"@originjs/vite-plugin-federation": "^1.4.1"
+		"@originjs/vite-plugin-federation": "^1.4.1",
+		"vite-plugin-tsconfig-paths": "^1.4.1"
 	}
 }
