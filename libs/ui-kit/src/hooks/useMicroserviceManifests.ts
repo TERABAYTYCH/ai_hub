@@ -6,6 +6,7 @@ import type { MicroserviceManifest } from '@ject-hub/contracts';
  * Hub динамически загружает manifest.json из каждого сервиса.
  */
 export const REGISTERED_SERVICES = [
+  { serviceId: 'hub', manifestUrl: 'http://hub.lvh.me/assets/manifest.json' },
   { serviceId: 'pulse', manifestUrl: 'http://pulse.lvh.me/assets/manifest.json' },
   { serviceId: 'service', manifestUrl: 'http://service.lvh.me/assets/manifest.json' },
 ] as const;
