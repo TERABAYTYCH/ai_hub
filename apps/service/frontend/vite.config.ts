@@ -28,6 +28,10 @@ export default defineConfig({
       name: 'service',
       filename: 'remoteEntry.js',
       exposes,
+      remotes: {
+        // Пустой заполнитель для динамических удаленных модулей
+        'dynamic-remote': 'http://hub.lvh.me/assets/remoteEntry.js',
+      },
       shared: ['react', 'react-dom', 'react-router-dom'],
     }),
   ],

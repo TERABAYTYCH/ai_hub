@@ -2,8 +2,9 @@ import { Navigate, useRoutes } from 'react-router-dom';
 import React, { useMemo, useEffect, useState } from 'react';
 import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
+import DashboardPage from './pages/DashboardPage';
 import DevicesPage from './pages/DevicesPage';
-import SettingsPage from './pages/SettingsPage';
+import Settings from './Settings';
 import { ProtectedRoute, GuestRoute, useMicroserviceManifests } from '@ject-hub/ui-kit';
 import { Layout } from './components/layout/Layout';
 
@@ -19,11 +20,9 @@ interface FederatedModule {
 }
 
 /**
- * Загружает модуль динамически через Federation v2 API
+ * Load module dynamically via Federation v2 API
  */
 const loadModule = async (serviceId: string, modulePath: string): Promise<FederatedModule> => {
-  console.log(`[Federation] Loading ${serviceId}/${modulePath}`);
-
   __federation_method_setRemote(serviceId, {
     url: () => Promise.resolve(`http://${serviceId}.lvh.me/assets/remoteEntry.js`),
     from: 'vite',
@@ -32,9 +31,7 @@ const loadModule = async (serviceId: string, modulePath: string): Promise<Federa
 
   await __federation_method_ensure(serviceId);
 
-  const module = await __federation_method_getRemote(serviceId, modulePath);
-  console.log(`[Federation] Loaded ${serviceId}/${modulePath}:`, module);
-  return module as FederatedModule;
+  return __federation_method_getRemote(serviceId, modulePath) as FederatedModule;
 };
 
 /**
@@ -49,14 +46,15 @@ const LazyModule: React.FC<{ serviceId: string; modulePath: string }> = ({
   const [error, setError] = useState<Error | null>(null);
 
   useEffect(() => {
-    // Reset state on module change
     setComponent(null);
     setError(null);
     setLoading(true);
 
     loadModule(serviceId, modulePath)
       .then((mod) => {
-        const Comp = (mod as any).default || mod;
+        const Comp =
+          (mod as { default?: React.ComponentType }).default ||
+          (mod as unknown as React.ComponentType);
         if (typeof Comp === 'function') {
           setComponent(() => Comp);
         } else {
@@ -64,7 +62,6 @@ const LazyModule: React.FC<{ serviceId: string; modulePath: string }> = ({
         }
       })
       .catch((err: Error) => {
-        console.error('[Federation] Load error:', err);
         setError(err);
       })
       .finally(() => {
@@ -97,7 +94,6 @@ const LazyModule: React.FC<{ serviceId: string; modulePath: string }> = ({
 
 /**
  * Dynamic routes configuration from microservice manifests.
- * Includes redirects from service root to first navigation item.
  */
 const useDynamicRoutesConfig = () => {
   const { manifests } = useMicroserviceManifests();
@@ -106,21 +102,8 @@ const useDynamicRoutesConfig = () => {
     const dynamicRoutes: { path: string; element: React.ReactNode }[] = [];
 
     for (const manifest of manifests) {
-      // Skip if no navigation items
       if (!manifest.navigation || manifest.navigation.length === 0) continue;
 
-      // Add redirect from service root (e.g., /pulse) to first nav item (e.g., /pulse/dashboard)
-      const serviceRoot = '/' + manifest.serviceId;
-      const firstNavItem = manifest.navigation[0];
-
-      if (firstNavItem && firstNavItem.path) {
-        dynamicRoutes.push({
-          path: serviceRoot,
-          element: <Navigate to={firstNavItem.path} replace />,
-        });
-      }
-
-      // Add routes for each navigation item
       for (const navItem of manifest.navigation) {
         if (navItem.module && navItem.path) {
           dynamicRoutes.push({
@@ -144,9 +127,8 @@ const useDynamicRoutesConfig = () => {
 };
 
 function App() {
-  // Static routes
   const staticRoutes = [
-    { path: '/', element: <Navigate to="/devices" replace /> },
+    { path: '/', element: <Navigate to="/dashboard" replace /> },
     {
       path: '/login',
       element: (
@@ -164,6 +146,16 @@ function App() {
       ),
     },
     {
+      path: '/dashboard',
+      element: (
+        <ProtectedRoute>
+          <Layout>
+            <DashboardPage />
+          </Layout>
+        </ProtectedRoute>
+      ),
+    },
+    {
       path: '/devices',
       element: (
         <ProtectedRoute>
@@ -178,20 +170,15 @@ function App() {
       element: (
         <ProtectedRoute>
           <Layout>
-            <SettingsPage />
+            <Settings />
           </Layout>
         </ProtectedRoute>
       ),
     },
   ];
 
-  // Get dynamic routes from manifests
   const dynamicRoutesConfig = useDynamicRoutesConfig();
-
-  // Combine all routes
   const allRoutes = [...staticRoutes, ...dynamicRoutesConfig];
-
-  // Use useRoutes hook
   const routeElements = useRoutes(allRoutes);
 
   return routeElements;

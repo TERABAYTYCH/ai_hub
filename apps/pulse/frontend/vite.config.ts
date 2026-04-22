@@ -32,6 +32,10 @@ export default defineConfig({
       name: 'pulse',
       filename: 'remoteEntry.js',
       exposes,
+      remotes: {
+        // Пустой заполнитель для динамических удаленных модулей
+        'dynamic-remote': 'http://hub.lvh.me/assets/remoteEntry.js',
+      },
       shared: ['react', 'react-dom', 'react-router-dom'],
     }),
   ],
@@ -49,7 +53,7 @@ export default defineConfig({
     headers: {
       'Access-Control-Allow-Origin': '*',
     },
-    allowedHosts: ['hub.lvh.me', 'pulse.lvh.me', 'lvh.me', 'localhost'],
+    allowedHosts: ['hub.lvh.me', 'pulse.lvh.me', 'service.lvh.me', 'lvh.me', 'localhost'],
   },
   build: {
     target: 'esnext',
