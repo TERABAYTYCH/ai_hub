@@ -1,10 +1,9 @@
-import { Controller, Get, UseGuards, Request } from '@nestjs/common';
-import { JwtAuthGuard } from './auth/guards/jwt-auth.guard';
-import { HealthResponse, UserResponse } from '@ject-hub/contracts';
+import { Controller, Get } from '@nestjs/common';
+import { HealthResponse } from '@ject-hub/contracts';
 
 /**
  * Контроллер для Pulse Backend.
- * Эндпоинт /health публичный, /api/pulse/me защищен JWT.
+ * Эндпоинт /health публичный.
  */
 @Controller('pulse')
 export class AppController {
@@ -14,16 +13,5 @@ export class AppController {
   @Get('health')
   getHealth(): HealthResponse {
     return { status: 'OK', service: 'pulse' };
-  }
-
-  /**
-   * Защищенный эндпоинт - возвращает данные текущего пользователя из JWT.
-   * Требует валидный JWT токен.
-   * Доступен по /api/pulse/me
-   */
-  @UseGuards(JwtAuthGuard)
-  @Get('me')
-  getCurrentUser(@Request() req: { user: UserResponse }): UserResponse {
-    return req.user;
   }
 }
