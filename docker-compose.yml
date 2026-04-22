@@ -137,6 +137,7 @@ services:
       - mysql-service
       - mysql-control
       - kafka
+      - hub-backend
       - pulse-backend
     networks:
       - ject-network
@@ -242,6 +243,54 @@ services:
     command: yarn workspace @ject-hub/pulse-frontend dev:docker
     depends_on:
       - pulse-backend
+    networks:
+      - ject-network
+
+  # ============================================
+  # SERVICE SERVICE (Backend + Frontend)
+  # ============================================
+  service-backend:
+    build:
+      context: .
+      dockerfile: apps/service/backend/Dockerfile
+    container_name: ${COMPOSE_PROJECT_NAME}_service_backend
+    restart: unless-stopped
+    environment:
+      - NODE_ENV=development
+      - PORT=3002
+      - JWT_SECRET=${JWT_SECRET:-hub-jwt-secret-key-change-in-production}
+      - HUB_INTERNAL_API_URL=http://hub-backend:3000
+    ports:
+      - '3002:3002'
+    volumes:
+      - .:/app
+      - /app/node_modules
+      - /app/apps/service/backend/node_modules
+    command: yarn workspace @ject-hub/service-backend start:dev
+    depends_on:
+      - hub-backend
+    networks:
+      - ject-network
+
+  service-frontend:
+    build:
+      context: .
+      dockerfile: apps/service/frontend/Dockerfile
+    container_name: ${COMPOSE_PROJECT_NAME}_service_frontend
+    restart: unless-stopped
+    environment:
+      - NODE_ENV=development
+      - VITE_API_URL=http://api.service.lvh.me
+      - WATCHPACK_POLLING=true
+    ports:
+      - '5175:5175'
+    volumes:
+      - .:/app
+      - /app/node_modules
+      - /app/apps/service/frontend/node_modules
+    command: yarn workspace @ject-hub/service-frontend dev:docker
+    depends_on:
+      - service-backend
     networks:
       - ject-network
 
