@@ -15,7 +15,11 @@ const hubMenuItems: MenuItem[] = [
 
 export function Layout({ children }: { children: ReactNode }) {
   return (
-    <UiKitLayout serviceName="Ject Hub" staticMenuItems={hubMenuItems}>
+    <UiKitLayout
+      serviceName="Ject Hub"
+      staticMenuItems={hubMenuItems}
+      excludeServices={['hub']}
+    >
       {children}
     </UiKitLayout>
   );
