@@ -75,3 +75,6 @@ export interface CurrentUserDto {
   createdAt: Date;
   updatedAt: Date;
 }
+
+export * from './health-response.interface';
+export * from './user-response.interface';

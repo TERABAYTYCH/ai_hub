@@ -3,23 +3,23 @@ import { JwtAuthGuard } from './auth/guards/jwt-auth.guard';
 import { HealthResponse, UserResponse } from '@ject-hub/contracts';
 
 /**
- * Контроллер для Pulse Backend.
- * Эндпоинт /health публичный, /api/pulse/me защищен JWT.
+ * Контроллер для Service Backend.
+ * Эндпоинт /health публичный, /api/service/me защищен JWT.
  */
-@Controller('pulse')
+@Controller('service')
 export class AppController {
   /**
-   * Публичный health check - доступен по /api/pulse/health
+   * Публичный health check - доступен по /api/service/health
    */
   @Get('health')
   getHealth(): HealthResponse {
-    return { status: 'OK', service: 'pulse' };
+    return { status: 'OK', service: 'service' };
   }
 
   /**
    * Защищенный эндпоинт - возвращает данные текущего пользователя из JWT.
    * Требует валидный JWT токен.
-   * Доступен по /api/pulse/me
+   * Доступен по /api/service/me
    */
   @UseGuards(JwtAuthGuard)
   @Get('me')

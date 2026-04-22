@@ -21,7 +21,10 @@
     "baseUrl": ".",
     "ignoreDeprecations": "6.0",
     "paths": {
-      "contracts": ["libs/contracts/src/index.ts"],
+      "@ject-hub/contracts": ["libs/contracts/src/index.ts"],
+      "@ject-hub/contracts/hub": ["libs/contracts/src/hub/index.ts"],
+      "@ject-hub/contracts/hub/auth": ["libs/contracts/src/hub/auth/index.ts"],
+      "@ject-hub/contracts/hub/devices": ["libs/contracts/src/hub/devices/index.ts"],
       "@app/contracts": ["libs/contracts/src/index.ts"],
       "@app/contracts/hub": ["libs/contracts/src/hub/index.ts"],
       "@app/contracts/hub/auth": ["libs/contracts/src/hub/auth/index.ts"],
