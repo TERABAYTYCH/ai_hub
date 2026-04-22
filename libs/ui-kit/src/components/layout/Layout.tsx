@@ -8,6 +8,7 @@ import { AppLayout, type MenuItem, useAuth, useMicroserviceManifests } from '@ap
  * @param serviceName - Название сервиса для отображения в header
  * @param staticMenuItems - Статические пункты меню текущего сервиса (опционально)
  * @param excludeServices - Список serviceId для исключения из динамического меню (опционально)
+ * @param hubSettingsItem - Пункт меню для Hub Settings (опционально)
  * @param children - Дочерние элементы
  */
 export function Layout({
@@ -15,11 +16,13 @@ export function Layout({
   serviceName = 'Ject Hub',
   staticMenuItems = [],
   excludeServices = [],
+  hubSettingsItem,
 }: {
   children: ReactNode;
   serviceName?: string;
   staticMenuItems?: MenuItem[];
   excludeServices?: string[];
+  hubSettingsItem?: MenuItem;
 }) {
   const { user, logout } = useAuth();
   const { manifests } = useMicroserviceManifests();
@@ -50,7 +53,11 @@ export function Layout({
     })),
   }));
 
-  const menuItems: MenuItem[] = [...staticMenuItems, ...serviceMenuItems];
+  const menuItems: MenuItem[] = [
+    ...staticMenuItems,
+    ...serviceMenuItems,
+    ...(hubSettingsItem ? [hubSettingsItem] : []),
+  ];
 
   return (
     <AppLayout
