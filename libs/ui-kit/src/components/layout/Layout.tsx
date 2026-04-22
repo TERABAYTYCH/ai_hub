@@ -4,11 +4,11 @@ import { AppLayout, type MenuItem, useAuth, useMicroserviceManifests } from '@ap
 /**
  * Hub Layout с динамической навигацией между микросервисами.
  * Строит menu items из manifest.json каждого сервиса.
- * 
+ *
  * @param serviceName - Название сервиса для отображения в header
  * @param staticMenuItems - Статические пункты меню текущего сервиса (опционально)
  * @param excludeServices - Список serviceId для исключения из динамического меню (опционально)
- * @param hubSettingsItem - Пункт меню для Hub Settings (опционально)
+ * @param hubSettingsItem - Пункт меню для Hub Settings (опционально). Если передан, Hub исключается из manifests.
  * @param children - Дочерние элементы
  */
 export function Layout({
@@ -29,11 +29,17 @@ export function Layout({
   const username = user?.username || user?.email || 'User';
 
   /**
+   * If hubSettingsItem is provided, auto-exclude 'hub' from manifests to avoid duplication.
+   * Hub will appear as hubSettingsItem (standalone) instead of as a service parent.
+   */
+  const effectiveExcludeServices = hubSettingsItem ? [...excludeServices, 'hub'] : excludeServices;
+
+  /**
    * Filter manifests by excludeServices.
    * Excluded services will not appear in the dynamic menu.
    */
   const filteredManifests = manifests.filter(
-    (m) => !excludeServices.includes(m.serviceId)
+    (m) => !effectiveExcludeServices.includes(m.serviceId),
   );
 
   /**

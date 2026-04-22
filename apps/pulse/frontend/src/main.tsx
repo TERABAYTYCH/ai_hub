@@ -1,7 +1,7 @@
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
-import { ThemeProvider, AuthProvider, ProtectedRoute, GuestRoute, AppLayout } from '@app/ui-kit';
+import { ThemeProvider, AuthProvider, ProtectedRoute, GuestRoute } from '@app/ui-kit';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap-icons/font/bootstrap-icons.css';
 import LoginPage from './pages/LoginPage';
@@ -11,32 +11,11 @@ import DevicesPage from './pages/DevicesPage';
 import MetricsPage from './Metrics';
 import AlertsPage from './Alerts';
 import SettingsPage from './Settings';
-import { useAuth } from '@app/ui-kit';
 import { initAxiosInterceptors } from './api/axios';
+import { Layout } from './components/layout/Layout';
 
 // Initialize axios interceptors for global 401 handling
 initAxiosInterceptors();
-
-/** Элементы меню для приложения Pulse */
-const menuItems = [
-  { id: 'dashboard', label: 'Dashboard', path: '/', icon: 'bi bi-house' },
-  { id: 'devices', label: 'Devices', path: '/devices', icon: 'bi bi-grid' },
-  { id: 'metrics', label: 'Metrics', path: '/metrics', icon: 'bi bi-graph-up' },
-  { id: 'alerts', label: 'Alerts', path: '/alerts', icon: 'bi bi-bell' },
-  { id: 'settings', label: 'Settings', path: '/settings', icon: 'bi bi-gear' },
-];
-
-/** Компонент с layout для Pulse */
-function PulseLayout({ children }: { children: React.ReactNode }) {
-  const { user, logout } = useAuth();
-  const username = user?.username || user?.email || 'User';
-
-  return (
-    <AppLayout menuItems={menuItems} serviceName="Pulse" username={username} onLogout={logout}>
-      {children}
-    </AppLayout>
-  );
-}
 
 const rootElement = document.getElementById('root');
 if (rootElement) {
@@ -69,9 +48,9 @@ if (rootElement) {
                 path="/"
                 element={
                   <ProtectedRoute>
-                    <PulseLayout>
+                    <Layout>
                       <DashboardPage />
-                    </PulseLayout>
+                    </Layout>
                   </ProtectedRoute>
                 }
               />
@@ -79,9 +58,9 @@ if (rootElement) {
                 path="/devices"
                 element={
                   <ProtectedRoute>
-                    <PulseLayout>
+                    <Layout>
                       <DevicesPage />
-                    </PulseLayout>
+                    </Layout>
                   </ProtectedRoute>
                 }
               />
@@ -89,9 +68,9 @@ if (rootElement) {
                 path="/metrics"
                 element={
                   <ProtectedRoute>
-                    <PulseLayout>
+                    <Layout>
                       <MetricsPage />
-                    </PulseLayout>
+                    </Layout>
                   </ProtectedRoute>
                 }
               />
@@ -99,9 +78,9 @@ if (rootElement) {
                 path="/alerts"
                 element={
                   <ProtectedRoute>
-                    <PulseLayout>
+                    <Layout>
                       <AlertsPage />
-                    </PulseLayout>
+                    </Layout>
                   </ProtectedRoute>
                 }
               />
@@ -109,9 +88,9 @@ if (rootElement) {
                 path="/settings"
                 element={
                   <ProtectedRoute>
-                    <PulseLayout>
+                    <Layout>
                       <SettingsPage />
-                    </PulseLayout>
+                    </Layout>
                   </ProtectedRoute>
                 }
               />

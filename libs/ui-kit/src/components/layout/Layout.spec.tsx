@@ -125,7 +125,7 @@ describe('Layout', () => {
   });
 
   describe('hubSettingsItem', () => {
-    it('should add hubSettingsItem at the end of menu items', () => {
+    it('should add hubSettingsItem at the end of menu items and auto-exclude hub', () => {
       const mockManifests = [
         { serviceId: 'hub', name: 'Hub', baseUrl: 'http://hub.lvh.me', navigation: [] },
         { serviceId: 'pulse', name: 'Pulse', baseUrl: 'http://pulse.lvh.me', navigation: [] },
@@ -153,9 +153,13 @@ describe('Layout', () => {
       const menuItemsJson = screen.getByTestId('menu-items').textContent || '';
       const menuItems = JSON.parse(menuItemsJson);
 
-      expect(menuItems).toHaveLength(3);
-      expect(menuItems[2].id).toBe('hub-settings');
-      expect(menuItems[2].label).toBe('Hub Settings');
+      // hub should be auto-excluded when hubSettingsItem is provided
+      expect(menuItems.some((item: { id: string }) => item.id === 'hub')).toBe(false);
+      // pulse should still be present
+      expect(menuItems.some((item: { id: string }) => item.id === 'pulse')).toBe(true);
+      // hubSettingsItem should be at the end
+      expect(menuItems[menuItems.length - 1].id).toBe('hub-settings');
+      expect(menuItems[menuItems.length - 1].label).toBe('Hub Settings');
     });
 
     it('should not add hubSettingsItem when not provided', () => {
@@ -210,6 +214,37 @@ describe('Layout', () => {
       expect(menuItems[0].id).toBe('static'); // staticMenuItems first
       expect(menuItems[1].id).toBe('pulse'); // serviceMenuItems second
       expect(menuItems[2].id).toBe('hub-settings'); // hubSettingsItem last
+    });
+
+    it('should auto-exclude hub from manifests when hubSettingsItem is provided', () => {
+      const mockManifests = [
+        { serviceId: 'hub', name: 'Hub', baseUrl: 'http://hub.lvh.me', navigation: [{ module: './Settings', path: '/hub/settings', label: 'Settings', icon: 'bi bi-gear' }] },
+        { serviceId: 'pulse', name: 'Pulse', baseUrl: 'http://pulse.lvh.me', navigation: [] },
+        { serviceId: 'service', name: 'Service', baseUrl: 'http://service.lvh.me', navigation: [] },
+      ];
+
+      (uiKit.useMicroserviceManifests as jest.Mock).mockReturnValue({
+        manifests: mockManifests,
+        loading: false,
+        error: null,
+      });
+
+      const hubSettingsItem = { id: 'hub-settings', label: 'Hub Settings', icon: 'bi bi-gear', path: '/hub/settings' };
+
+      render(
+        <Layout hubSettingsItem={hubSettingsItem}>
+          <div>Content</div>
+        </Layout>
+      );
+
+      const menuItemsJson = screen.getByTestId('menu-items').textContent || '';
+      const menuItems = JSON.parse(menuItemsJson);
+
+      // Should have pulse, service (hub auto-excluded)
+      expect(menuItems).toHaveLength(3); // pulse, service, hub-settings
+      expect(menuItems[0].id).toBe('pulse');
+      expect(menuItems[1].id).toBe('service');
+      expect(menuItems[2].id).toBe('hub-settings');
     });
   });
 });
