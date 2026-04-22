@@ -5,7 +5,7 @@ import { Layout as UiKitLayout, type MenuItem } from '@ject-hub/ui-kit';
  * Static Service menu items.
  */
 const serviceMenuItems: MenuItem[] = [
-  { id: 'dashboard', label: 'Dashboard', icon: 'bi bi-house', path: '/' },
+  { id: 'dashboard', label: 'Dashboard', icon: 'bi bi-house', path: '/dashboard' },
   { id: 'devices', label: 'Devices', icon: 'bi bi-grid', path: '/devices' },
   { id: 'settings', label: 'Settings', icon: 'bi bi-gear', path: '/settings' },
 ];
