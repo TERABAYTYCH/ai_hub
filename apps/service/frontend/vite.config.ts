@@ -21,7 +21,6 @@ function manifestPlugin(): Plugin {
     name: 'manifest-plugin',
     configureServer(server: ViteDevServer) {
       server.middlewares.use('/assets/manifest.json', (_req, res) => {
-        console.warn('MANIFEST GENERATOR');
         const moduleMapping: Record<string, { label: string; icon: string; path: string }> = {
           './Dashboard': { label: 'Dashboard', icon: 'bi bi-wrench', path: '/service/dashboard' },
           './Devices': { label: 'Devices', icon: 'bi bi-grid', path: '/service/devices' },

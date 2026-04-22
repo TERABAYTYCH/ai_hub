@@ -23,7 +23,6 @@ function manifestPlugin(): Plugin {
     name: 'manifest-plugin',
     configureServer(server: ViteDevServer) {
       server.middlewares.use('/assets/manifest.json', (_req, res) => {
-        console.warn('MANIFEST GENERATOR');
         // Иконки синхронизированы с apps/pulse/frontend/src/main.tsx
         const moduleMapping: Record<string, { label: string; icon: string; path: string }> = {
           './Dashboard': { label: 'Dashboard', icon: 'bi bi-house', path: '/pulse/dashboard' },
