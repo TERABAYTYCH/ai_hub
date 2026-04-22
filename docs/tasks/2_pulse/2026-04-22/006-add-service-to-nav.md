@@ -20,14 +20,15 @@
 
 ### 1. Создать общую логику Federation
 
-Создать `libs/ui-kit/src/federation/` с:
-- `useDynamicRoutesConfig.ts` — хук для создания динамических маршрутов
-- `LazyModule.tsx` — компонент для lazy-загрузки модулей
+Создать `libs/federation/src/` (НЕ в ui-kit) с:
 - `loadModule.ts` — функция для загрузки через Federation API
+- `LazyModule.tsx` — компонент для lazy-загрузки модулей
+- `useDynamicRoutesConfig.ts` — хук для создания динамических маршрутов
+- `index.ts` — экспорты
 
 ### 2. Обновить Hub
 
-Заменить локальную реализацию на импорт из `@app/ui-kit/federation`.
+Заменить локальную реализацию на импорт из `@app/federation`.
 
 ### 3. Обновить Pulse
 
@@ -45,14 +46,16 @@
 ## Структура после изменений
 
 ```
-libs/ui-kit/src/federation/
-├── index.ts                    # Экспорты
-├── loadModule.ts               # loadModule()
-├── LazyModule.tsx             # LazyModule component
-└── useDynamicRoutesConfig.ts   # useDynamicRoutesConfig hook
+libs/federation/
+├── src/
+│   ├── index.ts
+│   ├── loadModule.ts
+│   ├── LazyModule.tsx
+│   └── useDynamicRoutesConfig.ts
+└── package.json
 
-apps/hub/frontend/src/App.tsx  # Импортирует из @app/ui-kit/federation
-apps/pulse/frontend/src/App.tsx # Импортирует из @app/ui-kit/federation
+apps/hub/frontend/src/App.tsx    # Импортирует из @app/federation
+apps/pulse/frontend/src/App.tsx   # Импортирует из @app/federation
 ```
 
 ## Меню в Pulse после изменений
@@ -74,14 +77,20 @@ apps/pulse/frontend/src/App.tsx # Импортирует из @app/ui-kit/federa
 
 | Действие | Файл |
 |---------|------|
-| Создать | `libs/ui-kit/src/federation/loadModule.ts` |
-| Создать | `libs/ui-kit/src/federation/LazyModule.tsx` |
-| Создать | `libs/ui-kit/src/federation/useDynamicRoutesConfig.ts` |
-| Создать | `libs/ui-kit/src/federation/index.ts` |
-| Изменить | `libs/ui-kit/src/index.ts` (экспорт federation) |
+| Создать | `libs/federation/src/loadModule.ts` |
+| Создать | `libs/federation/src/LazyModule.tsx` |
+| Создать | `libs/federation/src/useDynamicRoutesConfig.ts` |
+| Создать | `libs/federation/src/index.ts` |
+| Создать | `libs/federation/package.json` |
 | Изменить | `apps/hub/frontend/src/App.tsx` |
 | Изменить | `apps/pulse/frontend/src/App.tsx` |
 
 ## Тикет
 
 006
+
+## Environment
+
+<environment_details>
+Current time: 2026-04-22T18:50:12+03:00
+</environment_details>
