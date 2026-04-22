@@ -1,5 +1,3 @@
-import React from 'react';
-
 /**
  * Service Dashboard - главная страница Service после авторизации.
  * Заглушка - показывает базовую информацию.

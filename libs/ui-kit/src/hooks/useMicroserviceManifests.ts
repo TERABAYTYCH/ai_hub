@@ -2,13 +2,12 @@ import { useState, useEffect } from 'react';
 import type { MicroserviceManifest } from '@ject-hub/contracts';
 
 /**
- * Базовый URL для сервиса Pulse.
- * В браузере используется статический fallback, так как process.env недоступен.
+ * Список зарегистрированных микросервисов.
+ * Hub динамически загружает manifest.json из каждого сервиса.
  */
-const SERVICE_BASE_URL = 'http://pulse.lvh.me';
-
 export const REGISTERED_SERVICES = [
-  { serviceId: 'pulse', manifestUrl: `${SERVICE_BASE_URL}/assets/manifest.json` },
+  { serviceId: 'pulse', manifestUrl: 'http://pulse.lvh.me/assets/manifest.json' },
+  { serviceId: 'service', manifestUrl: 'http://service.lvh.me/assets/manifest.json' },
 ] as const;
 
 export interface UseMicroserviceManifestsResult {
