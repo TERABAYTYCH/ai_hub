@@ -33,6 +33,23 @@ function isTokenExpired(token: string): boolean {
   return exp < now;
 }
 
+/**
+ * Extracts IUser from JWT token payload.
+ */
+function extractUserFromToken(token: string): IUser | null {
+  const payload = decodeTokenPayload(token);
+  if (!payload) return null;
+
+  return {
+    id: payload.sub as string,
+    username: payload.username as string,
+    email: payload.email as string | undefined,
+    firstName: payload.firstName as string | undefined,
+    lastName: payload.lastName as string | undefined,
+    microservices: (payload.microservices as Record<string, boolean>) || undefined,
+  };
+}
+
 export interface IUser {
   id: string;
   username: string;
@@ -84,9 +101,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           if (response.ok) {
             const data = (await response.json()) as { accessToken: string };
             setAccessToken(data.accessToken);
+            const user = extractUserFromToken(data.accessToken);
             setState({
               isAuthenticated: true,
-              user: null,
+              user,
               isLoading: false,
             });
             return;
@@ -105,8 +123,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         return;
       }
 
+      // Token exists and is valid - decode user from token
+      if (accessToken) {
+        const user = extractUserFromToken(accessToken);
+        setState({
+          isAuthenticated: true,
+          user,
+          isLoading: false,
+        });
+        return;
+      }
+
+      // No token
       setState({
-        isAuthenticated: !!accessToken,
+        isAuthenticated: false,
         user: null,
         isLoading: false,
       });
