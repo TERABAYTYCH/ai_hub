@@ -280,7 +280,7 @@ services:
     restart: unless-stopped
     environment:
       - NODE_ENV=development
-      - VITE_API_URL=http://api.service.lvh.me
+      - VITE_API_URL=http://api.hub.lvh.me
       - WATCHPACK_POLLING=true
     ports:
       - '5175:5175'
