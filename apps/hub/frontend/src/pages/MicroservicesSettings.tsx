@@ -1,5 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Form, Spinner } from 'react-bootstrap';
+import { useAuth } from '@ject-hub/ui-kit';
+import { LoginResponseDto } from '@app/contracts/hub/auth';
 
 const API_BASE_URL = (import.meta.env.VITE_API_URL as string) || '/api';
 
@@ -9,6 +11,7 @@ interface MicroservicesAccess {
 }
 
 export default function MicroservicesSettings() {
+  const { login } = useAuth();
   const [access, setAccess] = useState<MicroservicesAccess>({ pulse: true, service: true });
   const [saved, setSaved] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -50,6 +53,19 @@ export default function MicroservicesSettings() {
       if (response.ok) {
         setSaved(true);
         setError(null);
+        // Refresh JWT to get updated microservices access
+        try {
+          const refreshResponse = await fetch(`${API_BASE_URL}/auth/refresh`, {
+            method: 'POST',
+            credentials: 'include',
+          });
+          if (refreshResponse.ok) {
+            const refreshData = (await refreshResponse.json()) as LoginResponseDto;
+            login(refreshData.accessToken, refreshData.user);
+          }
+        } catch {
+          // Ignore refresh errors
+        }
         setTimeout(() => setSaved(false), 2000);
       } else {
         setError('Failed to save');

@@ -36,7 +36,7 @@ export function Layout({
    * If hubSettingsItem is provided, auto-exclude 'hub' from manifests to avoid duplication.
    * Hub will appear as hubSettingsItem (standalone) instead of as a service parent.
    */
-  const effectiveExcludeServices = hubSettingsItem ? [...excludeServices, 'hub'] : excludeServices;
+  const effectiveExcludeServices = [...excludeServices, 'hub'];
 
   /**
    * Filter manifests by excludeServices.

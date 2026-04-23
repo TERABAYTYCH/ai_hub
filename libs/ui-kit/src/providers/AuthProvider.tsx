@@ -2,7 +2,6 @@ import { createContext, useContext, useState, useEffect, useCallback, ReactNode 
 import { useNavigate } from 'react-router-dom';
 import { getAccessToken, setAccessToken, removeAccessToken } from '../utils/cookies';
 
-// Hub API URL - auth is centralized in Hub backend
 const HUB_API_URL = 'http://api.hub.lvh.me';
 
 /**
@@ -88,6 +87,32 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     isLoading: true,
   });
 
+  // Refresh JWT token and update state
+  const refreshJwt = useCallback(async () => {
+    const accessToken = getAccessToken();
+    if (!accessToken) return;
+
+    try {
+      const response = await fetch(`${HUB_API_URL}/auth/refresh`, {
+        method: 'POST',
+        credentials: 'include',
+      });
+
+      if (response.ok) {
+        const data = (await response.json()) as { accessToken: string };
+        setAccessToken(data.accessToken);
+        const user = extractUserFromToken(data.accessToken);
+        setState({
+          isAuthenticated: true,
+          user,
+          isLoading: false,
+        });
+      }
+    } catch {
+      // Ignore refresh errors on visibility change
+    }
+  }, []);
+
   // Check authorization on mount - always refresh token to get latest MICROSERVICES_ACCESS
   useEffect(() => {
     const initAuth = async () => {
@@ -144,8 +169,22 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       });
     };
 
-    initAuth();
+    void initAuth();
   }, []);
+
+  // Refresh JWT on visibility change (when user returns to the tab)
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        void refreshJwt();
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
+  }, [refreshJwt]);
 
   /**
    * Performs login - saves access token to cookie and updates state.

@@ -102,8 +102,9 @@ const LazyModule: React.FC<{ serviceId: string; modulePath: string }> = ({
 
 /**
  * Dynamic routes configuration from microservice manifests.
+ * Checks microservices access and blocks locked services.
  */
-const useDynamicRoutesConfig = () => {
+const useDynamicRoutesConfig = (microservicesAccess: Record<string, boolean>) => {
   const { manifests } = useMicroserviceManifests();
 
   const routesConfig = useMemo(() => {
@@ -111,6 +112,29 @@ const useDynamicRoutesConfig = () => {
 
     for (const manifest of manifests) {
       if (!manifest.navigation || manifest.navigation.length === 0) continue;
+
+      const isLocked = microservicesAccess[manifest.serviceId] === false;
+      const serviceRoot = '/' + manifest.serviceId;
+
+      if (isLocked) {
+        // Show lock page for /{serviceId}/lock route
+        dynamicRoutes.push({
+          path: `${serviceRoot}/lock`,
+          element: (
+            <ProtectedRoute>
+              <Layout>
+                <LockPage serviceName={manifest.name} />
+              </Layout>
+            </ProtectedRoute>
+          ),
+        });
+        // Redirect all other child routes to /{serviceId}/lock
+        dynamicRoutes.push({
+          path: `${serviceRoot}/*`,
+          element: <Navigate to={`${serviceRoot}/lock`} replace />,
+        });
+        continue;
+      }
 
       for (const navItem of manifest.navigation) {
         if (navItem.module && navItem.path) {
@@ -129,35 +153,43 @@ const useDynamicRoutesConfig = () => {
     }
 
     return dynamicRoutes;
-  }, [manifests]);
+  }, [manifests, microservicesAccess]);
 
   return routesConfig;
 };
 
 /**
- * Checks if Pulse is blocked and redirects to /lock
+ * Loading screen component
  */
-const usePulseAccess = () => {
-  const { user, isLoading } = useAuth();
+function LoadingScreen() {
+  return <div className="text-center p-4">Loading...</div>;
+}
+
+/**
+ * Main app routes component - always renders routes, no conditional hooks
+ */
+function AppRoutes() {
+  const { user } = useAuth();
   const microservicesAccess = user?.microservices || {};
   const isPulseLocked = microservicesAccess['pulse'] === false;
 
-  return { isPulseLocked, isLoading };
-};
-
-function App() {
-  const { isPulseLocked, isLoading } = usePulseAccess();
-  const dynamicRoutesConfig = useDynamicRoutesConfig();
-
-  // Wait for auth to initialize
-  if (isLoading) {
-    return <div className="text-center p-4">Loading...</div>;
-  }
+  const dynamicRoutesConfig = useDynamicRoutesConfig(microservicesAccess);
 
   // If Pulse is locked, redirect everything to /lock
   if (isPulseLocked) {
-    const allRoutes = [{ path: '/*', element: <Navigate to="/lock" replace /> }];
-    return useRoutes(allRoutes);
+    const lockRoutes = [
+      { path: '/*', element: <Navigate to="/lock" replace /> },
+      {
+        path: '/lock',
+        element: (
+          <Layout>
+            <LockPage serviceName="Pulse" />
+          </Layout>
+        ),
+      },
+    ];
+    const routeElements = useRoutes(lockRoutes);
+    return routeElements;
   }
 
   const staticRoutes = [
@@ -228,21 +260,25 @@ function App() {
         </ProtectedRoute>
       ),
     },
-    // Lock page for blocked Pulse
-    {
-      path: '/lock',
-      element: (
-        <Layout>
-          <LockPage serviceName="Pulse" />
-        </Layout>
-      ),
-    },
+    // Catch-all: redirect unknown routes to /dashboard
+    { path: '/*', element: <Navigate to="/dashboard" replace /> },
   ];
 
   const allRoutes = [...staticRoutes, ...dynamicRoutesConfig];
   const routeElements = useRoutes(allRoutes);
 
   return routeElements;
+}
+
+function App() {
+  const { isLoading } = useAuth();
+
+  // Always call hooks in the same order
+  if (isLoading) {
+    return <LoadingScreen />;
+  }
+
+  return <AppRoutes />;
 }
 
 export default App;
