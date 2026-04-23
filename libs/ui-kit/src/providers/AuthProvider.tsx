@@ -39,6 +39,8 @@ export interface IUser {
   email?: string;
   firstName?: string;
   lastName?: string;
+  /** Microservices access map, e.g. { pulse: true, service: false } */
+  microservices?: Record<string, boolean>;
 }
 
 interface AuthState {
@@ -115,12 +117,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   /**
    * Performs login - saves access token to cookie and updates state.
+   * Extracts microservices from JWT token payload.
    */
   const login = useCallback((accessToken: string, user?: IUser) => {
     setAccessToken(accessToken);
+
+    // Extract microservices from JWT token payload
+    const tokenPayload = decodeTokenPayload(accessToken);
+    const microservices = (tokenPayload?.microservices as Record<string, boolean>) || undefined;
+
     setState({
       isAuthenticated: true,
-      user: user || null,
+      user: user ? { ...user, microservices } : null,
       isLoading: false,
     });
   }, []);
@@ -144,9 +152,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [navigate]);
 
   return (
-    <AuthContext.Provider value={{ ...state, login, logout }}>
-      {children}
-    </AuthContext.Provider>
+    <AuthContext.Provider value={{ ...state, login, logout }}>{children}</AuthContext.Provider>
   );
 }
 

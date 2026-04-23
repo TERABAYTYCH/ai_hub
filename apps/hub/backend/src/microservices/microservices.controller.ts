@@ -5,7 +5,7 @@ import { Controller, Get, Post, Body } from '@nestjs/common';
  * Позже будет храниться в БД (таблица licenses).
  */
 export const MICROSERVICES_ACCESS: Record<string, boolean> = {
-  pulse: true,
+  pulse: false,
   service: true,
 };
 

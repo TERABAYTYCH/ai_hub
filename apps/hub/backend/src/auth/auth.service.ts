@@ -5,15 +5,7 @@ import { LoginDto } from './dto/login.dto';
 import { RegisterDto } from './dto/register.dto';
 import { LoginResponseDto, UserJwtPayload, IUser } from '@app/contracts/hub/auth';
 import { User } from './entities/user.entity';
-
-/**
- * Дефолтные значения доступа к микросервисам.
- * Позже будет браться из БД (таблица licenses).
- */
-const MICROSERVICES_ACCESS: Record<string, boolean> = {
-  pulse: true,
-  service: true,
-};
+import { MICROSERVICES_ACCESS } from '../microservices/microservices.controller';
 
 @Injectable()
 export class AuthService {

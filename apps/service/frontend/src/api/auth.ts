@@ -7,11 +7,10 @@ import type {
 const API_URL = String(import.meta.env.VITE_API_URL) || '/api';
 
 /**
- * Выполняет вход пользователя через Hub Backend API
- * Refresh токен устанавливается через HttpOnly cookie
+ * Performs user login via Hub Backend API.
+ * Refresh token is set via HttpOnly cookie.
  */
 export async function login(credentials: LoginRequestDto): Promise<LoginResponseDto> {
-  console.log({ API_URL, e: import.meta.env });
   const response = await fetch(`${API_URL}/auth/login`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -30,7 +29,7 @@ export async function login(credentials: LoginRequestDto): Promise<LoginResponse
 }
 
 /**
- * Выполняет регистрацию пользователя через Hub Backend API
+ * Performs user registration via Hub Backend API.
  */
 export async function register(userData: RegisterRequestDto): Promise<LoginResponseDto> {
   const response = await fetch(`${API_URL}/auth/register`, {
@@ -51,8 +50,8 @@ export async function register(userData: RegisterRequestDto): Promise<LoginRespo
 }
 
 /**
- * Получает информацию о текущем пользователе
- * Использует access token из cookie
+ * Gets current user information.
+ * Uses access token from cookie.
  */
 export async function getCurrentUser(): Promise<unknown> {
   const response = await fetch(`${API_URL}/auth/me`, {
@@ -67,7 +66,7 @@ export async function getCurrentUser(): Promise<unknown> {
 }
 
 /**
- * Обновляет токены с использованием HttpOnly refresh cookie
+ * Refreshes tokens using HttpOnly refresh cookie.
  */
 export async function refreshTokens(): Promise<LoginResponseDto> {
   const response = await fetch(`${API_URL}/auth/refresh`, {
@@ -83,7 +82,7 @@ export async function refreshTokens(): Promise<LoginResponseDto> {
 }
 
 /**
- * Выполняет logout и очищает cookies
+ * Performs logout and clears cookies.
  */
 export async function logout(): Promise<void> {
   await fetch(`${API_URL}/auth/logout`, {

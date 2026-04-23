@@ -14,16 +14,14 @@ import {
   __federation_method_getRemote,
 } from 'virtual:__federation__';
 
-interface FederatedModule {
-  default?: React.ComponentType;
+interface LoadedModule {
+  default?: unknown;
 }
 
 /**
- * Загружает модуль динамически через Federation v2 API
+ * Loads module dynamically via Federation v2 API
  */
-const loadModule = async (serviceId: string, modulePath: string): Promise<FederatedModule> => {
-  console.log(`[Federation] Loading ${serviceId}/${modulePath}`);
-
+const loadModule = async (serviceId: string, modulePath: string): Promise<LoadedModule> => {
   __federation_method_setRemote(serviceId, {
     url: () => Promise.resolve(`http://${serviceId}.lvh.me/assets/remoteEntry.js`),
     from: 'vite',
@@ -33,8 +31,7 @@ const loadModule = async (serviceId: string, modulePath: string): Promise<Federa
   await __federation_method_ensure(serviceId);
 
   const module = await __federation_method_getRemote(serviceId, modulePath);
-  console.log(`[Federation] Loaded ${serviceId}/${modulePath}:`, module);
-  return module as FederatedModule;
+  return module as LoadedModule;
 };
 
 /**
@@ -56,15 +53,14 @@ const LazyModule: React.FC<{ serviceId: string; modulePath: string }> = ({
 
     loadModule(serviceId, modulePath)
       .then((mod) => {
-        const Comp = (mod as any).default || mod;
-        if (typeof Comp === 'function') {
-          setComponent(() => Comp);
+        const rawComp = mod.default;
+        if (typeof rawComp === 'function') {
+          setComponent(() => rawComp as React.ComponentType);
         } else {
           setError(new Error('Invalid module: not a component'));
         }
       })
       .catch((err: Error) => {
-        console.error('[Federation] Load error:', err);
         setError(err);
       })
       .finally(() => {

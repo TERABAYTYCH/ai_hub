@@ -3,7 +3,7 @@
  * Статические меню Hub добавляются к динамической навигации.
  */
 import type { ReactNode } from 'react';
-import { Layout as UiKitLayout, type MenuItem } from '@ject-hub/ui-kit';
+import { Layout as UiKitLayout, type MenuItem, useAuth } from '@ject-hub/ui-kit';
 
 /**
  * Static Hub menu items (always visible).
@@ -14,8 +14,16 @@ const hubMenuItems: MenuItem[] = [
 ];
 
 export function Layout({ children }: { children: ReactNode }) {
+  const { user } = useAuth();
+  const microservicesAccess = user?.microservices || {};
+
   return (
-    <UiKitLayout serviceName="Ject Hub" staticMenuItems={hubMenuItems} excludeServices={['hub']}>
+    <UiKitLayout
+      serviceName="Ject Hub"
+      staticMenuItems={hubMenuItems}
+      excludeServices={['hub']}
+      microservicesAccess={microservicesAccess}
+    >
       {children}
     </UiKitLayout>
   );
