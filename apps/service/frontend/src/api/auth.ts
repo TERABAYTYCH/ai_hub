@@ -11,6 +11,7 @@ const API_URL = String(import.meta.env.VITE_API_URL) || '/api';
  * Refresh токен устанавливается через HttpOnly cookie
  */
 export async function login(credentials: LoginRequestDto): Promise<LoginResponseDto> {
+  console.log({ API_URL, e: import.meta.env });
   const response = await fetch(`${API_URL}/auth/login`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },

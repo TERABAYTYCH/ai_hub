@@ -66,4 +66,6 @@ turbo-*.log
 docker-volumes/
 .*
 /.*/*
+!.kilo
 !.kilo/plans
+!.kilo/plans/*
