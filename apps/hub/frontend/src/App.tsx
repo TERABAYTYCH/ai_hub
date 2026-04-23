@@ -210,7 +210,7 @@ function App() {
       path: '/pulse/lock',
       element: (
         <Layout>
-          <LockPage serviceName="Pulse" returnUrl="/pulse" />
+          <LockPage serviceName="Pulse" />
         </Layout>
       ),
     },
@@ -218,7 +218,7 @@ function App() {
       path: '/service/lock',
       element: (
         <Layout>
-          <LockPage serviceName="Service" returnUrl="/service" />
+          <LockPage serviceName="Service" />
         </Layout>
       ),
     },
