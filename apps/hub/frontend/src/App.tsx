@@ -95,13 +95,19 @@ const LazyModule: React.FC<{ serviceId: string; modulePath: string }> = ({
 /**
  * Dynamic routes configuration from microservice manifests.
  * Checks microservices access and blocks locked services.
+ * Waits for auth initialization before rendering dynamic routes.
  */
 const useDynamicRoutesConfig = () => {
-  const { user } = useAuth();
+  const { user, isLoading } = useAuth();
   const { manifests } = useMicroserviceManifests();
   const microservicesAccess = user?.microservices || {};
 
   const routesConfig = useMemo(() => {
+    // Wait for auth to initialize before rendering dynamic routes
+    if (isLoading) {
+      return [];
+    }
+
     const dynamicRoutes: { path: string; element: React.ReactNode }[] = [];
 
     for (const manifest of manifests) {
@@ -148,7 +154,7 @@ const useDynamicRoutesConfig = () => {
     }
 
     return dynamicRoutes;
-  }, [manifests, microservicesAccess]);
+  }, [manifests, microservicesAccess, isLoading]);
 
   return routesConfig;
 };
