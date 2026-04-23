@@ -4,7 +4,13 @@ import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
 import DevicesPage from './pages/DevicesPage';
 import SettingsPage from './pages/SettingsPage';
-import { ProtectedRoute, GuestRoute, useMicroserviceManifests, useAuth } from '@ject-hub/ui-kit';
+import {
+  ProtectedRoute,
+  GuestRoute,
+  useMicroserviceManifests,
+  useAuth,
+  LockPage,
+} from '@ject-hub/ui-kit';
 import { Layout } from './components/layout/Layout';
 
 // Federation v2 API
@@ -197,6 +203,23 @@ function App() {
             <SettingsPage />
           </Layout>
         </ProtectedRoute>
+      ),
+    },
+    // Lock pages for blocked microservices (inside Layout)
+    {
+      path: '/pulse/lock',
+      element: (
+        <Layout>
+          <LockPage serviceName="Pulse" returnUrl="/pulse" />
+        </Layout>
+      ),
+    },
+    {
+      path: '/service/lock',
+      element: (
+        <Layout>
+          <LockPage serviceName="Service" returnUrl="/service" />
+        </Layout>
       ),
     },
   ];
