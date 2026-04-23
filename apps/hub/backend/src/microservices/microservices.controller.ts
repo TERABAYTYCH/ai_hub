@@ -1,0 +1,36 @@
+import { Controller, Get, Post, Body } from '@nestjs/common';
+
+/**
+ * Конфигурация доступа к микросервисам.
+ * Позже будет храниться в БД (таблица licenses).
+ */
+export const MICROSERVICES_ACCESS: Record<string, boolean> = {
+  pulse: true,
+  service: true,
+};
+
+@Controller('microservices')
+export class MicroservicesController {
+  /**
+   * Returns current microservices access configuration.
+   */
+  @Get('access')
+  getAccess() {
+    return MICROSERVICES_ACCESS;
+  }
+
+  /**
+   * Updates microservices access configuration.
+   * @param body - Object with pulse and/or service boolean values
+   */
+  @Post('access')
+  updateAccess(@Body() body: { pulse?: boolean; service?: boolean }) {
+    if (body.pulse !== undefined) {
+      MICROSERVICES_ACCESS.pulse = body.pulse;
+    }
+    if (body.service !== undefined) {
+      MICROSERVICES_ACCESS.service = body.service;
+    }
+    return MICROSERVICES_ACCESS;
+  }
+}
