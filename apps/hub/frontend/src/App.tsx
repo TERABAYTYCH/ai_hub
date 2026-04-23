@@ -4,6 +4,7 @@ import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
 import DevicesPage from './pages/DevicesPage';
 import SettingsPage from './pages/SettingsPage';
+import MicroservicesSettings from './pages/MicroservicesSettings';
 import {
   ProtectedRoute,
   GuestRoute,
@@ -119,12 +120,24 @@ const useDynamicRoutesConfig = () => {
     for (const manifest of manifests) {
       // Skip if no navigation items
       if (!manifest.navigation || manifest.navigation.length === 0) continue;
+      //   console.log({ manifest });
 
       const isLocked = microservicesAccess[manifest.serviceId] === false;
       const serviceRoot = '/' + manifest.serviceId;
 
       if (isLocked) {
         // Block ALL child routes - redirect to /lock
+
+        dynamicRoutes.push({
+          path: `${serviceRoot}/lock`,
+          element: (
+            <ProtectedRoute>
+              <Layout>
+                <LockPage serviceName="Pulse" />
+              </Layout>
+            </ProtectedRoute>
+          ),
+        });
         dynamicRoutes.push({
           path: `${serviceRoot}/*`,
           element: <Navigate to={`${serviceRoot}/lock`} replace />,
@@ -205,21 +218,15 @@ function App() {
         </ProtectedRoute>
       ),
     },
-    // Lock pages for blocked microservices (inside Layout)
+    // Microservices access settings
     {
-      path: '/pulse/lock',
+      path: '/microservices-settings',
       element: (
-        <Layout>
-          <LockPage serviceName="Pulse" />
-        </Layout>
-      ),
-    },
-    {
-      path: '/service/lock',
-      element: (
-        <Layout>
-          <LockPage serviceName="Service" />
-        </Layout>
+        <ProtectedRoute>
+          <Layout>
+            <MicroservicesSettings />
+          </Layout>
+        </ProtectedRoute>
       ),
     },
   ];

@@ -58,7 +58,7 @@ export function Layout({
    * - Path: /{serviceId} (leads to lock page)
    */
   const serviceMenuItems: MenuItem[] = filteredManifests.map((m) => {
-    const isLocked = microservicesAccess?.[m.serviceId] === false;
+    const isLocked = (user?.microservices || microservicesAccess)?.[m.serviceId] === false;
 
     // Заблокированный сервис — без детей, с замком, клик ведёт на /{serviceId}
     if (isLocked) {
@@ -67,7 +67,7 @@ export function Layout({
         label: m.name,
         icon: 'bi bi-lock',
         locked: true,
-        path: `/${m.serviceId}`,
+        path: `/${m.serviceId}/lock`,
       };
     }
 

@@ -11,6 +11,12 @@ import { Layout as UiKitLayout, type MenuItem, useAuth } from '@ject-hub/ui-kit'
 const hubMenuItems: MenuItem[] = [
   { id: 'hub-devices', label: 'Devices', icon: 'bi bi-grid', path: '/devices' },
   { id: 'hub-settings', label: 'Settings', icon: 'bi bi-gear', path: '/settings' },
+  {
+    id: 'hub-microservices-settings',
+    label: 'Microservices',
+    icon: 'bi bi-sliders',
+    path: '/microservices-settings',
+  },
 ];
 
 export function Layout({ children }: { children: ReactNode }) {

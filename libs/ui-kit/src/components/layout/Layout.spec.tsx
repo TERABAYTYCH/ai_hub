@@ -88,7 +88,7 @@ describe('Layout', () => {
       const menuItems = JSON.parse(menuItemsJson);
 
       const pulseItem = menuItems.find((item: { id: string }) => item.id === 'pulse');
-      expect(pulseItem.path).toBe('/pulse');
+      expect(pulseItem.path).toBe('/pulse/lock');
     });
 
     it('should set icon to bi bi-lock for locked service', () => {
