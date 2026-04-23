@@ -7,7 +7,13 @@ import DevicesPage from './pages/DevicesPage';
 import MetricsPage from './Metrics';
 import AlertsPage from './Alerts';
 import SettingsPage from './Settings';
-import { ProtectedRoute, GuestRoute, useMicroserviceManifests } from '@ject-hub/ui-kit';
+import {
+  ProtectedRoute,
+  GuestRoute,
+  useMicroserviceManifests,
+  useAuth,
+  LockPage,
+} from '@ject-hub/ui-kit';
 import { Layout } from './components/layout/Layout';
 
 // Federation v2 API
@@ -128,7 +134,32 @@ const useDynamicRoutesConfig = () => {
   return routesConfig;
 };
 
+/**
+ * Checks if Pulse is blocked and redirects to /lock
+ */
+const usePulseAccess = () => {
+  const { user, isLoading } = useAuth();
+  const microservicesAccess = user?.microservices || {};
+  const isPulseLocked = microservicesAccess['pulse'] === false;
+
+  return { isPulseLocked, isLoading };
+};
+
 function App() {
+  const { isPulseLocked, isLoading } = usePulseAccess();
+  const dynamicRoutesConfig = useDynamicRoutesConfig();
+
+  // Wait for auth to initialize
+  if (isLoading) {
+    return <div className="text-center p-4">Loading...</div>;
+  }
+
+  // If Pulse is locked, redirect everything to /lock
+  if (isPulseLocked) {
+    const allRoutes = [{ path: '/*', element: <Navigate to="/lock" replace /> }];
+    return useRoutes(allRoutes);
+  }
+
   const staticRoutes = [
     { path: '/', element: <Navigate to="/dashboard" replace /> },
     {
@@ -197,9 +228,17 @@ function App() {
         </ProtectedRoute>
       ),
     },
+    // Lock page for blocked Pulse
+    {
+      path: '/lock',
+      element: (
+        <Layout>
+          <LockPage serviceName="Pulse" />
+        </Layout>
+      ),
+    },
   ];
 
-  const dynamicRoutesConfig = useDynamicRoutesConfig();
   const allRoutes = [...staticRoutes, ...dynamicRoutesConfig];
   const routeElements = useRoutes(allRoutes);
 
