@@ -38,8 +38,9 @@ export function Layout({ children }: { children: ReactNode }) {
         icon: 'bi bi-gear',
         path: '/hub/settings',
       };
-  // Exclude pulse and service from sidebar when Service is locked
-  const excludeServices = isServiceLocked ? ['service', 'pulse'] : ['service'];
+  // Always exclude service and hub from dynamic services.
+  // When locked, also exclude 'pulse' since we can't load its manifest.
+  const excludeServices = isServiceLocked ? ['service', 'pulse', 'hub'] : ['service', 'hub'];
 
   return (
     <UiKitLayout

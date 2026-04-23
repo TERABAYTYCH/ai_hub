@@ -31,6 +31,7 @@ export function Layout({ children }: { children: ReactNode }) {
 
   // If Pulse is locked, show only "Locked" menu item and hide everything else
   const menuItems = isPulseLocked ? lockedMenuItem : pulseMenuItems;
+  // Hub settings only when not locked
   const hubSettingsItem = isPulseLocked
     ? undefined
     : {
@@ -39,8 +40,10 @@ export function Layout({ children }: { children: ReactNode }) {
         icon: 'bi bi-gear',
         path: '/hub/settings',
       };
-  // Exclude service from sidebar when Pulse is locked
-  const excludeServices = isPulseLocked ? ['pulse', 'service'] : ['pulse'];
+  // Always exclude pulse and hub from dynamic services.
+  // When locked, also exclude 'service' since we can't load its manifest.
+  // Hub is excluded here AND via hubSettingsItem when not locked.
+  const excludeServices = isPulseLocked ? ['pulse', 'service', 'hub'] : ['pulse', 'hub'];
 
   return (
     <UiKitLayout

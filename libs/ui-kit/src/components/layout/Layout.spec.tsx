@@ -27,6 +27,7 @@ const defaultManifests = [
     navigation: [
       { module: './Settings', path: '/hub/settings', label: 'Settings', icon: 'bi bi-gear' },
     ],
+    failed: false,
   },
   {
     serviceId: 'pulse',
@@ -36,6 +37,7 @@ const defaultManifests = [
       { module: './Dashboard', path: '/pulse', label: 'Dashboard', icon: 'bi bi-speedometer2' },
       { module: './Devices', path: '/pulse/devices', label: 'Devices', icon: 'bi bi-device' },
     ],
+    failed: false,
   },
   {
     serviceId: 'service',
@@ -45,6 +47,7 @@ const defaultManifests = [
       { module: './Dashboard', path: '/service', label: 'Dashboard', icon: 'bi bi-wrench' },
       { module: './Tasks', path: '/service/tasks', label: 'Tasks', icon: 'bi bi-list-task' },
     ],
+    failed: false,
   },
 ];
 
@@ -55,6 +58,81 @@ describe('Layout', () => {
       manifests: defaultManifests,
       loading: false,
       error: null,
+    });
+  });
+
+  describe('manifest.failed', () => {
+    it('should mark failed service as disabled with bi-dash-circle icon', () => {
+      (uiKit.useMicroserviceManifests as jest.Mock).mockReturnValue({
+        manifests: defaultManifests.map((m) =>
+          m.serviceId === 'pulse' ? { ...m, failed: true } : m,
+        ),
+        loading: false,
+        error: null,
+      });
+
+      render(
+        <Layout>
+          <div>Content</div>
+        </Layout>
+      );
+
+      const menuItemsJson = screen.getByTestId('menu-items').textContent || '';
+      const menuItems = JSON.parse(menuItemsJson);
+
+      const pulseItem = menuItems.find((item: { id: string }) => item.id === 'pulse');
+      expect(pulseItem.icon).toBe('bi bi-dash-circle');
+      expect(pulseItem.disabled).toBe(true);
+      expect(pulseItem.path).toBeUndefined();
+      expect(pulseItem.locked).toBeUndefined();
+    });
+
+    it('should keep normal icon for non-failed services', () => {
+      (uiKit.useMicroserviceManifests as jest.Mock).mockReturnValue({
+        manifests: defaultManifests.map((m) =>
+          m.serviceId === 'pulse' ? { ...m, failed: true } : m,
+        ),
+        loading: false,
+        error: null,
+      });
+
+      render(
+        <Layout>
+          <div>Content</div>
+        </Layout>
+      );
+
+      const menuItemsJson = screen.getByTestId('menu-items').textContent || '';
+      const menuItems = JSON.parse(menuItemsJson);
+
+      const serviceItem = menuItems.find((item: { id: string }) => item.id === 'service');
+      expect(serviceItem.icon).toBe('bi bi-grid');
+      expect(serviceItem.disabled).toBeUndefined();
+    });
+
+    it('should show all services even when some failed to load', () => {
+      (uiKit.useMicroserviceManifests as jest.Mock).mockReturnValue({
+        manifests: defaultManifests.map((m) =>
+          m.serviceId === 'pulse' ? { ...m, failed: true } : m,
+        ),
+        loading: false,
+        error: null,
+      });
+
+      render(
+        <Layout>
+          <div>Content</div>
+        </Layout>
+      );
+
+      const menuItemsJson = screen.getByTestId('menu-items').textContent || '';
+      const menuItems = JSON.parse(menuItemsJson);
+
+      // All 3 services should still appear in menu (pulse as failed, others normal)
+      expect(menuItems).toHaveLength(3);
+      expect(menuItems.find((item: { id: string }) => item.id === 'pulse')).toBeDefined();
+      expect(menuItems.find((item: { id: string }) => item.id === 'service')).toBeDefined();
+      expect(menuItems.find((item: { id: string }) => item.id === 'hub')).toBeDefined();
     });
   });
 
@@ -238,11 +316,7 @@ describe('Layout', () => {
 
     it('should exclude multiple services', () => {
       (uiKit.useMicroserviceManifests as jest.Mock).mockReturnValue({
-        manifests: [
-          { serviceId: 'hub', name: 'Hub', baseUrl: 'http://hub.lvh.me', navigation: [] },
-          { serviceId: 'pulse', name: 'Pulse', baseUrl: 'http://pulse.lvh.me', navigation: [] },
-          { serviceId: 'service', name: 'Service', baseUrl: 'http://service.lvh.me', navigation: [] },
-        ],
+        manifests: defaultManifests,
         loading: false,
         error: null,
       });
@@ -263,8 +337,8 @@ describe('Layout', () => {
     it('should show all services when excludeServices is empty', () => {
       (uiKit.useMicroserviceManifests as jest.Mock).mockReturnValue({
         manifests: [
-          { serviceId: 'hub', name: 'Hub', baseUrl: 'http://hub.lvh.me', navigation: [] },
-          { serviceId: 'pulse', name: 'Pulse', baseUrl: 'http://pulse.lvh.me', navigation: [] },
+          { serviceId: 'hub', name: 'Hub', baseUrl: 'http://hub.lvh.me', navigation: [], failed: false },
+          { serviceId: 'pulse', name: 'Pulse', baseUrl: 'http://pulse.lvh.me', navigation: [], failed: false },
         ],
         loading: false,
         error: null,
@@ -287,8 +361,8 @@ describe('Layout', () => {
     it('should add hubSettingsItem at the end of menu items and auto-exclude hub', () => {
       (uiKit.useMicroserviceManifests as jest.Mock).mockReturnValue({
         manifests: [
-          { serviceId: 'hub', name: 'Hub', baseUrl: 'http://hub.lvh.me', navigation: [] },
-          { serviceId: 'pulse', name: 'Pulse', baseUrl: 'http://pulse.lvh.me', navigation: [] },
+          { serviceId: 'hub', name: 'Hub', baseUrl: 'http://hub.lvh.me', navigation: [], failed: false },
+          { serviceId: 'pulse', name: 'Pulse', baseUrl: 'http://pulse.lvh.me', navigation: [], failed: false },
         ],
         loading: false,
         error: null,
@@ -322,8 +396,8 @@ describe('Layout', () => {
     it('should not add hubSettingsItem when not provided', () => {
       (uiKit.useMicroserviceManifests as jest.Mock).mockReturnValue({
         manifests: [
-          { serviceId: 'hub', name: 'Hub', baseUrl: 'http://hub.lvh.me', navigation: [] },
-          { serviceId: 'pulse', name: 'Pulse', baseUrl: 'http://pulse.lvh.me', navigation: [] },
+          { serviceId: 'hub', name: 'Hub', baseUrl: 'http://hub.lvh.me', navigation: [], failed: false },
+          { serviceId: 'pulse', name: 'Pulse', baseUrl: 'http://pulse.lvh.me', navigation: [], failed: false },
         ],
         loading: false,
         error: null,
@@ -345,7 +419,7 @@ describe('Layout', () => {
     it('should place hubSettingsItem after staticMenuItems and serviceMenuItems', () => {
       (uiKit.useMicroserviceManifests as jest.Mock).mockReturnValue({
         manifests: [
-          { serviceId: 'pulse', name: 'Pulse', baseUrl: 'http://pulse.lvh.me', navigation: [] },
+          { serviceId: 'pulse', name: 'Pulse', baseUrl: 'http://pulse.lvh.me', navigation: [], failed: false },
         ],
         loading: false,
         error: null,
@@ -372,9 +446,9 @@ describe('Layout', () => {
     it('should auto-exclude hub from manifests when hubSettingsItem is provided', () => {
       (uiKit.useMicroserviceManifests as jest.Mock).mockReturnValue({
         manifests: [
-          { serviceId: 'hub', name: 'Hub', baseUrl: 'http://hub.lvh.me', navigation: [{ module: './Settings', path: '/hub/settings', label: 'Settings', icon: 'bi bi-gear' }] },
-          { serviceId: 'pulse', name: 'Pulse', baseUrl: 'http://pulse.lvh.me', navigation: [] },
-          { serviceId: 'service', name: 'Service', baseUrl: 'http://service.lvh.me', navigation: [] },
+          { serviceId: 'hub', name: 'Hub', baseUrl: 'http://hub.lvh.me', navigation: [{ module: './Settings', path: '/hub/settings', label: 'Settings', icon: 'bi bi-gear' }], failed: false },
+          { serviceId: 'pulse', name: 'Pulse', baseUrl: 'http://pulse.lvh.me', navigation: [], failed: false },
+          { serviceId: 'service', name: 'Service', baseUrl: 'http://service.lvh.me', navigation: [], failed: false },
         ],
         loading: false,
         error: null,

@@ -36,7 +36,7 @@ export function Layout({
    * If hubSettingsItem is provided, auto-exclude 'hub' from manifests to avoid duplication.
    * Hub will appear as hubSettingsItem (standalone) instead of as a service parent.
    */
-  const effectiveExcludeServices = [...excludeServices, 'hub'];
+  const effectiveExcludeServices = hubSettingsItem ? [...excludeServices, 'hub'] : excludeServices;
 
   /**
    * Filter manifests by excludeServices.
@@ -54,11 +54,26 @@ export function Layout({
    * If microservicesAccess[serviceId] === false, the service is locked:
    * - No children (single menu item)
    * - Icon: bi bi-lock
-   * - No chevron
    * - Path: /{serviceId} (leads to lock page)
+   *
+   * If manifest.failed === true, the service is unavailable:
+   * - No children, non-clickable
+   * - Icon: bi bi-dash-circle (Bootstrap icon for unavailable)
+   * - No path set
    */
   const serviceMenuItems: MenuItem[] = filteredManifests.map((m) => {
     const isLocked = (user?.microservices || microservicesAccess)?.[m.serviceId] === false;
+    const isFailed = m.failed;
+
+    // Недоступный сервис (ошибка загрузки) — некликабельный, без детей
+    if (isFailed) {
+      return {
+        id: m.serviceId,
+        label: m.name,
+        icon: 'bi bi-dash-circle',
+        disabled: true,
+      };
+    }
 
     // Заблокированный сервис — без детей, с замком, клик ведёт на /{serviceId}
     if (isLocked) {
