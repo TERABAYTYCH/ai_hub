@@ -39,6 +39,8 @@ export interface UserJwtPayload {
   username: string;
   role: string;
   licenseId: string;
+  /** Доступность микросервисов { serviceId: boolean } */
+  microservices: Record<string, boolean>;
   iat?: number;
   exp?: number;
 }

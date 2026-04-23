@@ -6,6 +6,15 @@ import { RegisterDto } from './dto/register.dto';
 import { LoginResponseDto, UserJwtPayload, IUser } from '@app/contracts/hub/auth';
 import { User } from './entities/user.entity';
 
+/**
+ * Дефолтные значения доступа к микросервисам.
+ * Позже будет браться из БД (таблица licenses).
+ */
+const MICROSERVICES_ACCESS: Record<string, boolean> = {
+  pulse: true,
+  service: true,
+};
+
 @Injectable()
 export class AuthService {
   private readonly logger = new Logger(AuthService.name);
@@ -86,6 +95,7 @@ export class AuthService {
       username: user.username,
       role: user.role,
       licenseId: user.licenseId ?? '',
+      microservices: MICROSERVICES_ACCESS,
     };
 
     const accessToken = this.jwtService.sign(payload, { expiresIn: '1h' });
