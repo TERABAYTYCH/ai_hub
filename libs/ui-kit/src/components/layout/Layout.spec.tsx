@@ -19,46 +19,209 @@ jest.mock('@app/ui-kit', () => ({
   MenuItem: jest.fn(),
 }));
 
+const defaultManifests = [
+  {
+    serviceId: 'hub',
+    name: 'Ject Hub',
+    baseUrl: 'http://hub.lvh.me',
+    navigation: [
+      { module: './Settings', path: '/hub/settings', label: 'Settings', icon: 'bi bi-gear' },
+    ],
+  },
+  {
+    serviceId: 'pulse',
+    name: 'Pulse Monitoring',
+    baseUrl: 'http://pulse.lvh.me',
+    navigation: [
+      { module: './Dashboard', path: '/pulse', label: 'Dashboard', icon: 'bi bi-speedometer2' },
+      { module: './Devices', path: '/pulse/devices', label: 'Devices', icon: 'bi bi-device' },
+    ],
+  },
+  {
+    serviceId: 'service',
+    name: 'Service',
+    baseUrl: 'http://service.lvh.me',
+    navigation: [
+      { module: './Dashboard', path: '/service', label: 'Dashboard', icon: 'bi bi-wrench' },
+      { module: './Tasks', path: '/service/tasks', label: 'Tasks', icon: 'bi bi-list-task' },
+    ],
+  },
+];
+
 describe('Layout', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    (uiKit.useMicroserviceManifests as jest.Mock).mockReturnValue({
+      manifests: defaultManifests,
+      loading: false,
+      error: null,
+    });
+  });
+
+  describe('microservicesAccess', () => {
+    it('should mark service as locked when microservicesAccess[serviceId] is false', () => {
+      const microservicesAccess = { pulse: false, service: true, hub: true };
+
+      render(
+        <Layout microservicesAccess={microservicesAccess}>
+          <div>Content</div>
+        </Layout>
+      );
+
+      const menuItemsJson = screen.getByTestId('menu-items').textContent || '';
+      const menuItems = JSON.parse(menuItemsJson);
+
+      const pulseItem = menuItems.find((item: { id: string }) => item.id === 'pulse');
+      expect(pulseItem.locked).toBe(true);
+    });
+
+    it('should set path to /{serviceId} for locked service', () => {
+      const microservicesAccess = { pulse: false, service: true, hub: true };
+
+      render(
+        <Layout microservicesAccess={microservicesAccess}>
+          <div>Content</div>
+        </Layout>
+      );
+
+      const menuItemsJson = screen.getByTestId('menu-items').textContent || '';
+      const menuItems = JSON.parse(menuItemsJson);
+
+      const pulseItem = menuItems.find((item: { id: string }) => item.id === 'pulse');
+      expect(pulseItem.path).toBe('/pulse');
+    });
+
+    it('should set icon to bi bi-lock for locked service', () => {
+      const microservicesAccess = { pulse: false, service: true, hub: true };
+
+      render(
+        <Layout microservicesAccess={microservicesAccess}>
+          <div>Content</div>
+        </Layout>
+      );
+
+      const menuItemsJson = screen.getByTestId('menu-items').textContent || '';
+      const menuItems = JSON.parse(menuItemsJson);
+
+      const pulseItem = menuItems.find((item: { id: string }) => item.id === 'pulse');
+      expect(pulseItem.icon).toBe('bi bi-lock');
+    });
+
+    it('should have no children for locked service', () => {
+      const microservicesAccess = { pulse: false, service: true, hub: true };
+
+      render(
+        <Layout microservicesAccess={microservicesAccess}>
+          <div>Content</div>
+        </Layout>
+      );
+
+      const menuItemsJson = screen.getByTestId('menu-items').textContent || '';
+      const menuItems = JSON.parse(menuItemsJson);
+
+      const pulseItem = menuItems.find((item: { id: string }) => item.id === 'pulse');
+      expect(pulseItem.children).toBeUndefined();
+    });
+
+    it('should keep children for accessible service', () => {
+      const microservicesAccess = { pulse: false, service: true, hub: true };
+
+      render(
+        <Layout microservicesAccess={microservicesAccess}>
+          <div>Content</div>
+        </Layout>
+      );
+
+      const menuItemsJson = screen.getByTestId('menu-items').textContent || '';
+      const menuItems = JSON.parse(menuItemsJson);
+
+      const serviceItem = menuItems.find((item: { id: string }) => item.id === 'service');
+      expect(serviceItem.children).toHaveLength(2);
+    });
+
+    it('should use bi bi-grid icon for accessible service', () => {
+      const microservicesAccess = { pulse: false, service: true, hub: true };
+
+      render(
+        <Layout microservicesAccess={microservicesAccess}>
+          <div>Content</div>
+        </Layout>
+      );
+
+      const menuItemsJson = screen.getByTestId('menu-items').textContent || '';
+      const menuItems = JSON.parse(menuItemsJson);
+
+      const serviceItem = menuItems.find((item: { id: string }) => item.id === 'service');
+      expect(serviceItem.icon).toBe('bi bi-grid');
+    });
+
+    it('should show all services accessible when microservicesAccess is not provided', () => {
+      render(
+        <Layout>
+          <div>Content</div>
+        </Layout>
+      );
+
+      const menuItemsJson = screen.getByTestId('menu-items').textContent || '';
+      const menuItems = JSON.parse(menuItemsJson);
+
+      // All services should have children (not locked)
+      const pulseItem = menuItems.find((item: { id: string }) => item.id === 'pulse');
+      const serviceItem = menuItems.find((item: { id: string }) => item.id === 'service');
+
+      expect(pulseItem.children).toHaveLength(2);
+      expect(serviceItem.children).toHaveLength(2);
+      expect(pulseItem.locked).toBeUndefined();
+      expect(serviceItem.locked).toBeUndefined();
+    });
+
+    it('should mark multiple services as locked when multiple are false', () => {
+      const microservicesAccess = { pulse: false, service: false, hub: true };
+
+      render(
+        <Layout microservicesAccess={microservicesAccess}>
+          <div>Content</div>
+        </Layout>
+      );
+
+      const menuItemsJson = screen.getByTestId('menu-items').textContent || '';
+      const menuItems = JSON.parse(menuItemsJson);
+
+      const pulseItem = menuItems.find((item: { id: string }) => item.id === 'pulse');
+      const serviceItem = menuItems.find((item: { id: string }) => item.id === 'service');
+      const hubItem = menuItems.find((item: { id: string }) => item.id === 'hub');
+
+      expect(pulseItem.locked).toBe(true);
+      expect(serviceItem.locked).toBe(true);
+      expect(hubItem.locked).toBeUndefined();
+      expect(hubItem.children).toHaveLength(1);
+    });
+
+    it('should treat undefined microservicesAccess as all accessible', () => {
+      const microservicesAccess: Record<string, boolean> = {};
+
+      render(
+        <Layout microservicesAccess={microservicesAccess}>
+          <div>Content</div>
+        </Layout>
+      );
+
+      const menuItemsJson = screen.getByTestId('menu-items').textContent || '';
+      const menuItems = JSON.parse(menuItemsJson);
+
+      // All services should have children (not locked)
+      const pulseItem = menuItems.find((item: { id: string }) => item.id === 'pulse');
+      const serviceItem = menuItems.find((item: { id: string }) => item.id === 'service');
+
+      expect(pulseItem.children).toHaveLength(2);
+      expect(serviceItem.children).toHaveLength(2);
+      expect(pulseItem.icon).toBe('bi bi-grid');
+      expect(serviceItem.icon).toBe('bi bi-grid');
+    });
   });
 
   describe('excludeServices', () => {
     it('should filter out excluded services from manifests', () => {
-      const mockManifests = [
-        {
-          serviceId: 'hub',
-          name: 'Ject Hub',
-          baseUrl: 'http://hub.lvh.me',
-          navigation: [
-            { module: './Settings', path: '/hub/settings', label: 'Settings', icon: 'bi bi-gear' },
-          ],
-        },
-        {
-          serviceId: 'pulse',
-          name: 'Pulse Monitoring',
-          baseUrl: 'http://pulse.lvh.me',
-          navigation: [
-            { module: './Dashboard', path: '/pulse', label: 'Dashboard', icon: 'bi bi-speedometer2' },
-          ],
-        },
-        {
-          serviceId: 'service',
-          name: 'Service',
-          baseUrl: 'http://service.lvh.me',
-          navigation: [
-            { module: './Dashboard', path: '/service', label: 'Dashboard', icon: 'bi bi-wrench' },
-          ],
-        },
-      ];
-
-      (uiKit.useMicroserviceManifests as jest.Mock).mockReturnValue({
-        manifests: mockManifests,
-        loading: false,
-        error: null,
-      });
-
       render(
         <Layout excludeServices={['pulse']}>
           <div>Content</div>
@@ -74,14 +237,12 @@ describe('Layout', () => {
     });
 
     it('should exclude multiple services', () => {
-      const mockManifests = [
-        { serviceId: 'hub', name: 'Hub', baseUrl: 'http://hub.lvh.me', navigation: [] },
-        { serviceId: 'pulse', name: 'Pulse', baseUrl: 'http://pulse.lvh.me', navigation: [] },
-        { serviceId: 'service', name: 'Service', baseUrl: 'http://service.lvh.me', navigation: [] },
-      ];
-
       (uiKit.useMicroserviceManifests as jest.Mock).mockReturnValue({
-        manifests: mockManifests,
+        manifests: [
+          { serviceId: 'hub', name: 'Hub', baseUrl: 'http://hub.lvh.me', navigation: [] },
+          { serviceId: 'pulse', name: 'Pulse', baseUrl: 'http://pulse.lvh.me', navigation: [] },
+          { serviceId: 'service', name: 'Service', baseUrl: 'http://service.lvh.me', navigation: [] },
+        ],
         loading: false,
         error: null,
       });
@@ -100,19 +261,17 @@ describe('Layout', () => {
     });
 
     it('should show all services when excludeServices is empty', () => {
-      const mockManifests = [
-        { serviceId: 'hub', name: 'Hub', baseUrl: 'http://hub.lvh.me', navigation: [] },
-        { serviceId: 'pulse', name: 'Pulse', baseUrl: 'http://pulse.lvh.me', navigation: [] },
-      ];
-
       (uiKit.useMicroserviceManifests as jest.Mock).mockReturnValue({
-        manifests: mockManifests,
+        manifests: [
+          { serviceId: 'hub', name: 'Hub', baseUrl: 'http://hub.lvh.me', navigation: [] },
+          { serviceId: 'pulse', name: 'Pulse', baseUrl: 'http://pulse.lvh.me', navigation: [] },
+        ],
         loading: false,
         error: null,
       });
 
       render(
-        <Layout>
+        <Layout excludeServices={[]}>
           <div>Content</div>
         </Layout>
       );
@@ -126,13 +285,11 @@ describe('Layout', () => {
 
   describe('hubSettingsItem', () => {
     it('should add hubSettingsItem at the end of menu items and auto-exclude hub', () => {
-      const mockManifests = [
-        { serviceId: 'hub', name: 'Hub', baseUrl: 'http://hub.lvh.me', navigation: [] },
-        { serviceId: 'pulse', name: 'Pulse', baseUrl: 'http://pulse.lvh.me', navigation: [] },
-      ];
-
       (uiKit.useMicroserviceManifests as jest.Mock).mockReturnValue({
-        manifests: mockManifests,
+        manifests: [
+          { serviceId: 'hub', name: 'Hub', baseUrl: 'http://hub.lvh.me', navigation: [] },
+          { serviceId: 'pulse', name: 'Pulse', baseUrl: 'http://pulse.lvh.me', navigation: [] },
+        ],
         loading: false,
         error: null,
       });
@@ -163,13 +320,11 @@ describe('Layout', () => {
     });
 
     it('should not add hubSettingsItem when not provided', () => {
-      const mockManifests = [
-        { serviceId: 'hub', name: 'Hub', baseUrl: 'http://hub.lvh.me', navigation: [] },
-        { serviceId: 'pulse', name: 'Pulse', baseUrl: 'http://pulse.lvh.me', navigation: [] },
-      ];
-
       (uiKit.useMicroserviceManifests as jest.Mock).mockReturnValue({
-        manifests: mockManifests,
+        manifests: [
+          { serviceId: 'hub', name: 'Hub', baseUrl: 'http://hub.lvh.me', navigation: [] },
+          { serviceId: 'pulse', name: 'Pulse', baseUrl: 'http://pulse.lvh.me', navigation: [] },
+        ],
         loading: false,
         error: null,
       });
@@ -188,12 +343,10 @@ describe('Layout', () => {
     });
 
     it('should place hubSettingsItem after staticMenuItems and serviceMenuItems', () => {
-      const mockManifests = [
-        { serviceId: 'pulse', name: 'Pulse', baseUrl: 'http://pulse.lvh.me', navigation: [] },
-      ];
-
       (uiKit.useMicroserviceManifests as jest.Mock).mockReturnValue({
-        manifests: mockManifests,
+        manifests: [
+          { serviceId: 'pulse', name: 'Pulse', baseUrl: 'http://pulse.lvh.me', navigation: [] },
+        ],
         loading: false,
         error: null,
       });
@@ -217,14 +370,12 @@ describe('Layout', () => {
     });
 
     it('should auto-exclude hub from manifests when hubSettingsItem is provided', () => {
-      const mockManifests = [
-        { serviceId: 'hub', name: 'Hub', baseUrl: 'http://hub.lvh.me', navigation: [{ module: './Settings', path: '/hub/settings', label: 'Settings', icon: 'bi bi-gear' }] },
-        { serviceId: 'pulse', name: 'Pulse', baseUrl: 'http://pulse.lvh.me', navigation: [] },
-        { serviceId: 'service', name: 'Service', baseUrl: 'http://service.lvh.me', navigation: [] },
-      ];
-
       (uiKit.useMicroserviceManifests as jest.Mock).mockReturnValue({
-        manifests: mockManifests,
+        manifests: [
+          { serviceId: 'hub', name: 'Hub', baseUrl: 'http://hub.lvh.me', navigation: [{ module: './Settings', path: '/hub/settings', label: 'Settings', icon: 'bi bi-gear' }] },
+          { serviceId: 'pulse', name: 'Pulse', baseUrl: 'http://pulse.lvh.me', navigation: [] },
+          { serviceId: 'service', name: 'Service', baseUrl: 'http://service.lvh.me', navigation: [] },
+        ],
         loading: false,
         error: null,
       });
