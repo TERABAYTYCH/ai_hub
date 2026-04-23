@@ -3,8 +3,7 @@
  * Статические меню Hub добавляются к динамической навигации.
  */
 import type { ReactNode } from 'react';
-import { Layout as UiKitLayout, type MenuItem } from '@ject-hub/ui-kit';
-import { useMicroservicesAccess } from '../../hooks/useMicroservicesAccess';
+import { Layout as UiKitLayout, type MenuItem, useAuth } from '@ject-hub/ui-kit';
 
 /**
  * Static Hub menu items (always visible).
@@ -21,8 +20,8 @@ const hubMenuItems: MenuItem[] = [
 ];
 
 export function Layout({ children }: { children: ReactNode }) {
-  // Fetch fresh access data from backend, fallback to JWT data
-  const microservicesAccess = useMicroservicesAccess();
+  const { user } = useAuth();
+  const microservicesAccess = user?.microservices || {};
 
   return (
     <UiKitLayout

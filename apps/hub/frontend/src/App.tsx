@@ -5,7 +5,6 @@ import RegisterPage from './pages/RegisterPage';
 import DevicesPage from './pages/DevicesPage';
 import SettingsPage from './pages/SettingsPage';
 import MicroservicesSettings from './pages/MicroservicesSettings';
-import { useMicroservicesAccess } from './hooks/useMicroservicesAccess';
 import {
   ProtectedRoute,
   GuestRoute,
@@ -104,13 +103,11 @@ const LazyModule: React.FC<{ serviceId: string; modulePath: string }> = ({
  * Dynamic routes configuration from microservice manifests.
  * Checks microservices access and blocks locked services.
  * Waits for auth initialization before rendering dynamic routes.
- * Fetches fresh access data from backend to reflect admin changes.
  */
 const useDynamicRoutesConfig = () => {
-  const { isLoading } = useAuth();
+  const { user, isLoading } = useAuth();
   const { manifests } = useMicroserviceManifests();
-  // Fetch fresh access data from backend, fallback to JWT data
-  const microservicesAccess = useMicroservicesAccess();
+  const microservicesAccess = user?.microservices || {};
 
   const routesConfig = useMemo(() => {
     // Wait for auth to initialize before rendering dynamic routes
@@ -123,6 +120,7 @@ const useDynamicRoutesConfig = () => {
     for (const manifest of manifests) {
       // Skip if no navigation items
       if (!manifest.navigation || manifest.navigation.length === 0) continue;
+      //   console.log({ manifest });
 
       const isLocked = microservicesAccess[manifest.serviceId] === false;
       const serviceRoot = '/' + manifest.serviceId;
@@ -135,7 +133,7 @@ const useDynamicRoutesConfig = () => {
           element: (
             <ProtectedRoute>
               <Layout>
-                <LockPage serviceName={manifest.name} />
+                <LockPage serviceName="Pulse" />
               </Layout>
             </ProtectedRoute>
           ),
