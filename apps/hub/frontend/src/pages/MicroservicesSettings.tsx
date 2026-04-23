@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Form } from 'react-bootstrap';
+import { Form, Spinner } from 'react-bootstrap';
 
 const API_BASE_URL = (import.meta.env.VITE_API_URL as string) || '/api';
 
@@ -12,9 +12,11 @@ export default function MicroservicesSettings() {
   const [access, setAccess] = useState<MicroservicesAccess>({ pulse: true, service: true });
   const [saved, setSaved] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const fetchAccess = async () => {
+      setIsLoading(true);
       try {
         const response = await fetch(`${API_BASE_URL}/microservices/access`, {
           credentials: 'include',
@@ -25,6 +27,8 @@ export default function MicroservicesSettings() {
         }
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Failed to load');
+      } finally {
+        setIsLoading(false);
       }
     };
     void fetchAccess();
@@ -54,6 +58,16 @@ export default function MicroservicesSettings() {
       setError(err instanceof Error ? err.message : 'Failed to save');
     }
   };
+
+  if (isLoading) {
+    return (
+      <div className="container mt-4 text-center">
+        <Spinner animation="border" role="status">
+          <span className="visually-hidden">Загрузка...</span>
+        </Spinner>
+      </div>
+    );
+  }
 
   return (
     <div className="container mt-4">

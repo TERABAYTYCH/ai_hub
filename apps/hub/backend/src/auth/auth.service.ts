@@ -70,6 +70,8 @@ export class AuthService {
       const tokenMicroservices = payload.microservices;
       const needsRefresh = !isMicroservicesEqual(tokenMicroservices, MICROSERVICES_ACCESS);
 
+      console.log(tokenMicroservices, MICROSERVICES_ACCESS);
+
       if (needsRefresh) {
         this.logger.log(
           `Microservices access changed since token issued, issuing new token. ` +

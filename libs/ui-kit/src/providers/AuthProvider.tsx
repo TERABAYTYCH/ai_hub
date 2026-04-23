@@ -2,6 +2,9 @@ import { createContext, useContext, useState, useEffect, useCallback, ReactNode 
 import { useNavigate } from 'react-router-dom';
 import { getAccessToken, setAccessToken, removeAccessToken } from '../utils/cookies';
 
+// Hub API URL - auth is centralized in Hub backend
+const HUB_API_URL = 'http://api.hub.lvh.me';
+
 /**
  * Decodes JWT token payload without external libraries.
  * Returns null if token is invalid.
@@ -85,36 +88,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     isLoading: true,
   });
 
-  // Check authorization on mount - validate token from cookie and auto-refresh if needed
+  // Check authorization on mount - always refresh token to get latest MICROSERVICES_ACCESS
   useEffect(() => {
     const initAuth = async () => {
       const accessToken = getAccessToken();
 
-      if (accessToken && isTokenExpired(accessToken)) {
-        // Token is expired - try to refresh using relative URL (nginx proxy)
-        try {
-          const response = await fetch('/api/auth/refresh', {
-            method: 'POST',
-            credentials: 'include',
-          });
-
-          if (response.ok) {
-            const data = (await response.json()) as { accessToken: string };
-            setAccessToken(data.accessToken);
-            const user = extractUserFromToken(data.accessToken);
-            setState({
-              isAuthenticated: true,
-              user,
-              isLoading: false,
-            });
-            return;
-          }
-        } catch {
-          // Refresh failed, continue to unauthenticated state
-        }
-
-        // Refresh failed - clear cookie and require re-login
-        removeAccessToken();
+      if (!accessToken) {
         setState({
           isAuthenticated: false,
           user: null,
@@ -123,8 +102,30 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         return;
       }
 
-      // Token exists and is valid - decode user from token
-      if (accessToken) {
+      // Always try to refresh token to get latest MICROSERVICES_ACCESS from backend
+      try {
+        const response = await fetch(`${HUB_API_URL}/auth/refresh`, {
+          method: 'POST',
+          credentials: 'include',
+        });
+
+        if (response.ok) {
+          const data = (await response.json()) as { accessToken: string };
+          setAccessToken(data.accessToken);
+          const user = extractUserFromToken(data.accessToken);
+          setState({
+            isAuthenticated: true,
+            user,
+            isLoading: false,
+          });
+          return;
+        }
+      } catch {
+        // Refresh failed, continue with existing token
+      }
+
+      // If refresh failed but we have a non-expired token, use it
+      if (!isTokenExpired(accessToken)) {
         const user = extractUserFromToken(accessToken);
         setState({
           isAuthenticated: true,
@@ -134,7 +135,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         return;
       }
 
-      // No token
+      // Token expired and refresh failed - clear and require re-login
+      removeAccessToken();
       setState({
         isAuthenticated: false,
         user: null,
@@ -165,7 +167,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const logout = useCallback(async () => {
     try {
-      await fetch('/api/auth/logout', {
+      await fetch(`${HUB_API_URL}/auth/logout`, {
         method: 'POST',
         credentials: 'include',
       });
