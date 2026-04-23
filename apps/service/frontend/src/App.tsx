@@ -5,7 +5,13 @@ import RegisterPage from './pages/RegisterPage';
 import DashboardPage from './pages/DashboardPage';
 import DevicesPage from './pages/DevicesPage';
 import Settings from './Settings';
-import { ProtectedRoute, GuestRoute, useMicroserviceManifests } from '@ject-hub/ui-kit';
+import {
+  ProtectedRoute,
+  GuestRoute,
+  useMicroserviceManifests,
+  useAuth,
+  LockPage,
+} from '@ject-hub/ui-kit';
 import { Layout } from './components/layout/Layout';
 
 // Federation v2 API
@@ -94,8 +100,9 @@ const LazyModule: React.FC<{ serviceId: string; modulePath: string }> = ({
 
 /**
  * Dynamic routes configuration from microservice manifests.
+ * Checks microservices access and blocks locked services.
  */
-const useDynamicRoutesConfig = () => {
+const useDynamicRoutesConfig = (microservicesAccess: Record<string, boolean>) => {
   const { manifests } = useMicroserviceManifests();
 
   const routesConfig = useMemo(() => {
@@ -103,6 +110,29 @@ const useDynamicRoutesConfig = () => {
 
     for (const manifest of manifests) {
       if (!manifest.navigation || manifest.navigation.length === 0) continue;
+
+      const isLocked = microservicesAccess[manifest.serviceId] === false;
+      const serviceRoot = '/' + manifest.serviceId;
+
+      if (isLocked) {
+        // Show lock page for /{serviceId}/lock route
+        dynamicRoutes.push({
+          path: `${serviceRoot}/lock`,
+          element: (
+            <ProtectedRoute>
+              <Layout>
+                <LockPage serviceName={manifest.name} />
+              </Layout>
+            </ProtectedRoute>
+          ),
+        });
+        // Redirect all other child routes to /{serviceId}/lock
+        dynamicRoutes.push({
+          path: `${serviceRoot}/*`,
+          element: <Navigate to={`${serviceRoot}/lock`} replace />,
+        });
+        continue;
+      }
 
       for (const navItem of manifest.navigation) {
         if (navItem.module && navItem.path) {
@@ -121,12 +151,45 @@ const useDynamicRoutesConfig = () => {
     }
 
     return dynamicRoutes;
-  }, [manifests]);
+  }, [manifests, microservicesAccess]);
 
   return routesConfig;
 };
 
-function App() {
+/**
+ * Loading screen component
+ */
+function LoadingScreen() {
+  return <div className="text-center p-4">Loading...</div>;
+}
+
+/**
+ * Main app routes component - always renders routes, no conditional hooks
+ */
+function AppRoutes() {
+  const { user } = useAuth();
+  const microservicesAccess = user?.microservices || {};
+  const isServiceLocked = microservicesAccess['service'] === false;
+
+  const dynamicRoutesConfig = useDynamicRoutesConfig(microservicesAccess);
+
+  // If Service is locked, redirect everything to /lock
+  if (isServiceLocked) {
+    const lockRoutes = [
+      { path: '/*', element: <Navigate to="/lock" replace /> },
+      {
+        path: '/lock',
+        element: (
+          <Layout>
+            <LockPage serviceName="Service" />
+          </Layout>
+        ),
+      },
+    ];
+    const routeElements = useRoutes(lockRoutes);
+    return routeElements;
+  }
+
   const staticRoutes = [
     { path: '/', element: <Navigate to="/dashboard" replace /> },
     {
@@ -175,13 +238,25 @@ function App() {
         </ProtectedRoute>
       ),
     },
+    // Catch-all: redirect unknown routes to /dashboard
+    { path: '/*', element: <Navigate to="/dashboard" replace /> },
   ];
 
-  const dynamicRoutesConfig = useDynamicRoutesConfig();
   const allRoutes = [...staticRoutes, ...dynamicRoutesConfig];
   const routeElements = useRoutes(allRoutes);
 
   return routeElements;
+}
+
+function App() {
+  const { isLoading } = useAuth();
+
+  // Always call hooks in the same order
+  if (isLoading) {
+    return <LoadingScreen />;
+  }
+
+  return <AppRoutes />;
 }
 
 export default App;
