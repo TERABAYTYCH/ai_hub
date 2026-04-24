@@ -140,7 +140,7 @@ const useDynamicRoutesConfig = () => {
         });
         dynamicRoutes.push({
           path: `${serviceRoot}/*`,
-          element: <Navigate to={`${serviceRoot}/lock`} replace />,
+          element: <Navigate to={`${serviceRoot}/lock`} />,
         });
         continue;
       }
@@ -151,7 +151,7 @@ const useDynamicRoutesConfig = () => {
       if (firstNavItem && firstNavItem.path) {
         dynamicRoutes.push({
           path: serviceRoot,
-          element: <Navigate to={firstNavItem.path} replace />,
+          element: <Navigate to={firstNavItem.path} />,
         });
       }
 
@@ -170,6 +170,10 @@ const useDynamicRoutesConfig = () => {
           });
         }
       }
+      dynamicRoutes.push({
+        path: manifest.serviceId + '/*',
+        element: <Navigate to={'/' + manifest.serviceId} replace />,
+      });
     }
 
     return dynamicRoutes;
@@ -235,7 +239,11 @@ function App() {
   const dynamicRoutesConfig = useDynamicRoutesConfig();
 
   // Combine all routes
-  const allRoutes = [...staticRoutes, ...dynamicRoutesConfig];
+  const allRoutes = [
+    ...staticRoutes,
+    ...dynamicRoutesConfig,
+    { path: '/*', element: <Navigate to="/" replace /> },
+  ];
 
   // Use useRoutes hook
   const routeElements = useRoutes(allRoutes);
