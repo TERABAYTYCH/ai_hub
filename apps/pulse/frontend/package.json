@@ -5,7 +5,7 @@
 	"type": "module",
 	"scripts": {
 		"dev": "vite --host",
-		"dev:docker": "yarn install && yarn build && mkdir -p ./src/assets/ && cp ./dist/assets/remoteEntry.js ./src/assets/remoteEntry.js & vite --host",
+		"dev:docker": "yarn install && yarn build && mkdir -p ./src/assets/ && vite --host",
 		"build": "tsc && vite build",
 		"lint": "eslint src --ext ts,tsx --report-unused-disable-directives --max-warnings 0 --parser-options=project:tsconfig.json",
 		"preview": "vite preview"
@@ -30,6 +30,7 @@
 		"@types/react-dom": "^18.2.18"
 	},
 	"devDependencies": {
-		"@originjs/vite-plugin-federation": "^1.4.1"
+		"@originjs/vite-plugin-federation": "^1.4.1",
+		"vite-plugin-tsconfig-paths": "^1.4.1"
 	}
 }

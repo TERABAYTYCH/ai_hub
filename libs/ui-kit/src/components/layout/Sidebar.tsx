@@ -3,7 +3,7 @@ import { Nav } from 'react-bootstrap';
 import { Link, useLocation } from 'react-router-dom';
 
 /**
- * Элемент меню навигации с поддержкой вложенности.
+ * Элемент меню навигации с поддержкой вложенности и блокировки.
  */
 export interface MenuItem {
   /** Уникальный идентификатор элемента */
@@ -16,6 +16,10 @@ export interface MenuItem {
   path?: string;
   /** Дочерние элементы (для создания вложенного меню) */
   children?: MenuItem[];
+  /** Заблокирован ли элемент */
+  locked?: boolean;
+  /** Отключен ли элемент */
+  disabled?: boolean;
 }
 
 interface SidebarProps {
@@ -58,12 +62,10 @@ function findExpandedParentIds(items: MenuItem[], currentPath: string, defaultPa
 
   for (const item of items) {
     if (item.children && item.children.length > 0) {
-      // Проверяем является ли текущий путь дочерним для этого родителя
       const parentPath = item.path || '/' + item.id;
       if (currentPath.startsWith(parentPath + '/') || currentPath === parentPath) {
         expandedIds.push(item.id);
       }
-      // Рекурсивно проверяем детей
       const childExpanded = findExpandedParentIds(item.children, currentPath, defaultPath);
       expandedIds.push(...childExpanded);
     }
@@ -77,6 +79,7 @@ function findExpandedParentIds(items: MenuItem[], currentPath: string, defaultPa
  * Поддерживает вложенные элементы с визуальной иерархией.
  * Подсвечивает только активный элемент.
  * Поддерживает светлую и темную тему.
+ * Заблокированные элементы выглядят как disabled (opacity: 0.5), но кликабельны.
  */
 export function Sidebar({ items, defaultPath = '/' }: SidebarProps) {
   const location = useLocation();
@@ -129,27 +132,58 @@ export function Sidebar({ items, defaultPath = '/' }: SidebarProps) {
     const hasChildren = item.children && item.children.length > 0;
     const isExpanded = expandedIds.has(item.id);
     const isItemActive = getActiveState(item);
+    const isLocked = item.locked === true;
+    const isDisabled = item.disabled === true && !isLocked; // disabled без locked - настоящий disabled
 
     // Отступ для вложенных элементов
     const paddingLeft = depth > 0 ? `${12 + depth * 16}px` : '12px';
+
+    // Стиль для заблокированных элементов - выглядит как disabled, но кликабелен
+    const lockedStyle = isLocked
+      ? { opacity: 0.5 }
+      : {};
+
+    // Для заблокированных элементов с детьми - показываем как простой кликабельный Nav.Link
+    if (isLocked && hasChildren) {
+      return (
+        <Nav.Link
+          key={item.id}
+          as={Link}
+          to={item.path || '/'}
+          className={`d-flex align-items-center rounded mb-1 ${isItemActive ? 'bg-primary text-white' : 'text-body'}`}
+          style={{
+            padding: '10px 12px 10px ' + paddingLeft,
+            cursor: 'pointer',
+            textDecoration: 'none',
+            ...lockedStyle,
+          }}
+        >
+          <i className="bi bi-lock me-2 flex-shrink-0"></i>
+          <span className="flex-grow-1">{item.label}</span>
+        </Nav.Link>
+      );
+    }
 
     if (hasChildren) {
       return (
         <div key={item.id}>
           {/* Родительский элемент с детьми */}
           <div
-            onClick={() => toggleExpand(item.id)}
+            onClick={() => !isDisabled && toggleExpand(item.id)}
             className={`d-flex align-items-center rounded mb-1 ${isItemActive ? 'bg-primary text-white' : 'text-body'}`}
             style={{
               padding: '10px 12px 10px ' + paddingLeft,
-              cursor: 'pointer',
+              cursor: isDisabled ? 'not-allowed' : 'pointer',
               userSelect: 'none',
+              opacity: isDisabled ? 0.5 : 1,
             }}
           >
-            {item.icon && <i className={`${item.icon} me-2 flex-shrink-0`}></i>}
+            <i className={`${item.icon || 'bi bi-circle'} me-2 flex-shrink-0`}></i>
             <span className="flex-grow-1">{item.label}</span>
-            {/* Шеврон для индикации раскрытия */}
-            <i className={`bi bi-chevron-${isExpanded ? 'up' : 'down'} ms-2`} style={{ fontSize: '0.75rem' }}></i>
+            {/* Шеврон для индикации раскрытия - только если НЕ disabled */}
+            {!isDisabled && (
+              <i className={`bi bi-chevron-${isExpanded ? 'up' : 'down'} ms-2`} style={{ fontSize: '0.75rem' }}></i>
+            )}
           </div>
 
           {/* Дочерние элементы с анимацией */}
@@ -178,9 +212,12 @@ export function Sidebar({ items, defaultPath = '/' }: SidebarProps) {
           style={{
             padding: '10px 12px 10px ' + paddingLeft,
             textDecoration: 'none',
+            cursor: isDisabled ? 'not-allowed' : 'pointer',
+            opacity: isDisabled ? 0.5 : 1,
+            ...lockedStyle,
           }}
         >
-          {item.icon && <i className={`${item.icon} me-2 flex-shrink-0`}></i>}
+          <i className={`${isLocked ? 'bi bi-lock' : item.icon || 'bi bi-circle'} me-2 flex-shrink-0`}></i>
           {item.label}
         </Nav.Link>
       );
@@ -193,9 +230,11 @@ export function Sidebar({ items, defaultPath = '/' }: SidebarProps) {
         className={`d-flex align-items-center rounded mb-1 ${isItemActive ? 'bg-primary text-white' : 'text-body'}`}
         style={{
           padding: '10px 12px 10px ' + paddingLeft,
+          cursor: isDisabled ? 'not-allowed' : 'pointer',
+          opacity: isDisabled ? 0.5 : 1,
         }}
       >
-        {item.icon && <i className={`${item.icon} me-2 flex-shrink-0`}></i>}
+        <i className={`${item.icon || 'bi bi-circle'} me-2 flex-shrink-0`}></i>
         {item.label}
       </div>
     );

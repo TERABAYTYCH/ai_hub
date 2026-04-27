@@ -39,6 +39,8 @@ export interface UserJwtPayload {
   username: string;
   role: string;
   licenseId: string;
+  /** Доступность микросервисов { serviceId: boolean } */
+  microservices: Record<string, boolean>;
   iat?: number;
   exp?: number;
 }
@@ -75,3 +77,6 @@ export interface CurrentUserDto {
   createdAt: Date;
   updatedAt: Date;
 }
+
+export * from './health-response.interface';
+export * from './user-response.interface';

@@ -6,7 +6,7 @@ import { Card } from 'react-bootstrap';
 function SettingsPage() {
   return (
     <Card>
-      <Card.Header>Settings</Card.Header>
+      <Card.Header>HUB Settings</Card.Header>
       <Card.Body>
         <p className="text-muted">Settings page is under development.</p>
       </Card.Body>

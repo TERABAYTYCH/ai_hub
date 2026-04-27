@@ -4,7 +4,14 @@ import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
 import DevicesPage from './pages/DevicesPage';
 import SettingsPage from './pages/SettingsPage';
-import { ProtectedRoute, GuestRoute, useMicroserviceManifests } from '@ject-hub/ui-kit';
+import MicroservicesSettings from './pages/MicroservicesSettings';
+import {
+  ProtectedRoute,
+  GuestRoute,
+  useMicroserviceManifests,
+  useAuth,
+  LockPage,
+} from '@ject-hub/ui-kit';
 import { Layout } from './components/layout/Layout';
 
 // Federation v2 API
@@ -14,16 +21,14 @@ import {
   __federation_method_getRemote,
 } from 'virtual:__federation__';
 
-interface FederatedModule {
-  default?: React.ComponentType;
+interface LoadedModule {
+  default?: unknown;
 }
 
 /**
- * Загружает модуль динамически через Federation v2 API
+ * Loads module dynamically via Federation v2 API
  */
-const loadModule = async (serviceId: string, modulePath: string): Promise<FederatedModule> => {
-  console.log(`[Federation] Loading ${serviceId}/${modulePath}`);
-  
+const loadModule = async (serviceId: string, modulePath: string): Promise<LoadedModule> => {
   __federation_method_setRemote(serviceId, {
     url: () => Promise.resolve(`http://${serviceId}.lvh.me/assets/remoteEntry.js`),
     from: 'vite',
@@ -31,10 +36,9 @@ const loadModule = async (serviceId: string, modulePath: string): Promise<Federa
   });
 
   await __federation_method_ensure(serviceId);
-  
+
   const module = await __federation_method_getRemote(serviceId, modulePath);
-  console.log(`[Federation] Loaded ${serviceId}/${modulePath}:`, module);
-  return module as FederatedModule;
+  return module as LoadedModule;
 };
 
 /**
@@ -49,14 +53,15 @@ const LazyModule: React.FC<{ serviceId: string; modulePath: string }> = ({
   const [error, setError] = useState<Error | null>(null);
 
   useEffect(() => {
-    // Reset state on module change
     setComponent(null);
     setError(null);
     setLoading(true);
 
     loadModule(serviceId, modulePath)
       .then((mod) => {
-        const Comp = (mod as any).default || mod;
+        const Comp =
+          (mod as { default?: React.ComponentType }).default ||
+          (mod as unknown as React.ComponentType);
         if (typeof Comp === 'function') {
           setComponent(() => Comp);
         } else {
@@ -64,7 +69,6 @@ const LazyModule: React.FC<{ serviceId: string; modulePath: string }> = ({
         }
       })
       .catch((err: Error) => {
-        console.error('[Federation] Load error:', err);
         setError(err);
       })
       .finally(() => {
@@ -97,26 +101,57 @@ const LazyModule: React.FC<{ serviceId: string; modulePath: string }> = ({
 
 /**
  * Dynamic routes configuration from microservice manifests.
- * Includes redirects from service root to first navigation item.
+ * Checks microservices access and blocks locked services.
+ * Waits for auth initialization before rendering dynamic routes.
  */
 const useDynamicRoutesConfig = () => {
+  const { user, isLoading } = useAuth();
   const { manifests } = useMicroserviceManifests();
+  const microservicesAccess = user?.microservices || {};
 
   const routesConfig = useMemo(() => {
+    // Wait for auth to initialize before rendering dynamic routes
+    if (isLoading) {
+      return [];
+    }
+
     const dynamicRoutes: { path: string; element: React.ReactNode }[] = [];
 
     for (const manifest of manifests) {
       // Skip if no navigation items
       if (!manifest.navigation || manifest.navigation.length === 0) continue;
+      //   console.log({ manifest });
+
+      const isLocked = microservicesAccess[manifest.serviceId] === false;
+      const serviceRoot = '/' + manifest.serviceId;
+
+      if (isLocked) {
+        // Block ALL child routes - redirect to /lock
+
+        dynamicRoutes.push({
+          path: `${serviceRoot}/lock`,
+          element: (
+            <ProtectedRoute>
+              <Layout>
+                <LockPage serviceName="Pulse" />
+              </Layout>
+            </ProtectedRoute>
+          ),
+        });
+        dynamicRoutes.push({
+          path: `${serviceRoot}/*`,
+          element: <Navigate to={`${serviceRoot}/lock`} />,
+        });
+        continue;
+      }
 
       // Add redirect from service root (e.g., /pulse) to first nav item (e.g., /pulse/dashboard)
-      const serviceRoot = '/' + manifest.serviceId;
       const firstNavItem = manifest.navigation[0];
-      
+
       if (firstNavItem && firstNavItem.path) {
         dynamicRoutes.push({
           path: serviceRoot,
-          element: <Navigate to={firstNavItem.path} replace />,
+          element: <Navigate to={firstNavItem.path} />,
         });
       }
 
@@ -135,10 +170,14 @@ const useDynamicRoutesConfig = () => {
           });
         }
       }
+      dynamicRoutes.push({
+        path: manifest.serviceId + '/*',
+        element: <Navigate to={'/' + manifest.serviceId} replace />,
+      });
     }
 
     return dynamicRoutes;
-  }, [manifests]);
+  }, [manifests, microservicesAccess, isLoading]);
 
   return routesConfig;
 };
@@ -183,13 +222,28 @@ function App() {
         </ProtectedRoute>
       ),
     },
+    // Microservices access settings
+    {
+      path: '/microservices-settings',
+      element: (
+        <ProtectedRoute>
+          <Layout>
+            <MicroservicesSettings />
+          </Layout>
+        </ProtectedRoute>
+      ),
+    },
   ];
 
   // Get dynamic routes from manifests
   const dynamicRoutesConfig = useDynamicRoutesConfig();
 
   // Combine all routes
-  const allRoutes = [...staticRoutes, ...dynamicRoutesConfig];
+  const allRoutes = [
+    ...staticRoutes,
+    ...dynamicRoutesConfig,
+    { path: '/*', element: <Navigate to="/" replace /> },
+  ];
 
   // Use useRoutes hook
   const routeElements = useRoutes(allRoutes);

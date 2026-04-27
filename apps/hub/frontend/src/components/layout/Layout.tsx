@@ -1,45 +1,36 @@
+/**
+ * Hub Layout - реэкспорт Layout из ui-kit.
+ * Статические меню Hub добавляются к динамической навигации.
+ */
 import type { ReactNode } from 'react';
-import { AppLayout, MenuItem, useAuth, useMicroserviceManifests } from '@ject-hub/ui-kit';
+import { Layout as UiKitLayout, type MenuItem, useAuth } from '@ject-hub/ui-kit';
 
 /**
- * Hub layout component with dynamic microservice navigation.
- * Builds menu items from microservice manifests and combines with static Hub menu.
+ * Static Hub menu items (always visible).
  */
+const hubMenuItems: MenuItem[] = [
+  { id: 'hub-devices', label: 'Devices', icon: 'bi bi-grid', path: '/devices' },
+  { id: 'hub-settings', label: 'Settings', icon: 'bi bi-gear', path: '/settings' },
+  {
+    id: 'hub-microservices-settings',
+    label: 'Microservices',
+    icon: 'bi bi-sliders',
+    path: '/microservices-settings',
+  },
+];
+
 export function Layout({ children }: { children: ReactNode }) {
-  const { user, logout } = useAuth();
-  const { manifests } = useMicroserviceManifests();
-  const username = user?.username || user?.email || 'User';
-
-  /**
-   * Static Hub menu items (always visible).
-   */
-  const hubMenuItems: MenuItem[] = [
-    { id: 'hub-devices', label: 'Devices', icon: 'bi bi-grid', path: '/devices' },
-    { id: 'hub-settings', label: 'Settings', icon: 'bi bi-gear', path: '/settings' },
-  ];
-
-  /**
-   * Dynamic menu items from microservice manifests.
-   * Each service becomes a parent with its navigation items as children.
-   * Paths from manifest already include service prefix (e.g., /pulse, /pulse/devices).
-   */
-  const serviceMenuItems: MenuItem[] = manifests.map((m) => ({
-    id: m.serviceId,
-    label: m.name,
-    icon: 'bi bi-grid',
-    children: m.navigation.map((n) => ({
-      id: `${m.serviceId}-${n.path}`,
-      label: n.label,
-      icon: n.icon,
-      path: n.path,
-    })),
-  }));
-
-  const menuItems: MenuItem[] = [...hubMenuItems, ...serviceMenuItems];
+  const { user } = useAuth();
+  const microservicesAccess = user?.microservices || {};
 
   return (
-    <AppLayout menuItems={menuItems} serviceName="Ject Hub" username={username} onLogout={logout}>
+    <UiKitLayout
+      serviceName="Ject Hub"
+      staticMenuItems={hubMenuItems}
+      excludeServices={['hub']}
+      microservicesAccess={microservicesAccess}
+    >
       {children}
-    </AppLayout>
+    </UiKitLayout>
   );
 }

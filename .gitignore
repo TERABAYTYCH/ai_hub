@@ -64,5 +64,8 @@ turbo-*.log
 
 # Docker volumes (local development)
 docker-volumes/
-
+.*
 /.*/*
+!.kilo
+!.kilo/plans
+!.kilo/plans/*

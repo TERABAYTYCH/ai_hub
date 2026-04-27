@@ -6,8 +6,6 @@ async function bootstrap() {
   const logger = new Logger('Bootstrap');
   const app = await NestFactory.create(AppModule);
 
-  app.setGlobalPrefix('api');
-
   // CORS с credentials требует function-based origin для корректной работы
   app.enableCors({
     origin: (origin, callback) => {
@@ -15,10 +13,12 @@ async function bootstrap() {
         // lvh.me variants for SSO (primary)
         'http://hub.lvh.me',
         'http://pulse.lvh.me',
+        'http://service.lvh.me',
         'http://lvh.me',
         // localhost variants (legacy, for development)
         'http://hub.localhost',
         'http://pulse.localhost',
+        'http://service.localhost',
         'http://localhost',
         'http://127.0.0.1',
       ];

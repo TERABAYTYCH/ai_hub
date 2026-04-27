@@ -5,6 +5,19 @@ import { LoginDto } from './dto/login.dto';
 import { RegisterDto } from './dto/register.dto';
 import { LoginResponseDto, UserJwtPayload, IUser } from '@app/contracts/hub/auth';
 import { User } from './entities/user.entity';
+import { MICROSERVICES_ACCESS } from '../microservices/microservices.controller';
+
+/**
+ * Checks if two microservices access objects are equal.
+ */
+function isMicroservicesEqual(a?: Record<string, boolean>, b?: Record<string, boolean>): boolean {
+  if (a === b) return true;
+  if (!a || !b) return false;
+  const keysA = Object.keys(a);
+  const keysB = Object.keys(b);
+  if (keysA.length !== keysB.length) return false;
+  return keysA.every((key) => a[key] === b[key]);
+}
 
 @Injectable()
 export class AuthService {
@@ -38,6 +51,7 @@ export class AuthService {
 
   /**
    * Refreshes tokens using the HttpOnly refresh token from cookie.
+   * If microservices access has changed since token was issued, returns new token with fresh data.
    * @param refreshToken - The refresh token from HttpOnly cookie
    */
   async refreshToken(refreshToken: string): Promise<LoginResponseDto> {
@@ -52,6 +66,20 @@ export class AuthService {
         throw new UnauthorizedException('User not found');
       }
 
+      // Check if microservices access has changed since token was issued
+      const tokenMicroservices = payload.microservices;
+      const needsRefresh = !isMicroservicesEqual(tokenMicroservices, MICROSERVICES_ACCESS);
+
+      console.log(tokenMicroservices, MICROSERVICES_ACCESS);
+
+      if (needsRefresh) {
+        this.logger.log(
+          `Microservices access changed since token issued, issuing new token. ` +
+            `Token: ${JSON.stringify(tokenMicroservices)}, Current: ${JSON.stringify(MICROSERVICES_ACCESS)}`,
+        );
+      }
+
+      // Always generate new tokens with current MICROSERVICES_ACCESS
       return this.generateTokens(user);
     } catch {
       throw new UnauthorizedException('Invalid refresh token');
@@ -79,6 +107,7 @@ export class AuthService {
   /**
    * Generates access and refresh tokens.
    * Refresh token is designed to be stored in HttpOnly cookie.
+   * Always uses current MICROSERVICES_ACCESS for up-to-date permissions.
    */
   private generateTokens(user: User): LoginResponseDto {
     const payload: UserJwtPayload = {
@@ -86,6 +115,7 @@ export class AuthService {
       username: user.username,
       role: user.role,
       licenseId: user.licenseId ?? '',
+      microservices: MICROSERVICES_ACCESS,
     };
 
     const accessToken = this.jwtService.sign(payload, { expiresIn: '1h' });
