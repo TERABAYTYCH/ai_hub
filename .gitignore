@@ -69,3 +69,4 @@ docker-volumes/
 !.kilo
 !.kilo/plans
 !.kilo/plans/*
+!libs/plugins/dist
