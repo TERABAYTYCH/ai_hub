@@ -22,11 +22,13 @@ async function bootstrap() {
         'http://hub.lvh.me',
         'http://pulse.lvh.me',
         'http://service.lvh.me',
+        'http://control.lvh.me',
         'http://lvh.me',
         // localhost variants (legacy, for development)
         'http://hub.localhost',
         'http://pulse.localhost',
         'http://service.localhost',
+        'http://control.localhost',
         'http://localhost',
         'http://127.0.0.1',
       ];
