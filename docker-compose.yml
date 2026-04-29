@@ -131,6 +131,7 @@ services:
     volumes:
       - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
       - ./apps/pulse/frontend/dist:/usr/share/nginx/html/pulse:ro
+      - ./apps/control/frontend/dist:/usr/share/nginx/html/control:ro
     depends_on:
       - mysql-hub
       - mysql-pulse
@@ -139,6 +140,7 @@ services:
       - kafka
       - hub-backend
       - pulse-backend
+      - control-backend
     networks:
       - ject-network
 
@@ -291,6 +293,55 @@ services:
     command: yarn workspace @ject-hub/service-frontend dev:docker
     depends_on:
       - service-backend
+    networks:
+      - ject-network
+
+  # ============================================
+  # CONTROL SERVICE (Backend + Frontend)
+  # ============================================
+  control-backend:
+    build:
+      context: .
+      dockerfile: apps/control/backend/Dockerfile
+    container_name: ${COMPOSE_PROJECT_NAME}_control_backend
+    restart: unless-stopped
+    environment:
+      - NODE_ENV=development
+      - PORT=3003
+      - JWT_SECRET=${JWT_SECRET:-hub-jwt-secret-key-change-in-production}
+      - HUB_INTERNAL_API_URL=http://hub-backend:3000
+    ports:
+      - '3003:3003'
+    volumes:
+      - .:/app
+      - /app/node_modules
+      - /app/apps/control/backend/node_modules
+    command: yarn workspace @ject-hub/control-backend start:dev
+    depends_on:
+      - hub-backend
+    networks:
+      - ject-network
+
+  control-frontend:
+    build:
+      context: .
+      dockerfile: apps/control/frontend/Dockerfile
+    container_name: ${COMPOSE_PROJECT_NAME}_control_frontend
+    restart: unless-stopped
+    environment:
+      - NODE_ENV=development
+      - VITE_API_URL=http://api.hub.lvh.me
+      - WATCHPACK_POLLING=true
+    ports:
+      - '5176:5176'
+    volumes:
+      - .:/app
+      - /app/node_modules
+      - /app/apps/control/frontend/node_modules
+      - ./apps/control/frontend/dist:/app/apps/control/frontend/dist
+    command: yarn workspace @ject-hub/control-frontend dev:docker
+    depends_on:
+      - control-backend
     networks:
       - ject-network
 

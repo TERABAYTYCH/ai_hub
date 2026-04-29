@@ -8,6 +8,7 @@ export const REGISTERED_SERVICES = [
   { serviceId: 'hub', manifestUrl: 'http://hub.lvh.me/assets/manifest.json', name: 'Ject Hub', baseUrl: 'http://hub.lvh.me' },
   { serviceId: 'pulse', manifestUrl: 'http://pulse.lvh.me/assets/manifest.json', name: 'Pulse Monitoring', baseUrl: 'http://pulse.lvh.me' },
   { serviceId: 'service', manifestUrl: 'http://service.lvh.me/assets/manifest.json', name: 'Service', baseUrl: 'http://service.lvh.me' },
+  { serviceId: 'control', manifestUrl: 'http://control.lvh.me/assets/manifest.json', name: 'Control', baseUrl: 'http://control.lvh.me' },
 ] as const;
 
 /** Результат загрузки манифеста — всегда содержит все сервисы, failed обновляется после fetch */

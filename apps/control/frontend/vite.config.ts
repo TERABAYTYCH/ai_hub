@@ -5,27 +5,30 @@ import path from 'path';
 import { manifestPlugin, serveDistAssetsPlugin } from '@app/plugins';
 
 const exposes: Record<string, string> = {
-  './Settings': './src/pages/SettingsPage',
+  './Dashboard': './src/Dashboard',
+  './Devices': './src/Devices',
+  './Settings': './src/Settings',
 };
 
 export default defineConfig({
   plugins: [
     manifestPlugin({
-      serviceId: 'hub',
-      serviceName: 'Ject Hub',
+      serviceId: 'control',
+      serviceName: 'Control',
       moduleMapping: {
-        './Settings': { label: 'Settings', icon: 'bi bi-gear', path: '/hub/settings' },
+        './Dashboard': { label: 'Dashboard', icon: 'bi bi-house', path: '/control/dashboard' },
+        './Devices': { label: 'Devices', icon: 'bi bi-grid', path: '/control/devices' },
+        './Settings': { label: 'Settings', icon: 'bi bi-gear', path: '/control/settings' },
       },
     }),
     serveDistAssetsPlugin(),
     react(),
     federation({
-      name: 'hub',
-      exposes,
+      name: 'control',
       filename: 'remoteEntry.js',
+      exposes,
       remotes: {
-        // Пустой заполнитель для динамических удаленных модулей
-        'dynamic-remote': 'http://pulse.lvh.me/assets/remoteEntry.js',
+        'dynamic-remote': 'http://hub.lvh.me/assets/remoteEntry.js',
       },
       shared: ['react', 'react-dom', 'react-router-dom'],
     }),
@@ -38,8 +41,12 @@ export default defineConfig({
   },
   server: {
     host: '0.0.0.0',
-    port: 5173,
+    port: 5176,
     strictPort: false,
+    cors: true,
+    headers: {
+      'Access-Control-Allow-Origin': '*',
+    },
     allowedHosts: ['hub.lvh.me', 'pulse.lvh.me', 'service.lvh.me', 'control.lvh.me', 'lvh.me', 'localhost'],
   },
   build: {

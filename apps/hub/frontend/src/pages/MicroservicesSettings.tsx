@@ -8,11 +8,16 @@ const API_BASE_URL = (import.meta.env.VITE_API_URL as string) || '/api';
 interface MicroservicesAccess {
   pulse: boolean;
   service: boolean;
+  control: boolean;
 }
 
 export default function MicroservicesSettings() {
   const { login } = useAuth();
-  const [access, setAccess] = useState<MicroservicesAccess>({ pulse: true, service: true });
+  const [access, setAccess] = useState<MicroservicesAccess>({
+    pulse: true,
+    service: true,
+    control: true,
+  });
   const [saved, setSaved] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -102,6 +107,13 @@ export default function MicroservicesSettings() {
         label="Service"
         checked={access.service}
         onChange={() => handleToggle('service')}
+      />
+      <Form.Check
+        type="switch"
+        id="control-switch"
+        label="Control"
+        checked={access.control}
+        onChange={() => handleToggle('control')}
       />
       <button className="btn btn-primary mt-3" onClick={() => void handleSave()}>
         Применить
