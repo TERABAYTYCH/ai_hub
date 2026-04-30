@@ -23,6 +23,7 @@ export default defineConfig({
       server: {
         origin: 'http://pulse.lvh.me:5174',
       },
+      dts: false,
     }),
   ],
   resolve: {

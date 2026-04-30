@@ -20,6 +20,7 @@ export default defineConfig({
       server: {
         origin: 'http://control.lvh.me:5176',
       },
+      dts: false,
     }),
   ],
   resolve: {

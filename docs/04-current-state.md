@@ -657,3 +657,33 @@ useEffect(() => {
 - Иконки в manifest.json синхронизированы с `main.tsx` Pulse
 - Удалён冗ный файл `vite-plugin-manifest.ts`
 - Коммит: `df3b957 Task 005: Remove redundant vite-plugin-manifest.ts`
+
+---
+
+### Задача 0_infrastructure/018.1: Исправление dev workflow для Module Federation
+
+**Выполнено:**
+
+- ✅ Добавлены `dev.remoteHmr: true` и `dev.disableDynamicRemoteTypeHints: true` в remote apps (pulse, service, control)
+- ✅ Обновлены remotes в Hub для указания на dev порты (5174, 5175, 5176)
+- ✅ Добавлена dev опция в Hub federation config
+
+**Порты dev серверов:**
+| App | Dev Port |
+|-----|----------|
+| Hub | 5173 |
+| Pulse | 5174 |
+| Service | 5175 |
+| Control | 5176 |
+
+**Проверки:**
+
+- ✅ yarn typecheck — 0 errors
+- ✅ yarn build — 9 successful
+
+**Файлы:**
+- `apps/pulse/frontend/vite.config.ts` — добавлен dev config
+- `apps/service/frontend/vite.config.ts` — добавлен dev config
+- `apps/control/frontend/vite.config.ts` — добавлен dev config
+- `apps/hub/frontend/vite.config.ts` — обновлены remotes entry URLs и добавлена dev опция
+
