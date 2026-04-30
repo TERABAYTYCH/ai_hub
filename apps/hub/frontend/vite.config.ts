@@ -16,26 +16,30 @@ export default defineConfig({
         pulse: {
           type: 'module',
           name: 'pulse',
-          entry: 'http://pulse.lvh.me/remoteEntry.js',
+          entry: 'http://pulse.lvh.me:5174/remoteEntry.js',
           entryGlobalName: 'pulse',
           shareScope: 'default',
         },
         service: {
           type: 'module',
           name: 'service',
-          entry: 'http://service.lvh.me/remoteEntry.js',
+          entry: 'http://service.lvh.me:5175/remoteEntry.js',
           entryGlobalName: 'service',
           shareScope: 'default',
         },
         control: {
           type: 'module',
           name: 'control',
-          entry: 'http://control.lvh.me/remoteEntry.js',
+          entry: 'http://control.lvh.me:5176/remoteEntry.js',
           entryGlobalName: 'control',
           shareScope: 'default',
         },
       },
       shared: ['react', 'react-dom', 'react-router-dom'],
+      dev: {
+        remoteHmr: true,
+        disableDynamicRemoteTypeHints: true,
+      },
     }),
   ],
   resolve: {

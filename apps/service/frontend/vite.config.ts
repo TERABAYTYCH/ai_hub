@@ -3,7 +3,6 @@ import react from '@vitejs/plugin-react';
 import { federation } from '@module-federation/vite';
 import path from 'path';
 
-// Exposes configuration - sync with federation plugin exposes
 const exposes: Record<string, string> = {
   './Dashboard': './src/Dashboard',
   './Devices': './src/Devices',
@@ -18,8 +17,9 @@ export default defineConfig({
       filename: 'remoteEntry.js',
       exposes,
       shared: ['react', 'react-dom', 'react-router-dom'],
-      server: {
-        origin: 'http://service.lvh.me:5175',
+      dev: {
+        remoteHmr: true,
+        disableDynamicRemoteTypeHints: true,
       },
       dts: false,
     }),

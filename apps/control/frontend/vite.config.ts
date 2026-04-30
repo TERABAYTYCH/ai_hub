@@ -17,8 +17,9 @@ export default defineConfig({
       filename: 'remoteEntry.js',
       exposes,
       shared: ['react', 'react-dom', 'react-router-dom'],
-      server: {
-        origin: 'http://control.lvh.me:5176',
+      dev: {
+        remoteHmr: true,
+        disableDynamicRemoteTypeHints: true,
       },
       dts: false,
     }),
