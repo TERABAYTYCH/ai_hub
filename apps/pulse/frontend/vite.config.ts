@@ -18,10 +18,16 @@ export default defineConfig({
       name: 'pulse',
       filename: 'remoteEntry.js',
       exposes,
-      shared: ['react', 'react-dom', 'react-router-dom'],
-      dev: {
-        remoteHmr: true,
-        disableDynamicRemoteTypeHints: true,
+      shared: {
+        react: { 
+          singleton: true, 
+        },
+        'react-dom': { 
+          singleton: true, 
+        },
+        'react-router-dom': { 
+          singleton: true, 
+        },
       },
       dts: false,
     }),
@@ -41,6 +47,9 @@ export default defineConfig({
       'Access-Control-Allow-Origin': '*',
     },
     allowedHosts: ['hub.lvh.me', 'pulse.lvh.me', 'service.lvh.me', 'lvh.me', 'localhost'],
+    hmr: {
+      port: 5174,
+    },
   },
   build: {
     target: 'esnext',

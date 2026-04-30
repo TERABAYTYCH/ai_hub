@@ -11,6 +11,7 @@ import { initAxiosInterceptors } from './api/axios';
 initAxiosInterceptors();
 
 const rootElement = document.getElementById('root');
+console.log({ rootElement });
 if (rootElement) {
   createRoot(rootElement).render(
     <StrictMode>

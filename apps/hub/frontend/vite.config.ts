@@ -35,10 +35,16 @@ export default defineConfig({
           shareScope: 'default',
         },
       },
-      shared: ['react', 'react-dom', 'react-router-dom'],
-      dev: {
-        remoteHmr: true,
-        disableDynamicRemoteTypeHints: true,
+      shared: {
+        react: { 
+          singleton: true, 
+        },
+        'react-dom': { 
+          singleton: true, 
+        },
+        'react-router-dom': { 
+          singleton: true, 
+        },
       },
     }),
   ],
@@ -53,6 +59,9 @@ export default defineConfig({
     port: 5173,
     strictPort: false,
     allowedHosts: ['hub.lvh.me', 'pulse.lvh.me', 'service.lvh.me', 'control.lvh.me', 'lvh.me', 'localhost'],
+    hmr: {
+      port: 5173,
+    },
   },
   build: {
     target: 'esnext',

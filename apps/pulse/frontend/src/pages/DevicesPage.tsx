@@ -84,7 +84,7 @@ function DevicesPage() {
 
   return (
     <Card>
-      <Card.Header>Devices</Card.Header>
+      <Card.Header>Devicessss</Card.Header>
       <Card.Body>
         {error && (
           <Alert variant="danger" dismissible onClose={() => setError(null)}>

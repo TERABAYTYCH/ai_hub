@@ -16,10 +16,16 @@ export default defineConfig({
       name: 'control',
       filename: 'remoteEntry.js',
       exposes,
-      shared: ['react', 'react-dom', 'react-router-dom'],
-      dev: {
-        remoteHmr: true,
-        disableDynamicRemoteTypeHints: true,
+      shared: {
+        react: { 
+          singleton: true, 
+        },
+        'react-dom': { 
+          singleton: true, 
+        },
+        'react-router-dom': { 
+          singleton: true, 
+        },
       },
       dts: false,
     }),
@@ -46,6 +52,9 @@ export default defineConfig({
       'lvh.me',
       'localhost',
     ],
+    hmr: {
+      port: 5176,
+    },
   },
   build: {
     target: 'esnext',
