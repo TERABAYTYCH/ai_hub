@@ -1,189 +1,29 @@
 import { Navigate, useRoutes } from 'react-router-dom';
-import React, { useMemo, useEffect, useState } from 'react';
+import { lazy } from 'react';
 import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
 import DevicesPage from './pages/DevicesPage';
 import SettingsPage from './pages/SettingsPage';
 import MicroservicesSettings from './pages/MicroservicesSettings';
-import {
-  ProtectedRoute,
-  GuestRoute,
-  useMicroserviceManifests,
-  useAuth,
-  LockPage,
-} from '@ject-hub/ui-kit';
+import { ProtectedRoute, GuestRoute } from '@ject-hub/ui-kit';
 import { Layout } from './components/layout/Layout';
 
-// Federation v2 API
-import {
-  __federation_method_setRemote,
-  __federation_method_ensure,
-  __federation_method_getRemote,
-} from 'virtual:__federation__';
+// Remote modules loaded via Module Federation
+const PulseDashboard = lazy(() => import('pulse/Dashboard'));
+const PulseDevices = lazy(() => import('pulse/Devices'));
+const PulseMetrics = lazy(() => import('pulse/Metrics'));
+const PulseAlerts = lazy(() => import('pulse/Alerts'));
+const PulseSettings = lazy(() => import('pulse/Settings'));
 
-interface LoadedModule {
-  default?: unknown;
-}
+const ServiceDashboard = lazy(() => import('service/Dashboard'));
+const ServiceDevices = lazy(() => import('service/Devices'));
+const ServiceSettings = lazy(() => import('service/Settings'));
 
-/**
- * Loads module dynamically via Federation v2 API
- */
-const loadModule = async (serviceId: string, modulePath: string): Promise<LoadedModule> => {
-  __federation_method_setRemote(serviceId, {
-    url: () => Promise.resolve(`http://${serviceId}.lvh.me/assets/remoteEntry.js`),
-    from: 'vite',
-    format: 'esm',
-  });
-
-  await __federation_method_ensure(serviceId);
-
-  const module = await __federation_method_getRemote(serviceId, modulePath);
-  return module as LoadedModule;
-};
-
-/**
- * Lazy-loaded module component
- */
-const LazyModule: React.FC<{ serviceId: string; modulePath: string }> = ({
-  serviceId,
-  modulePath,
-}) => {
-  const [Component, setComponent] = useState<React.ComponentType | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<Error | null>(null);
-
-  useEffect(() => {
-    setComponent(null);
-    setError(null);
-    setLoading(true);
-
-    loadModule(serviceId, modulePath)
-      .then((mod) => {
-        const Comp =
-          (mod as { default?: React.ComponentType }).default ||
-          (mod as unknown as React.ComponentType);
-        if (typeof Comp === 'function') {
-          setComponent(() => Comp);
-        } else {
-          setError(new Error('Invalid module: not a component'));
-        }
-      })
-      .catch((err: Error) => {
-        setError(err);
-      })
-      .finally(() => {
-        setLoading(false);
-      });
-  }, [serviceId, modulePath]);
-
-  if (loading) {
-    return <div className="text-center p-4">Loading...</div>;
-  }
-
-  if (error) {
-    return (
-      <div className="text-danger p-4">
-        Error: {error.message}
-        <br />
-        <small className="text-muted">
-          {serviceId}/{modulePath}
-        </small>
-      </div>
-    );
-  }
-
-  if (!Component) {
-    return <div className="text-center p-4">No component</div>;
-  }
-
-  return <Component />;
-};
-
-/**
- * Dynamic routes configuration from microservice manifests.
- * Checks microservices access and blocks locked services.
- * Waits for auth initialization before rendering dynamic routes.
- */
-const useDynamicRoutesConfig = () => {
-  const { user, isLoading } = useAuth();
-  const { manifests } = useMicroserviceManifests();
-  const microservicesAccess = user?.microservices || {};
-
-  const routesConfig = useMemo(() => {
-    // Wait for auth to initialize before rendering dynamic routes
-    if (isLoading) {
-      return [];
-    }
-
-    const dynamicRoutes: { path: string; element: React.ReactNode }[] = [];
-
-    for (const manifest of manifests) {
-      // Skip if no navigation items
-      if (!manifest.navigation || manifest.navigation.length === 0) continue;
-      //   console.log({ manifest });
-
-      const isLocked = microservicesAccess[manifest.serviceId] === false;
-      const serviceRoot = '/' + manifest.serviceId;
-
-      if (isLocked) {
-        // Block ALL child routes - redirect to /lock
-
-        dynamicRoutes.push({
-          path: `${serviceRoot}/lock`,
-          element: (
-            <ProtectedRoute>
-              <Layout>
-                <LockPage serviceName="Pulse" />
-              </Layout>
-            </ProtectedRoute>
-          ),
-        });
-        dynamicRoutes.push({
-          path: `${serviceRoot}/*`,
-          element: <Navigate to={`${serviceRoot}/lock`} />,
-        });
-        continue;
-      }
-
-      // Add redirect from service root (e.g., /pulse) to first nav item (e.g., /pulse/dashboard)
-      const firstNavItem = manifest.navigation[0];
-
-      if (firstNavItem && firstNavItem.path) {
-        dynamicRoutes.push({
-          path: serviceRoot,
-          element: <Navigate to={firstNavItem.path} />,
-        });
-      }
-
-      // Add routes for each navigation item
-      for (const navItem of manifest.navigation) {
-        if (navItem.module && navItem.path) {
-          dynamicRoutes.push({
-            path: navItem.path,
-            element: (
-              <ProtectedRoute>
-                <Layout>
-                  <LazyModule serviceId={manifest.serviceId} modulePath={navItem.module} />
-                </Layout>
-              </ProtectedRoute>
-            ),
-          });
-        }
-      }
-      dynamicRoutes.push({
-        path: manifest.serviceId + '/*',
-        element: <Navigate to={'/' + manifest.serviceId} replace />,
-      });
-    }
-
-    return dynamicRoutes;
-  }, [manifests, microservicesAccess, isLoading]);
-
-  return routesConfig;
-};
+const ControlDashboard = lazy(() => import('control/Dashboard'));
+const ControlDevices = lazy(() => import('control/Devices'));
+const ControlSettings = lazy(() => import('control/Settings'));
 
 function App() {
-  // Static routes
   const staticRoutes = [
     { path: '/', element: <Navigate to="/devices" replace /> },
     {
@@ -222,7 +62,6 @@ function App() {
         </ProtectedRoute>
       ),
     },
-    // Microservices access settings
     {
       path: '/microservices-settings',
       element: (
@@ -233,21 +72,142 @@ function App() {
         </ProtectedRoute>
       ),
     },
+
+    // Hub's own exposed modules
+    {
+      path: '/hub/settings',
+      element: (
+        <ProtectedRoute>
+          <Layout>
+            <SettingsPage />
+          </Layout>
+        </ProtectedRoute>
+      ),
+    },
+
+    // Pulse routes
+    { path: '/pulse', element: <Navigate to="/pulse/dashboard" /> },
+    {
+      path: '/pulse/dashboard',
+      element: (
+        <ProtectedRoute>
+          <Layout>
+            <PulseDashboard />
+          </Layout>
+        </ProtectedRoute>
+      ),
+    },
+    {
+      path: '/pulse/devices',
+      element: (
+        <ProtectedRoute>
+          <Layout>
+            <PulseDevices />
+          </Layout>
+        </ProtectedRoute>
+      ),
+    },
+    {
+      path: '/pulse/metrics',
+      element: (
+        <ProtectedRoute>
+          <Layout>
+            <PulseMetrics />
+          </Layout>
+        </ProtectedRoute>
+      ),
+    },
+    {
+      path: '/pulse/alerts',
+      element: (
+        <ProtectedRoute>
+          <Layout>
+            <PulseAlerts />
+          </Layout>
+        </ProtectedRoute>
+      ),
+    },
+    {
+      path: '/pulse/settings',
+      element: (
+        <ProtectedRoute>
+          <Layout>
+            <PulseSettings />
+          </Layout>
+        </ProtectedRoute>
+      ),
+    },
+
+    // Service routes
+    { path: '/service', element: <Navigate to="/service/dashboard" /> },
+    {
+      path: '/service/dashboard',
+      element: (
+        <ProtectedRoute>
+          <Layout>
+            <ServiceDashboard />
+          </Layout>
+        </ProtectedRoute>
+      ),
+    },
+    {
+      path: '/service/devices',
+      element: (
+        <ProtectedRoute>
+          <Layout>
+            <ServiceDevices />
+          </Layout>
+        </ProtectedRoute>
+      ),
+    },
+    {
+      path: '/service/settings',
+      element: (
+        <ProtectedRoute>
+          <Layout>
+            <ServiceSettings />
+          </Layout>
+        </ProtectedRoute>
+      ),
+    },
+
+    // Control routes
+    { path: '/control', element: <Navigate to="/control/dashboard" /> },
+    {
+      path: '/control/dashboard',
+      element: (
+        <ProtectedRoute>
+          <Layout>
+            <ControlDashboard />
+          </Layout>
+        </ProtectedRoute>
+      ),
+    },
+    {
+      path: '/control/devices',
+      element: (
+        <ProtectedRoute>
+          <Layout>
+            <ControlDevices />
+          </Layout>
+        </ProtectedRoute>
+      ),
+    },
+    {
+      path: '/control/settings',
+      element: (
+        <ProtectedRoute>
+          <Layout>
+            <ControlSettings />
+          </Layout>
+        </ProtectedRoute>
+      ),
+    },
+
+    { path: '/*', element: <Navigate to="/" /> },
   ];
 
-  // Get dynamic routes from manifests
-  const dynamicRoutesConfig = useDynamicRoutesConfig();
-
-  // Combine all routes
-  const allRoutes = [
-    ...staticRoutes,
-    ...dynamicRoutesConfig,
-    { path: '/*', element: <Navigate to="/" replace /> },
-  ];
-
-  // Use useRoutes hook
-  const routeElements = useRoutes(allRoutes);
-
+  const routeElements = useRoutes(staticRoutes);
   return routeElements;
 }
 

@@ -1,8 +1,7 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
-import federation from '@originjs/vite-plugin-federation';
+import { federation } from '@module-federation/vite';
 import path from 'path';
-import { manifestPlugin, serveDistAssetsPlugin } from '@app/plugins';
 
 // Exposes configuration - sync with federation plugin exposes
 const exposes: Record<string, string> = {
@@ -15,28 +14,15 @@ const exposes: Record<string, string> = {
 
 export default defineConfig({
   plugins: [
-    manifestPlugin({
-      serviceId: 'pulse',
-      serviceName: 'Pulse Monitoring',
-      moduleMapping: {
-        './Dashboard': { label: 'Dashboard', icon: 'bi bi-house', path: '/pulse/dashboard' },
-        './Devices': { label: 'Devices', icon: 'bi bi-grid', path: '/pulse/devices' },
-        './Metrics': { label: 'Metrics', icon: 'bi bi-graph-up', path: '/pulse/metrics' },
-        './Alerts': { label: 'Alerts', icon: 'bi bi-bell', path: '/pulse/alerts' },
-        './Settings': { label: 'Settings', icon: 'bi bi-gear', path: '/pulse/settings' },
-      },
-    }),
-    serveDistAssetsPlugin(),
     react(),
     federation({
       name: 'pulse',
       filename: 'remoteEntry.js',
       exposes,
-      remotes: {
-        // Пустой заполнитель для динамических удаленных модулей
-        'dynamic-remote': 'http://hub.lvh.me/assets/remoteEntry.js',
-      },
       shared: ['react', 'react-dom', 'react-router-dom'],
+      server: {
+        origin: 'http://pulse.lvh.me:5174',
+      },
     }),
   ],
   resolve: {

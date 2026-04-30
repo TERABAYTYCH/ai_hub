@@ -1,2 +1,1 @@
-export { serveDistAssetsPlugin } from './serveDistAssetsPlugin';
-export { manifestPlugin, type ManifestPluginOptions, type ManifestModuleConfig } from './manifestPlugin';
+// Plugins exports - empty after migration to @module-federation/vite

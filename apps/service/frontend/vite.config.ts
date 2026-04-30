@@ -1,8 +1,7 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
-import federation from '@originjs/vite-plugin-federation';
+import { federation } from '@module-federation/vite';
 import path from 'path';
-import { manifestPlugin, serveDistAssetsPlugin } from '@app/plugins';
 
 // Exposes configuration - sync with federation plugin exposes
 const exposes: Record<string, string> = {
@@ -13,26 +12,15 @@ const exposes: Record<string, string> = {
 
 export default defineConfig({
   plugins: [
-    manifestPlugin({
-      serviceId: 'service',
-      serviceName: 'Service',
-      moduleMapping: {
-        './Dashboard': { label: 'Dashboard', icon: 'bi bi-wrench', path: '/service/dashboard' },
-        './Devices': { label: 'Devices', icon: 'bi bi-grid', path: '/service/devices' },
-        './Settings': { label: 'Settings', icon: 'bi bi-gear', path: '/service/settings' },
-      },
-    }),
-    serveDistAssetsPlugin(),
     react(),
     federation({
       name: 'service',
       filename: 'remoteEntry.js',
       exposes,
-      remotes: {
-        // Пустой заполнитель для динамических удаленных модулей
-        'dynamic-remote': 'http://hub.lvh.me/assets/remoteEntry.js',
-      },
       shared: ['react', 'react-dom', 'react-router-dom'],
+      server: {
+        origin: 'http://service.lvh.me:5175',
+      },
     }),
   ],
   resolve: {

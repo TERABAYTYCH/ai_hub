@@ -1,57 +1,20 @@
 import type { ReactNode } from 'react';
-import { Layout as UiKitLayout, type MenuItem, useAuth } from '@ject-hub/ui-kit';
+import { Layout as UiKitLayout, type MenuItem } from '@ject-hub/ui-kit';
 
 /**
- * Static Pulse menu items (shown when Pulse is not locked).
+ * Pulse Layout со статическим меню.
  */
 const pulseMenuItems: MenuItem[] = [
   { id: 'dashboard', label: 'Dashboard', icon: 'bi bi-house', path: '/dashboard' },
   { id: 'devices', label: 'Devices', icon: 'bi bi-grid', path: '/devices' },
   { id: 'metrics', label: 'Metrics', icon: 'bi bi-graph-up', path: '/metrics' },
   { id: 'alerts', label: 'Alerts', icon: 'bi bi-bell', path: '/alerts' },
-];
-
-/**
- * Locked menu item shown when Pulse is blocked.
- */
-const lockedMenuItem: MenuItem[] = [
-  {
-    id: 'pulse-locked',
-    label: 'Locked',
-    icon: 'bi bi-lock',
-    locked: true,
-    path: '/lock',
-  },
+  { id: 'hub-settings', label: 'Hub Settings', icon: 'bi bi-gear', path: '/hub/settings' },
 ];
 
 export function Layout({ children }: { children: ReactNode }) {
-  const { user } = useAuth();
-  const microservicesAccess = user?.microservices || {};
-  const isPulseLocked = microservicesAccess['pulse'] === false;
-
-  // If Pulse is locked, show only "Locked" menu item and hide everything else
-  const menuItems = isPulseLocked ? lockedMenuItem : pulseMenuItems;
-  // Hub settings only when not locked
-  const hubSettingsItem = isPulseLocked
-    ? undefined
-    : {
-        id: 'hub-settings',
-        label: 'Hub Settings',
-        icon: 'bi bi-gear',
-        path: '/hub/settings',
-      };
-  // Always exclude pulse and hub from dynamic services.
-  // When locked, also exclude 'service' since we can't load its manifest.
-  // Hub is excluded here AND via hubSettingsItem when not locked.
-  const excludeServices = isPulseLocked ? ['pulse', 'service', 'hub'] : ['pulse', 'hub'];
-
   return (
-    <UiKitLayout
-      serviceName="Pulse"
-      staticMenuItems={menuItems}
-      excludeServices={excludeServices}
-      hubSettingsItem={hubSettingsItem}
-    >
+    <UiKitLayout serviceName="Pulse" staticMenuItems={pulseMenuItems}>
       {children}
     </UiKitLayout>
   );

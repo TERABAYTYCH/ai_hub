@@ -5,6 +5,4 @@ export { LoginForm, RegisterForm, AuthPage, ProtectedRoute, GuestRoute, type Log
 export { AuthProvider, useAuth, type IUser } from './providers/AuthProvider';
 export * from './components/devices';
 export { LockPage } from './components/LockPage';
-
-// Cookie utilities for cross-domain auth
 export { getRootDomain, setAccessToken, getAccessToken, removeAccessToken } from './utils/cookies';

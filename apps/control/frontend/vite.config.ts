@@ -1,36 +1,25 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
-import federation from '@originjs/vite-plugin-federation';
+import { federation } from '@module-federation/vite';
 import path from 'path';
-import { manifestPlugin, serveDistAssetsPlugin } from '@app/plugins';
 
 const exposes: Record<string, string> = {
   './Dashboard': './src/Dashboard',
-  './Devices': './src/Devices',
+  './Devices': './src/pages/DevicesPage',
   './Settings': './src/Settings',
 };
 
 export default defineConfig({
   plugins: [
-    manifestPlugin({
-      serviceId: 'control',
-      serviceName: 'Control',
-      moduleMapping: {
-        './Dashboard': { label: 'Dashboard', icon: 'bi bi-house', path: '/control/dashboard' },
-        './Devices': { label: 'Devices', icon: 'bi bi-grid', path: '/control/devices' },
-        './Settings': { label: 'Settings', icon: 'bi bi-gear', path: '/control/settings' },
-      },
-    }),
-    serveDistAssetsPlugin(),
     react(),
     federation({
       name: 'control',
       filename: 'remoteEntry.js',
       exposes,
-      remotes: {
-        'dynamic-remote': 'http://hub.lvh.me/assets/remoteEntry.js',
-      },
       shared: ['react', 'react-dom', 'react-router-dom'],
+      server: {
+        origin: 'http://control.lvh.me:5176',
+      },
     }),
   ],
   resolve: {
@@ -47,7 +36,14 @@ export default defineConfig({
     headers: {
       'Access-Control-Allow-Origin': '*',
     },
-    allowedHosts: ['hub.lvh.me', 'pulse.lvh.me', 'service.lvh.me', 'control.lvh.me', 'lvh.me', 'localhost'],
+    allowedHosts: [
+      'hub.lvh.me',
+      'pulse.lvh.me',
+      'service.lvh.me',
+      'control.lvh.me',
+      'lvh.me',
+      'localhost',
+    ],
   },
   build: {
     target: 'esnext',
