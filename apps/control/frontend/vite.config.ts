@@ -6,7 +6,7 @@ import { manifestPlugin, serveDistAssetsPlugin } from '@app/plugins';
 
 const exposes: Record<string, string> = {
   './Dashboard': './src/Dashboard',
-  './Devices': './src/Devices',
+  './Devices': './src/pages/DevicesPage',
   './Settings': './src/Settings',
 };
 
