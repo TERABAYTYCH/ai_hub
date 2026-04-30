@@ -1,5 +1,5 @@
 import { Navigate, useRoutes } from 'react-router-dom';
-import { lazy } from 'react';
+import { lazy, Suspense } from 'react';
 import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
 import DevicesPage from './pages/DevicesPage';
@@ -208,7 +208,18 @@ function App() {
   ];
 
   const routeElements = useRoutes(staticRoutes);
-  return routeElements;
+
+  return (
+    <Suspense fallback={
+      <div className="d-flex justify-content-center align-items-center" style={{height: '100vh'}}>
+        <div className="spinner-border text-primary" role="status">
+          <span className="visually-hidden">Loading...</span>
+        </div>
+      </div>
+    }>
+      {routeElements}
+    </Suspense>
+  );
 }
 
 export default App;
