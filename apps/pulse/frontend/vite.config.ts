@@ -33,7 +33,7 @@ export default defineConfig({
         hub: {
           type: 'module',
           name: 'hub',
-          entry: 'http://hub.lvh.me:5173/remoteEntry.js',
+          entry: 'http://hub.lvh.me/remoteEntry.js',
           entryGlobalName: 'hub',
           shareScope: 'default',
         },

@@ -1,0 +1,3 @@
+
+    export type RemoteKeys = 'pulse/Dashboard' | 'pulse/Devices' | 'pulse/Metrics' | 'pulse/Alerts' | 'pulse/Settings';
+    type PackageType<T> = T extends 'pulse/Settings' ? typeof import('pulse/Settings') :T extends 'pulse/Alerts' ? typeof import('pulse/Alerts') :T extends 'pulse/Metrics' ? typeof import('pulse/Metrics') :T extends 'pulse/Devices' ? typeof import('pulse/Devices') :T extends 'pulse/Dashboard' ? typeof import('pulse/Dashboard') :any;
