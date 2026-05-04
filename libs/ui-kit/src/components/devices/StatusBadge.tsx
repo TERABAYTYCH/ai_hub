@@ -1,6 +1,6 @@
 import React from 'react';
 import { Badge } from 'react-bootstrap';
-import { DeviceStatus } from '@app/contracts/hub/devices';
+import { DeviceStatus } from '@ject-hub/contracts/hub/devices';
 
 /**
  * Соответствие статусов устройства цветам бейджа

@@ -1,5 +1,5 @@
 import React from 'react';
-import { IDevice } from '@app/contracts/hub/devices';
+import { IDevice } from '@ject-hub/contracts/hub/devices';
 import { StatusBadge } from './StatusBadge';
 
 interface DeviceRowProps {
@@ -19,7 +19,9 @@ export const DeviceRow: React.FC<DeviceRowProps> = ({ device, onEdit, onDelete }
   <tr>
     <td>{device.name}</td>
     <td>{device.type}</td>
-    <td><StatusBadge status={device.status} /></td>
+    <td>
+      <StatusBadge status={device.status} />
+    </td>
     <td>{device.description || '-'}</td>
     <td>{new Date(device.createdAt).toLocaleDateString()}</td>
     <td>

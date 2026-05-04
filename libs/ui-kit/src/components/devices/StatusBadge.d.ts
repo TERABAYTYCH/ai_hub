@@ -1,8 +1,8 @@
 import React from 'react';
-import { DeviceStatus } from '@app/contracts/hub/devices';
+import { DeviceStatus } from '@ject-hub/contracts/hub/devices';
 interface StatusBadgeProps {
-    /** Статус устройства */
-    status: DeviceStatus;
+  /** Статус устройства */
+  status: DeviceStatus;
 }
 /**
  * Компонент бейджа статуса устройства

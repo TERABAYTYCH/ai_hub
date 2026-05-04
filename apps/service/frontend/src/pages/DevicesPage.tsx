@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Card, Alert, Modal, Form, Button } from 'react-bootstrap';
-import { IDevice, UpdateDeviceRequestDto, DeviceStatus } from '@app/contracts/hub/devices';
-import { DeviceTable, EmptyState, LoadingState } from '@app/ui-kit';
+import { IDevice, UpdateDeviceRequestDto, DeviceStatus } from '@ject-hub/contracts/hub/devices';
+import { DeviceTable, EmptyState, LoadingState } from '@ject-hub/ui-kit';
 import { getDevices, updateDevice, deleteDevice } from '../api/devices.api';
 
 type DeviceFormData = UpdateDeviceRequestDto;

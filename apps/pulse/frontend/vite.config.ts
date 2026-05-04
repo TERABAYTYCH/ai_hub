@@ -19,17 +19,17 @@ export default defineConfig({
       filename: 'remoteEntry.js',
       exposes,
       shared: {
-        react: { 
-          singleton: true, 
+        react: {
+          singleton: true,
         },
-        'react-dom': { 
-          singleton: true, 
+        'react-dom': {
+          singleton: true,
         },
-        'react-router-dom': { 
-          singleton: true, 
+        'react-router-dom': {
+          singleton: true,
         },
       },
-      dts: false,
+      dts: true,
     }),
   ],
   resolve: {

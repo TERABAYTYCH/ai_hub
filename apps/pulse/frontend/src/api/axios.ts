@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { removeAccessToken } from '@app/ui-kit';
+import { removeAccessToken } from '@ject-hub/ui-kit';
 
 /**
  * Initializes axios interceptors for global 401 handling.

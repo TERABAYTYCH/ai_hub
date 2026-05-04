@@ -1,16 +1,16 @@
 {
-  "name": "@app/plugins",
-  "version": "0.1.0",
-  "private": true,
-  "main": "./dist/index.js",
-  "types": "./dist/index.d.ts",
-  "scripts": {
-    "build": "tsc"
-  },
-  "dependencies": {
-    "vite": "^5.0.0"
-  },
-  "devDependencies": {
-    "typescript": "^6.0.2"
-  }
+	"name": "@ject-hub/plugins",
+	"version": "0.1.0",
+	"private": true,
+	"main": "./dist/index.js",
+	"types": "./dist/index.d.ts",
+	"scripts": {
+		"build": "tsc"
+	},
+	"dependencies": {
+		"vite": "^5.0.0"
+	},
+	"devDependencies": {
+		"typescript": "^6.0.2"
+	}
 }

@@ -1,4 +1,4 @@
-import { getAccessToken, removeAccessToken } from '@app/ui-kit';
+import { getAccessToken, removeAccessToken } from '@ject-hub/ui-kit';
 
 function decodeTokenPayload(token: string): Record<string, unknown> | null {
   try {

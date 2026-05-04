@@ -1,4 +1,4 @@
-import { getAccessToken, removeAccessToken } from '@app/ui-kit';
+import { getAccessToken, removeAccessToken } from '@ject-hub/ui-kit';
 
 const API_URL = String(import.meta.env.VITE_API_URL) || '/api';
 

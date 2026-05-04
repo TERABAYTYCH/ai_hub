@@ -5,7 +5,7 @@ import {
   CreateDateColumn,
   UpdateDateColumn,
 } from 'typeorm';
-import { IDevice, DeviceStatus } from '@app/contracts/hub/devices';
+import { IDevice, DeviceStatus } from '@ject-hub/contracts/hub/devices';
 
 /**
  * Сущность устройства (мастер-база)

@@ -1,6 +1,6 @@
 import React from 'react';
 import { Table } from 'react-bootstrap';
-import { IDevice } from '@app/contracts/hub/devices';
+import { IDevice } from '@ject-hub/contracts/hub/devices';
 import { DeviceRow } from './DeviceRow';
 
 interface DeviceTableProps {

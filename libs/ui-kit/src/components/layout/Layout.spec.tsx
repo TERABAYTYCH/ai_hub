@@ -1,6 +1,6 @@
 import { render, screen } from '@testing-library/react';
 import { Layout } from './Layout';
-import * as uiKitExports from '@app/ui-kit';
+import * as uiKitExports from '@ject-hub/ui-kit';
 
 const uiKit = uiKitExports as jest.Mocked<typeof uiKitExports>;
 
@@ -10,12 +10,14 @@ jest.mock('@app/ui-kit', () => ({
     logout: jest.fn(),
   })),
   useMicroserviceManifests: jest.fn(),
-  AppLayout: jest.fn(({ children, ...props }: { children: React.ReactNode; [key: string]: unknown }) => (
-    <div data-testid="app-layout">
-      <div data-testid="menu-items">{JSON.stringify(props.menuItems)}</div>
-      {children}
-    </div>
-  )),
+  AppLayout: jest.fn(
+    ({ children, ...props }: { children: React.ReactNode; [key: string]: unknown }) => (
+      <div data-testid="app-layout">
+        <div data-testid="menu-items">{JSON.stringify(props.menuItems)}</div>
+        {children}
+      </div>
+    ),
+  ),
   MenuItem: jest.fn(),
 }));
 
@@ -74,7 +76,7 @@ describe('Layout', () => {
       render(
         <Layout>
           <div>Content</div>
-        </Layout>
+        </Layout>,
       );
 
       const menuItemsJson = screen.getByTestId('menu-items').textContent || '';
@@ -99,7 +101,7 @@ describe('Layout', () => {
       render(
         <Layout>
           <div>Content</div>
-        </Layout>
+        </Layout>,
       );
 
       const menuItemsJson = screen.getByTestId('menu-items').textContent || '';
@@ -122,7 +124,7 @@ describe('Layout', () => {
       render(
         <Layout>
           <div>Content</div>
-        </Layout>
+        </Layout>,
       );
 
       const menuItemsJson = screen.getByTestId('menu-items').textContent || '';
@@ -143,7 +145,7 @@ describe('Layout', () => {
       render(
         <Layout microservicesAccess={microservicesAccess}>
           <div>Content</div>
-        </Layout>
+        </Layout>,
       );
 
       const menuItemsJson = screen.getByTestId('menu-items').textContent || '';
@@ -159,7 +161,7 @@ describe('Layout', () => {
       render(
         <Layout microservicesAccess={microservicesAccess}>
           <div>Content</div>
-        </Layout>
+        </Layout>,
       );
 
       const menuItemsJson = screen.getByTestId('menu-items').textContent || '';
@@ -175,7 +177,7 @@ describe('Layout', () => {
       render(
         <Layout microservicesAccess={microservicesAccess}>
           <div>Content</div>
-        </Layout>
+        </Layout>,
       );
 
       const menuItemsJson = screen.getByTestId('menu-items').textContent || '';
@@ -191,7 +193,7 @@ describe('Layout', () => {
       render(
         <Layout microservicesAccess={microservicesAccess}>
           <div>Content</div>
-        </Layout>
+        </Layout>,
       );
 
       const menuItemsJson = screen.getByTestId('menu-items').textContent || '';
@@ -207,7 +209,7 @@ describe('Layout', () => {
       render(
         <Layout microservicesAccess={microservicesAccess}>
           <div>Content</div>
-        </Layout>
+        </Layout>,
       );
 
       const menuItemsJson = screen.getByTestId('menu-items').textContent || '';
@@ -223,7 +225,7 @@ describe('Layout', () => {
       render(
         <Layout microservicesAccess={microservicesAccess}>
           <div>Content</div>
-        </Layout>
+        </Layout>,
       );
 
       const menuItemsJson = screen.getByTestId('menu-items').textContent || '';
@@ -237,7 +239,7 @@ describe('Layout', () => {
       render(
         <Layout>
           <div>Content</div>
-        </Layout>
+        </Layout>,
       );
 
       const menuItemsJson = screen.getByTestId('menu-items').textContent || '';
@@ -259,7 +261,7 @@ describe('Layout', () => {
       render(
         <Layout microservicesAccess={microservicesAccess}>
           <div>Content</div>
-        </Layout>
+        </Layout>,
       );
 
       const menuItemsJson = screen.getByTestId('menu-items').textContent || '';
@@ -281,7 +283,7 @@ describe('Layout', () => {
       render(
         <Layout microservicesAccess={microservicesAccess}>
           <div>Content</div>
-        </Layout>
+        </Layout>,
       );
 
       const menuItemsJson = screen.getByTestId('menu-items').textContent || '';
@@ -303,7 +305,7 @@ describe('Layout', () => {
       render(
         <Layout excludeServices={['pulse']}>
           <div>Content</div>
-        </Layout>
+        </Layout>,
       );
 
       const menuItemsJson = screen.getByTestId('menu-items').textContent || '';
@@ -324,7 +326,7 @@ describe('Layout', () => {
       render(
         <Layout excludeServices={['hub', 'pulse']}>
           <div>Content</div>
-        </Layout>
+        </Layout>,
       );
 
       const menuItemsJson = screen.getByTestId('menu-items').textContent || '';
@@ -337,8 +339,20 @@ describe('Layout', () => {
     it('should show all services when excludeServices is empty', () => {
       (uiKit.useMicroserviceManifests as jest.Mock).mockReturnValue({
         manifests: [
-          { serviceId: 'hub', name: 'Hub', baseUrl: 'http://hub.lvh.me', navigation: [], failed: false },
-          { serviceId: 'pulse', name: 'Pulse', baseUrl: 'http://pulse.lvh.me', navigation: [], failed: false },
+          {
+            serviceId: 'hub',
+            name: 'Hub',
+            baseUrl: 'http://hub.lvh.me',
+            navigation: [],
+            failed: false,
+          },
+          {
+            serviceId: 'pulse',
+            name: 'Pulse',
+            baseUrl: 'http://pulse.lvh.me',
+            navigation: [],
+            failed: false,
+          },
         ],
         loading: false,
         error: null,
@@ -347,7 +361,7 @@ describe('Layout', () => {
       render(
         <Layout excludeServices={[]}>
           <div>Content</div>
-        </Layout>
+        </Layout>,
       );
 
       const menuItemsJson = screen.getByTestId('menu-items').textContent || '';
@@ -361,8 +375,20 @@ describe('Layout', () => {
     it('should add hubSettingsItem at the end of menu items and auto-exclude hub', () => {
       (uiKit.useMicroserviceManifests as jest.Mock).mockReturnValue({
         manifests: [
-          { serviceId: 'hub', name: 'Hub', baseUrl: 'http://hub.lvh.me', navigation: [], failed: false },
-          { serviceId: 'pulse', name: 'Pulse', baseUrl: 'http://pulse.lvh.me', navigation: [], failed: false },
+          {
+            serviceId: 'hub',
+            name: 'Hub',
+            baseUrl: 'http://hub.lvh.me',
+            navigation: [],
+            failed: false,
+          },
+          {
+            serviceId: 'pulse',
+            name: 'Pulse',
+            baseUrl: 'http://pulse.lvh.me',
+            navigation: [],
+            failed: false,
+          },
         ],
         loading: false,
         error: null,
@@ -378,7 +404,7 @@ describe('Layout', () => {
       render(
         <Layout hubSettingsItem={hubSettingsItem}>
           <div>Content</div>
-        </Layout>
+        </Layout>,
       );
 
       const menuItemsJson = screen.getByTestId('menu-items').textContent || '';
@@ -396,8 +422,20 @@ describe('Layout', () => {
     it('should not add hubSettingsItem when not provided', () => {
       (uiKit.useMicroserviceManifests as jest.Mock).mockReturnValue({
         manifests: [
-          { serviceId: 'hub', name: 'Hub', baseUrl: 'http://hub.lvh.me', navigation: [], failed: false },
-          { serviceId: 'pulse', name: 'Pulse', baseUrl: 'http://pulse.lvh.me', navigation: [], failed: false },
+          {
+            serviceId: 'hub',
+            name: 'Hub',
+            baseUrl: 'http://hub.lvh.me',
+            navigation: [],
+            failed: false,
+          },
+          {
+            serviceId: 'pulse',
+            name: 'Pulse',
+            baseUrl: 'http://pulse.lvh.me',
+            navigation: [],
+            failed: false,
+          },
         ],
         loading: false,
         error: null,
@@ -406,7 +444,7 @@ describe('Layout', () => {
       render(
         <Layout>
           <div>Content</div>
-        </Layout>
+        </Layout>,
       );
 
       const menuItemsJson = screen.getByTestId('menu-items').textContent || '';
@@ -419,19 +457,32 @@ describe('Layout', () => {
     it('should place hubSettingsItem after staticMenuItems and serviceMenuItems', () => {
       (uiKit.useMicroserviceManifests as jest.Mock).mockReturnValue({
         manifests: [
-          { serviceId: 'pulse', name: 'Pulse', baseUrl: 'http://pulse.lvh.me', navigation: [], failed: false },
+          {
+            serviceId: 'pulse',
+            name: 'Pulse',
+            baseUrl: 'http://pulse.lvh.me',
+            navigation: [],
+            failed: false,
+          },
         ],
         loading: false,
         error: null,
       });
 
-      const staticMenuItems = [{ id: 'static', label: 'Static', icon: 'bi bi-star', path: '/static' }];
-      const hubSettingsItem = { id: 'hub-settings', label: 'Hub Settings', icon: 'bi bi-gear', path: '/hub/settings' };
+      const staticMenuItems = [
+        { id: 'static', label: 'Static', icon: 'bi bi-star', path: '/static' },
+      ];
+      const hubSettingsItem = {
+        id: 'hub-settings',
+        label: 'Hub Settings',
+        icon: 'bi bi-gear',
+        path: '/hub/settings',
+      };
 
       render(
         <Layout staticMenuItems={staticMenuItems} hubSettingsItem={hubSettingsItem}>
           <div>Content</div>
-        </Layout>
+        </Layout>,
       );
 
       const menuItemsJson = screen.getByTestId('menu-items').textContent || '';
@@ -446,20 +497,50 @@ describe('Layout', () => {
     it('should auto-exclude hub from manifests when hubSettingsItem is provided', () => {
       (uiKit.useMicroserviceManifests as jest.Mock).mockReturnValue({
         manifests: [
-          { serviceId: 'hub', name: 'Hub', baseUrl: 'http://hub.lvh.me', navigation: [{ module: './Settings', path: '/hub/settings', label: 'Settings', icon: 'bi bi-gear' }], failed: false },
-          { serviceId: 'pulse', name: 'Pulse', baseUrl: 'http://pulse.lvh.me', navigation: [], failed: false },
-          { serviceId: 'service', name: 'Service', baseUrl: 'http://service.lvh.me', navigation: [], failed: false },
+          {
+            serviceId: 'hub',
+            name: 'Hub',
+            baseUrl: 'http://hub.lvh.me',
+            navigation: [
+              {
+                module: './Settings',
+                path: '/hub/settings',
+                label: 'Settings',
+                icon: 'bi bi-gear',
+              },
+            ],
+            failed: false,
+          },
+          {
+            serviceId: 'pulse',
+            name: 'Pulse',
+            baseUrl: 'http://pulse.lvh.me',
+            navigation: [],
+            failed: false,
+          },
+          {
+            serviceId: 'service',
+            name: 'Service',
+            baseUrl: 'http://service.lvh.me',
+            navigation: [],
+            failed: false,
+          },
         ],
         loading: false,
         error: null,
       });
 
-      const hubSettingsItem = { id: 'hub-settings', label: 'Hub Settings', icon: 'bi bi-gear', path: '/hub/settings' };
+      const hubSettingsItem = {
+        id: 'hub-settings',
+        label: 'Hub Settings',
+        icon: 'bi bi-gear',
+        path: '/hub/settings',
+      };
 
       render(
         <Layout hubSettingsItem={hubSettingsItem}>
           <div>Content</div>
-        </Layout>
+        </Layout>,
       );
 
       const menuItemsJson = screen.getByTestId('menu-items').textContent || '';

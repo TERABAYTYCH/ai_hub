@@ -5,8 +5,8 @@ import {
   CreateDeviceRequestDto,
   UpdateDeviceRequestDto,
   DeviceStatus,
-} from '@app/contracts/hub/devices';
-import { DeviceTable, EmptyState, LoadingState } from '@app/ui-kit';
+} from '@ject-hub/contracts/hub/devices';
+import { DeviceTable, EmptyState, LoadingState } from '@ject-hub/ui-kit';
 import { getDevices, createDevice, updateDevice, deleteDevice } from '../api/devices.api';
 
 type DeviceFormData = CreateDeviceRequestDto & Partial<UpdateDeviceRequestDto>;

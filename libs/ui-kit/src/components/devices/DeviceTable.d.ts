@@ -1,12 +1,12 @@
 import React from 'react';
-import { IDevice } from '@app/contracts/hub/devices';
+import { IDevice } from '@ject-hub/contracts/hub/devices';
 interface DeviceTableProps {
-    /** Список устройств */
-    devices: IDevice[];
-    /** Callback для редактирования */
-    onEdit: (device: IDevice) => void;
-    /** Callback для удаления */
-    onDelete: (id: string) => void;
+  /** Список устройств */
+  devices: IDevice[];
+  /** Callback для редактирования */
+  onEdit: (device: IDevice) => void;
+  /** Callback для удаления */
+  onDelete: (id: string) => void;
 }
 /**
  * Таблица устройств

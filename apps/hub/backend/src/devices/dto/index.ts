@@ -1,3 +1,3 @@
-import { CreateDeviceRequestDto, UpdateDeviceRequestDto } from '@app/contracts/hub/devices';
+import { CreateDeviceRequestDto, UpdateDeviceRequestDto } from '@ject-hub/contracts/hub/devices';
 
 export { CreateDeviceRequestDto, UpdateDeviceRequestDto };

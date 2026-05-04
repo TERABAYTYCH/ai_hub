@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { AuthPage, LoginForm, useAuth } from '@app/ui-kit';
+import { AuthPage, LoginForm, useAuth } from '@ject-hub/ui-kit';
 import { login } from '../api/auth';
 
 /**

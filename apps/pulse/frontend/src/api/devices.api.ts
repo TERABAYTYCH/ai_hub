@@ -1,4 +1,4 @@
-import { IDevice, UpdateDeviceRequestDto } from '@app/contracts/hub/devices';
+import { IDevice, UpdateDeviceRequestDto } from '@ject-hub/contracts/hub/devices';
 import { authFetch } from '../utils/auth';
 
 const API_URL = String(import.meta.env.VITE_API_URL) || '/api';

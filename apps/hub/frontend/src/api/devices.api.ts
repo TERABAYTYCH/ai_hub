@@ -2,7 +2,7 @@ import {
   IDevice,
   CreateDeviceRequestDto,
   UpdateDeviceRequestDto,
-} from '@app/contracts/hub/devices';
+} from '@ject-hub/contracts/hub/devices';
 import { authFetch } from '../utils/auth';
 
 const API_BASE_URL = (import.meta.env.VITE_API_URL as string) || '/api';
