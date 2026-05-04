@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Form, Spinner } from 'react-bootstrap';
 import { useAuth } from '@ject-hub/ui-kit';
-import { LoginResponseDto } from '@app/contracts/hub/auth';
+import { LoginResponseDto } from '@ject-hub/contracts/hub/auth';
 
 const API_BASE_URL = (import.meta.env.VITE_API_URL as string) || '/api';
 

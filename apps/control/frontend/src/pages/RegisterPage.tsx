@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { AuthPage, RegisterForm, RegisterData, useAuth } from '@ject-hub/ui-kit';
 import { register } from '../api/auth';
-import type { RegisterRequestDto } from '@app/contracts/hub/auth';
+import type { RegisterRequestDto } from '@ject-hub/contracts/hub/auth';
 
 export default function RegisterPage() {
   const { login: authLogin } = useAuth();

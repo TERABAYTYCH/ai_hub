@@ -36,15 +36,20 @@ export default defineConfig({
         },
       },
       shared: {
-        react: { 
-          singleton: true, 
+        react: {
+          singleton: true,
         },
-        'react-dom': { 
-          singleton: true, 
+        'react-dom': {
+          singleton: true,
         },
-        'react-router-dom': { 
-          singleton: true, 
+        'react-router-dom': {
+          singleton: true,
         },
+      },
+      dts: true,
+      // Отключаем хардкодный WebSocket сервер на 16322
+      dev: {
+        disableDynamicRemoteTypeHints: true,
       },
     }),
   ],
@@ -58,7 +63,14 @@ export default defineConfig({
     host: '0.0.0.0',
     port: 5173,
     strictPort: false,
-    allowedHosts: ['hub.lvh.me', 'pulse.lvh.me', 'service.lvh.me', 'control.lvh.me', 'lvh.me', 'localhost'],
+    allowedHosts: [
+      'hub.lvh.me',
+      'pulse.lvh.me',
+      'service.lvh.me',
+      'control.lvh.me',
+      'lvh.me',
+      'localhost',
+    ],
     hmr: {
       port: 5173,
     },

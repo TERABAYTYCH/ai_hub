@@ -9,6 +9,8 @@ import SettingsPage from './Settings';
 import { ProtectedRoute, GuestRoute, useAuth } from '@ject-hub/ui-kit';
 import { Layout } from './components/layout/Layout';
 
+import HubSettings from 'hub/Settings';
+
 /**
  * Loading screen component
  */
@@ -85,6 +87,16 @@ function AppRoutes() {
         <ProtectedRoute>
           <Layout>
             <SettingsPage />
+          </Layout>
+        </ProtectedRoute>
+      ),
+    },
+    {
+      path: 'hub/settings',
+      element: (
+        <ProtectedRoute>
+          <Layout>
+            <HubSettings />
           </Layout>
         </ProtectedRoute>
       ),

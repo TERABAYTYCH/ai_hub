@@ -27,7 +27,27 @@ export default defineConfig({
           singleton: true,
         },
       },
-      dts: true,
+      remotes: {
+        hub: {
+          type: 'module',
+          name: 'hub',
+          entry: 'http://hub.lvh.me:5173/remoteEntry.js',
+          entryGlobalName: 'hub',
+          shareScope: 'default',
+        },
+      },
+      dts: {
+        generateTypes: true,
+        extraOptions: {
+          typeHints: {
+            port: 16325, // для второго контейнера
+          },
+        },
+      },
+      // Отключаем хардкодный WebSocket сервер на 16322
+      dev: {
+        disableDynamicRemoteTypeHints: true,
+      },
     }),
   ],
   resolve: {

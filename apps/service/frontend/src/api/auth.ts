@@ -2,7 +2,7 @@ import type {
   LoginRequestDto,
   LoginResponseDto,
   RegisterRequestDto,
-} from '@app/contracts/hub/auth';
+} from '@ject-hub/contracts/hub/auth';
 
 const API_URL = String(import.meta.env.VITE_API_URL) || '/api';
 
