@@ -5,7 +5,7 @@ import {
   CreateDateColumn,
   UpdateDateColumn,
 } from 'typeorm';
-import { IUser } from '@app/contracts/hub/auth';
+import { IUser } from '@ject-hub/contracts/hub/auth';
 
 @Entity()
 export class User implements IUser {

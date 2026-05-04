@@ -1,5 +1,5 @@
 import { IsString, MinLength, IsNotEmpty, IsEmail, IsOptional } from 'class-validator';
-import { RegisterRequestDto } from '@app/contracts/hub/auth';
+import { RegisterRequestDto } from '@ject-hub/contracts/hub/auth';
 
 export class RegisterDto implements RegisterRequestDto {
   @IsString()

@@ -1,5 +1,5 @@
 import { IsString, IsNotEmpty } from 'class-validator';
-import { LoginRequestDto } from '@app/contracts/hub/auth';
+import { LoginRequestDto } from '@ject-hub/contracts/hub/auth';
 
 export class LoginDto implements LoginRequestDto {
   @IsString()

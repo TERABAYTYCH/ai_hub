@@ -15,7 +15,7 @@ import { AuthService } from './auth.service';
 import { LoginDto } from './dto/login.dto';
 import { RegisterDto } from './dto/register.dto';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
-import { UserJwtPayload } from '@app/contracts/hub/auth';
+import { UserJwtPayload } from '@ject-hub/contracts/hub/auth';
 
 /**
  * Computes the root domain for cookie Domain attribute.

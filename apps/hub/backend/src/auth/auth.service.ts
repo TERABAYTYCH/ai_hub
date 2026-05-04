@@ -3,7 +3,7 @@ import { JwtService } from '@nestjs/jwt';
 import { UsersService } from './users.service';
 import { LoginDto } from './dto/login.dto';
 import { RegisterDto } from './dto/register.dto';
-import { LoginResponseDto, UserJwtPayload, IUser } from '@app/contracts/hub/auth';
+import { LoginResponseDto, UserJwtPayload, IUser } from '@ject-hub/contracts/hub/auth';
 import { User } from './entities/user.entity';
 import { MICROSERVICES_ACCESS } from '../microservices/microservices.controller';
 
